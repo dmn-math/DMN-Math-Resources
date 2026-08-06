@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graduating Cohort — Math Resources</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f5f6f0;
+    --ink: #1b2a4a;
+    --ink-soft: #4a5570;
+    --grid: #c9d6d3;
+    --paper-edge: #dfe3d8;
+    --pen-red: #c0392b;
+    --highlighter: #e8b93f;
+    --g2: #2f6f5e;
+    --g2-soft: #e2ede9;
+    --g3: #5b4b8a;
+    --g3-soft: #e9e5f2;
+    --amath: #b8860b;
+    --amath-soft: #fbeecb;
+    --white: #fffefb;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+
+  .wrap{ max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 22px 0;
+    border-bottom: 1px solid var(--grid);
+    background: rgba(245,246,240,0.9);
+    backdrop-filter: blur(4px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-inner{ display:flex; align-items:center; justify-content: space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    transform: rotate(-3deg);
+  }
+  .brand-name{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .brand-name span{ color: var(--ink-soft); font-weight: 400; }
+
+  nav{ display:flex; gap: 28px; font-size: 14px; font-weight: 500; }
+  nav a{ color: var(--ink-soft); position: relative; padding: 4px 0; }
+  nav a:hover{ color: var(--ink); }
+  nav a.current{ color: var(--ink); }
+  nav a.current::after{
+    content:""; position:absolute; left:0; right:0; bottom:-3px; height:2px; background: var(--pen-red);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding: 72px 0 40px; position: relative; }
+  .hero-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .hero-label::before{
+    content:""; width: 22px; height: 1px; background: var(--ink-soft);
+  }
+
+  .hero-title{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1.16;
+    letter-spacing: -0.015em;
+  }
+  .hero-title .line{ display:block; }
+  .hero-title em{
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .hero-title .plus{
+    display:block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.42em;
+    font-weight: 600;
+    color: var(--pen-red);
+    margin: 2px 0 2px 2px;
+    opacity: 0.85;
+  }
+
+  .hero-sub{
+    margin-top: 22px;
+    max-width: 46ch;
+    font-size: 16.5px;
+    color: var(--ink-soft);
+  }
+
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+    align-items:center;
+  }
+
+  .graph-card{
+    background: var(--white);
+    border: 1px solid var(--paper-edge);
+    border-radius: 8px;
+    box-shadow: 0 20px 44px -28px rgba(27,42,74,0.35);
+    padding: 18px 18px 10px;
+  }
+  .strategy{ padding: 8px 4px 4px; }
+  .strategy-step{
+    display:flex; align-items:flex-start; gap: 16px;
+    padding: 6px 2px;
+  }
+  .strategy-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding-top: 3px;
+    min-width: 58px;
+  }
+  .strategy-body h4{
+    font-family:'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .strategy-body p{
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: 32ch;
+  }
+  .strategy-arrow{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--pen-red);
+    font-size: 16px;
+    padding-left: 66px;
+    opacity: 0.8;
+    line-height: 1;
+    margin: 2px 0;
+  }
+
+  /* ---------- Streams ---------- */
+  .section{ padding: 56px 0; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom: 26px; gap: 20px; flex-wrap: wrap; }
+  .section-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .streams{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .stream-card{
+    background: var(--white);
+    border: 1px solid var(--paper-edge);
+    border-radius: 10px;
+    padding: 30px 28px 26px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .stream-card:hover{ transform: translateY(-3px); box-shadow: 0 18px 34px -24px rgba(27,42,74,0.4); }
+  .stream-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height: 5px;
+  }
+  .stream-card.g2::before{ background: var(--g2); }
+  .stream-card.g3::before{ background: var(--g3); }
+  .stream-card.amath::before{ background: var(--amath); }
+
+  .stream-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display:inline-block;
+    margin-bottom: 18px;
+  }
+  .stream-card.g2 .stream-tag{ background: var(--g2-soft); color: var(--g2); }
+  .stream-card.g3 .stream-tag{ background: var(--g3-soft); color: var(--g3); }
+  .stream-card.amath .stream-tag{ background: var(--amath-soft); color: var(--amath); }
+
+  .stream-card h3{
+    font-family:'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .stream-card p{ color: var(--ink-soft); font-size: 14.5px; margin-bottom: 20px; }
+
+  .stream-stats{
+    display:flex; gap: 22px; margin-bottom: 22px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .stream-stats div{ font-size: 12px; color: var(--ink-soft); }
+  .stream-stats strong{ display:block; font-size: 20px; color: var(--ink); font-family:'Fraunces', serif; font-weight: 600; }
+
+  .stream-cta{
+    display:inline-flex; align-items:center; gap: 8px;
+    font-size: 14px; font-weight: 600;
+    border-bottom: 1.5px solid currentColor;
+    padding-bottom: 2px;
+  }
+  .stream-card.g2 .stream-cta{ color: var(--g2); }
+  .stream-card.g3 .stream-cta{ color: var(--g3); }
+  .stream-card.amath .stream-cta{ color: var(--amath); }
+
+  /* ---------- Topics ---------- */
+  .topic-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .topic-card{
+    background: var(--white);
+    border: 1px solid var(--paper-edge);
+    border-radius: 8px;
+    padding: 18px 16px;
+  }
+  .topic-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .topic-card h4{ font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .topic-meta{ font-size: 12.5px; color: var(--ink-soft); }
+  .topic-meta b{ color: var(--highlighter-text, var(--ink)); }
+  .topic-pill{
+    display:inline-block; margin-top: 10px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.03em;
+    padding: 2px 8px; border-radius: 20px;
+    background: #fbeecb; color: #8a6a12;
+  }
+
+  /* ---------- Past papers ---------- */
+  .papers-table{
+    background: var(--white);
+    border: 1px solid var(--paper-edge);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .papers-row{
+    display:grid;
+    grid-template-columns: 90px 1fr 110px 110px 100px;
+    align-items:center;
+    padding: 15px 22px;
+    border-bottom: 1px solid var(--paper-edge);
+    font-size: 14px;
+  }
+  .papers-row:last-child{ border-bottom:none; }
+  .papers-row.head{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    background: #fbfbf8;
+  }
+  .papers-row .year{ font-family:'JetBrains Mono', monospace; font-weight: 600; }
+  .stream-chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+    display:inline-block; width: fit-content;
+  }
+  .stream-chip.g2{ background: var(--g2-soft); color: var(--g2); }
+  .stream-chip.g3{ background: var(--g3-soft); color: var(--g3); }
+  .dl-link{ font-size: 13px; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--pen-red); padding-bottom: 1px; width: fit-content; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top: 1px solid var(--grid);
+    padding: 34px 0 40px;
+    margin-top: 30px;
+  }
+  .footer-inner{
+    display:flex; justify-content: space-between; align-items:center;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .footer-inner span{ font-family:'JetBrains Mono', monospace; }
+
+  @media (max-width: 860px){
+    .hero-grid{ grid-template-columns: 1fr; }
+    .streams{ grid-template-columns: 1fr; }
+    .topic-grid{ grid-template-columns: repeat(2, 1fr); }
+    .papers-row{ grid-template-columns: 70px 1fr 90px; }
+    .papers-row .col-hide{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <div class="brand">
+      <div class="brand-mark">∑</div>
+      <div class="brand-name">Cohort Math <span>· Resources</span></div>
+    </div>
+    <nav>
+      <a href="index.html" class="current">Home</a>
+      <a href="g2.html">G2</a>
+      <a href="g3.html">G3</a>
+      <a href="amath.html">A Math</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-label">Graduating Cohort · Math Resources</div>
+      <h1 class="hero-title">
+        <span class="line">Resilient Problem Solvers</span>
+        <span class="plus">+</span>
+        <span class="line">Self-Directed Learners</span>
+        <span class="plus">+</span>
+        <span class="line">Critical Thinkers</span>
+      </h1>
+      <p class="hero-sub">Topical revision exercises, problem sets, and past year papers for G2 and G3 students — uploaded and curated to help you practise with purpose before the exams.</p>
+    </div>
+    <div class="graph-card">
+      <div class="strategy">
+        <div class="strategy-step">
+          <div class="strategy-num">STEP 01</div>
+          <div class="strategy-body">
+            <h4>Topical Revision Exercises</h4>
+            <p>Build and check understanding topic by topic before moving on.</p>
+          </div>
+        </div>
+        <div class="strategy-arrow">↓</div>
+        <div class="strategy-step">
+          <div class="strategy-num">STEP 02</div>
+          <div class="strategy-body">
+            <h4>Past Year National Paper</h4>
+            <p>Apply that understanding under real exam-style conditions.</p>
+          </div>
+        </div>
+        <div class="strategy-arrow">↓</div>
+        <div class="strategy-step">
+          <div class="strategy-num">STEP 03</div>
+          <div class="strategy-body">
+            <h4>Past Prelim Papers</h4>
+            <p>Further enhance your readiness with school-level prelim papers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="streams">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Choose your stream</div>
+        <div class="section-title">Get started</div>
+      </div>
+    </div>
+    <div class="streams">
+      <div class="stream-card g2" id="g2">
+        <span class="stream-tag">STREAM · G2</span>
+        <h3>G2 Mathematics</h3>
+        <a href="g2.html" class="stream-cta">Browse G2 resources →</a>
+      </div>
+      <div class="stream-card g3" id="g3">
+        <span class="stream-tag">STREAM · G3</span>
+        <h3>G3 Mathematics</h3>
+        <a href="g3.html" class="stream-cta">Browse G3 resources →</a>
+      </div>
+      <div class="stream-card amath" id="amath">
+        <span class="stream-tag">SUBJECT · A MATH</span>
+        <h3>Additional Mathematics</h3>
+        <a href="amath.html" class="stream-cta">Browse A Math resources →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>Cohort Math Resources — built for the graduating class.</div>
+    <span>updated weekly</span>
+  </div>
+</footer>
+
+</body>
+</html>
