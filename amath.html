@@ -187,8 +187,8 @@
   /* ---------- Papers tables (Step 2 & 3) ---------- */
   .papers-table{ background: var(--white); border: 1px solid var(--paper-edge); border-radius: 10px; overflow: hidden; }
   .papers-row{
-    display:grid; grid-template-columns: 90px 1fr 110px 100px;
-    align-items:center; padding: 15px 22px; border-bottom: 1px solid var(--paper-edge); font-size: 14px;
+    display:grid; grid-template-columns: 80px 1fr 90px 130px 110px;
+    align-items:center; padding: 15px 22px; border-bottom: 1px solid var(--paper-edge); font-size: 14px; gap: 8px;
   }
   .papers-row:last-child{ border-bottom:none; }
   .papers-row.head{
@@ -207,7 +207,7 @@
 
   @media (max-width: 860px){
     .topic-grid{ grid-template-columns: repeat(2, 1fr); }
-    .papers-row{ grid-template-columns: 70px 1fr 90px; }
+    .papers-row{ grid-template-columns: 60px 1fr 90px 90px; }
     .papers-row .col-hide{ display:none; }
   }
 </style>
@@ -426,19 +426,23 @@
     </div>
     <div class="papers-table">
       <div class="papers-row head">
-        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Download</span>
+        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Question Paper</span><span>Solution</span>
       </div>
       <div class="papers-row">
-        <span class="year">2025</span><span>National Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2025-paper-1.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2025</span><span>National Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2025-paper-1-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/national-papers/2025-paper-1-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2025</span><span>National Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2025-paper-2.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2025</span><span>National Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2025-paper-2-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/national-papers/2025-paper-2-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2024</span><span>National Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2024-paper-1.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2024</span><span>National Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2024-paper-1-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/national-papers/2024-paper-1-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2024</span><span>National Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2024-paper-2.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2024</span><span>National Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/national-papers/2024-paper-2-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/national-papers/2024-paper-2-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
     </div>
   </div>
@@ -454,19 +458,23 @@
     </div>
     <div class="papers-table">
       <div class="papers-row head">
-        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Download</span>
+        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Question Paper</span><span>Solution</span>
       </div>
       <div class="papers-row">
-        <span class="year">2025</span><span>Prelim Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2025-paper-1.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2025</span><span>Prelim Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2025-paper-1-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/prelim-papers/2025-paper-1-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2025</span><span>Prelim Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2025-paper-2.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2025</span><span>Prelim Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2025-paper-2-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/prelim-papers/2025-paper-2-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2024</span><span>Prelim Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2024-paper-1.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2024</span><span>Prelim Paper 1</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2024-paper-1-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/prelim-papers/2024-paper-1-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
       <div class="papers-row">
-        <span class="year">2024</span><span>Prelim Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2024-paper-2.pdf" class="dl-link" target="_blank" rel="noopener">Download</a>
+        <span class="year">2024</span><span>Prelim Paper 2 — with mark scheme</span><span class="col-hide format-tag">PDF</span><a href="resources/amath/prelim-papers/2024-paper-2-qp.pdf" class="dl-link" target="_blank" rel="noopener">Question Paper</a>
+        <a href="resources/amath/prelim-papers/2024-paper-2-solution.pdf" class="dl-link" target="_blank" rel="noopener">Solution</a>
       </div>
     </div>
   </div>
