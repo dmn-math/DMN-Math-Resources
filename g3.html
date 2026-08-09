@@ -183,6 +183,118 @@
   }
   .download-btn:hover{ opacity: .85; }
 
+  /* ---------- Difficult Topics (G3 special section) — dark theme ---------- */
+  .difficult-section{
+    --dt-bg: #f6f4fa;
+    --dt-panel: var(--white);
+    --dt-panel-alt: var(--g3-soft);
+    --dt-border: #ded7ea;
+    --dt-text: var(--ink);
+    --dt-text-soft: var(--ink-soft);
+    --dt-red: var(--g3);
+    margin-top: 42px;
+    padding: 32px 30px 30px;
+    background:
+      repeating-linear-gradient(135deg, var(--dt-bg), var(--dt-bg) 12px, var(--dt-panel-alt) 12px, var(--dt-panel-alt) 24px);
+    border: 1.5px dashed var(--dt-red);
+    border-radius: 12px;
+    position: relative;
+  }
+  .difficult-header{ margin-bottom: 22px; }
+  .difficult-stamp{
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--dt-red);
+    border: 1.5px solid var(--dt-red);
+    border-radius: 4px;
+    padding: 4px 10px;
+    transform: rotate(-2deg);
+    margin-bottom: 14px;
+  }
+  .difficult-title{
+    font-family:'Fraunces', serif;
+    font-size: 26px; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--dt-text);
+  }
+  .difficult-title em{ font-style: italic; font-weight: 500; color: var(--dt-red); }
+  .difficult-underline{ display:block; width: 220px; height: 10px; margin: 4px 0 10px; }
+  .difficult-sub{ font-size: 14px; color: var(--dt-text-soft); max-width: 52ch; }
+
+  .difficult-grid{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .difficult-card{
+    background: var(--dt-panel);
+    border: 1px solid var(--dt-border);
+    border-radius: 8px;
+    position: relative;
+    transform: rotate(-0.6deg);
+    box-shadow: 0 8px 16px -12px rgba(91,75,138,0.22);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .difficult-card:nth-child(even){ transform: rotate(0.6deg); }
+  .difficult-card:hover{ box-shadow: 0 14px 22px -14px rgba(91,75,138,0.35); border-color: var(--dt-red); }
+  .difficult-card[open]{ transform: rotate(0deg); box-shadow: 0 14px 22px -14px rgba(91,75,138,0.35); border-color: var(--dt-red); }
+  .difficult-card::before{
+    content:""; position:absolute; top:-6px; left:16px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--dt-red);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    z-index: 1;
+  }
+  .difficult-summary{
+    padding: 18px 14px 16px;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+  }
+  .difficult-summary::-webkit-details-marker{ display:none; }
+  .difficult-summary::marker{ content: ""; }
+  .difficult-num{
+    font-family:'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    color: var(--dt-red);
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1.5px solid var(--dt-red);
+    margin-bottom: 10px;
+  }
+  .difficult-card h4{ font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 0; padding-right: 18px; color: var(--dt-text); }
+  .difficult-chevron{
+    position: absolute; top: 18px; right: 12px;
+    font-size: 12px; color: var(--dt-red);
+    transition: transform .15s ease;
+  }
+  .difficult-card[open] .difficult-chevron{ transform: rotate(180deg); }
+  .difficult-downloads{
+    display:flex; flex-direction: column; gap: 7px;
+    padding: 0 14px 16px;
+  }
+  .difficult-download-btn{
+    display:flex; align-items:center; gap: 6px;
+    font-family:'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600;
+    color: var(--white); background: var(--dt-red);
+    padding: 8px 10px; border-radius: 6px;
+    transition: opacity .15s ease;
+    line-height: 1.3;
+  }
+  .difficult-download-btn:hover{ opacity: .85; }
+
+  /* ---------- Video badge + button (inside Difficult Topics cards) ---------- */
+  .video-badge{
+    display:inline-flex; align-items:center; gap: 4px;
+    font-family:'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    color: var(--g3); background: var(--g3-soft);
+    padding: 3px 8px; border-radius: 20px;
+    margin-top: 8px;
+  }
+  .video-btn{
+    background: var(--g3) !important;
+  }
+
+
 
   /* ---------- Papers tables (Step 2 & 3) ---------- */
   .papers-table{ background: var(--white); border: 1px solid var(--paper-edge); border-radius: 10px; overflow: hidden; }
@@ -211,6 +323,7 @@
 
   @media (max-width: 860px){
     .topic-grid{ grid-template-columns: repeat(2, 1fr); }
+    .difficult-grid{ grid-template-columns: repeat(2, 1fr); }
     .papers-row{ grid-template-columns: 60px 1fr 90px 90px; }
     .papers-row .col-hide{ display:none; }
   }
@@ -263,8 +376,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/problems-in-real-world-contexts/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/problems-in-real-world-contexts/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/problems-in-real-world-contexts/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -273,8 +386,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/numbers-and-their-operations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/numbers-and-their-operations/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/numbers-and-their-operations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -283,8 +396,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/ratio-and-proportion/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/ratio-and-proportion/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/ratio-and-proportion/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -293,8 +406,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/percentage/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/percentage/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/percentage/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -303,8 +416,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/rate-and-speed/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/rate-and-speed/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/rate-and-speed/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -313,8 +426,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/algebraic-expressions-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/algebraic-expressions-and-formulae/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/algebraic-expressions-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -323,8 +436,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/functions-and-graphs/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/functions-and-graphs/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/functions-and-graphs/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -333,8 +446,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/equations-and-inequalities/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -343,8 +456,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/set-language-and-notation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/set-language-and-notation/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/set-language-and-notation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -353,8 +466,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/matrices/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/matrices/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/matrices/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -363,8 +476,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/angles-triangles-and-polygons/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/angles-triangles-and-polygons/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/angles-triangles-and-polygons/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -373,8 +486,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/congruence-and-similarity/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/congruence-and-similarity/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/congruence-and-similarity/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -383,8 +496,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/properties-of-circles/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/properties-of-circles/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/properties-of-circles/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -393,8 +506,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/pythagoras-theorem-and-trigonometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/pythagoras-theorem-and-trigonometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/pythagoras-theorem-and-trigonometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -403,8 +516,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/mensuration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/mensuration/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/mensuration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -413,8 +526,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/coordinate-geometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -423,8 +536,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/vectors-in-two-dimensions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/vectors-in-two-dimensions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/vectors-in-two-dimensions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -433,8 +546,8 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/data-handling-and-analysis/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/data-handling-and-analysis/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/data-handling-and-analysis/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
       <details class="topic-card">
@@ -443,10 +556,88 @@
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="resources/g3/probability/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
           <a href="resources/g3/probability/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="resources/g3/probability/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
+    </div>
+
+    <div class="difficult-section">
+      <div class="difficult-header">
+        <span class="difficult-stamp">⚠ Priority Watchlist</span>
+        <h3 class="difficult-title">Difficult Topics <em>for 2026 Cohort</em></h3>
+        <svg class="difficult-underline" viewBox="0 0 220 12" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8 C 40 2, 80 10, 120 5 S 180 2, 218 7" fill="none" stroke="#5b4b8a" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="difficult-sub">Topics flagged by teachers as needing extra attention this year.</p>
+      </div>
+      <div class="difficult-grid">
+        <details class="difficult-card">
+          <summary class="difficult-summary">
+            <span class="difficult-num">01</span>
+            <h4>Graphs of Functions</h4>
+            <span class="video-badge">🎥 Video Available</span>
+            <span class="difficult-chevron">▾</span>
+          </summary>
+          <div class="difficult-downloads">
+            <a href="resources/g3/difficult-topics/graphs-of-functions/mastery.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Mastery Worksheet</a>
+            <a href="resources/g3/difficult-topics/graphs-of-functions/solution.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Solution</a>
+            <a href="#" class="difficult-download-btn video-btn" target="_blank" rel="noopener">▶ Watch Video</a>
+          </div>
+        </details>
+        <details class="difficult-card">
+          <summary class="difficult-summary">
+            <span class="difficult-num">02</span>
+            <h4>Vectors</h4>
+            <span class="video-badge">🎥 Video Available</span>
+            <span class="difficult-chevron">▾</span>
+          </summary>
+          <div class="difficult-downloads">
+            <a href="resources/g3/difficult-topics/vectors/mastery.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Mastery Worksheet</a>
+            <a href="resources/g3/difficult-topics/vectors/solution.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Solution</a>
+            <a href="#" class="difficult-download-btn video-btn" target="_blank" rel="noopener">▶ Watch Video</a>
+          </div>
+        </details>
+        <details class="difficult-card">
+          <summary class="difficult-summary">
+            <span class="difficult-num">03</span>
+            <h4>Trigonometry</h4>
+            <span class="video-badge">🎥 Video Available</span>
+            <span class="difficult-chevron">▾</span>
+          </summary>
+          <div class="difficult-downloads">
+            <a href="resources/g3/difficult-topics/trigonometry/mastery.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Mastery Worksheet</a>
+            <a href="resources/g3/difficult-topics/trigonometry/solution.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Solution</a>
+            <a href="#" class="difficult-download-btn video-btn" target="_blank" rel="noopener">▶ Watch Video</a>
+          </div>
+        </details>
+        <details class="difficult-card">
+          <summary class="difficult-summary">
+            <span class="difficult-num">04</span>
+            <h4>Number Patterns and Standard Form</h4>
+            <span class="video-badge">🎥 Video Available</span>
+            <span class="difficult-chevron">▾</span>
+          </summary>
+          <div class="difficult-downloads">
+            <a href="resources/g3/difficult-topics/number-patterns-and-standard-form/mastery.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Mastery Worksheet</a>
+            <a href="resources/g3/difficult-topics/number-patterns-and-standard-form/solution.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Solution</a>
+            <a href="#" class="difficult-download-btn video-btn" target="_blank" rel="noopener">▶ Watch Video</a>
+          </div>
+        </details>
+        <details class="difficult-card">
+          <summary class="difficult-summary">
+            <span class="difficult-num">05</span>
+            <h4>Circle Properties and Radian Measure</h4>
+            <span class="video-badge">🎥 Video Available</span>
+            <span class="difficult-chevron">▾</span>
+          </summary>
+          <div class="difficult-downloads">
+            <a href="resources/g3/difficult-topics/circle-properties-and-radian-measure/mastery.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Mastery Worksheet</a>
+            <a href="resources/g3/difficult-topics/circle-properties-and-radian-measure/solution.pdf" class="difficult-download-btn" target="_blank" rel="noopener">⬇ Solution</a>
+            <a href="#" class="difficult-download-btn video-btn" target="_blank" rel="noopener">▶ Watch Video</a>
+          </div>
+        </details>
+      </div>
     </div>
   </div>
 </section>
