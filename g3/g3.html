@@ -153,16 +153,55 @@
   }
   .topic-card[open]{ box-shadow: 0 14px 28px -20px rgba(27,42,74,0.35); border-color: var(--accent); }
   .topic-summary{
-    padding: 18px 16px; cursor: pointer; list-style: none; position: relative;
+    padding: 18px 40px 18px 42px; cursor: pointer; list-style: none; position: relative;
   }
   .topic-summary::-webkit-details-marker{ display:none; }
   .topic-summary::marker{ content: ""; }
-  .topic-card h4{ font-size: 15px; font-weight: 600; margin-bottom: 0; padding-right: 20px; }
+  .topic-card h4{ font-size: 15px; font-weight: 600; margin-bottom: 0; }
   .topic-pill{
     display:inline-block; margin-top: 6px;
     font-family:'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.03em;
     padding: 2px 8px; border-radius: 20px; background: #fbeecb; color: #8a6a12;
   }
+
+  .progress-summary{
+    display:flex; align-items:center; gap: 14px;
+    margin-bottom: 20px;
+  }
+  .progress-bar-track{
+    flex: 1; height: 8px; background: var(--paper-edge); border-radius: 20px; overflow: hidden;
+  }
+  .progress-bar-fill{
+    height: 100%; width: 0%; background: var(--accent);
+    border-radius: 20px; transition: width .3s ease;
+  }
+  .progress-text{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+  .progress-check{
+    position: absolute; top: 18px; left: 14px; display:inline-flex; align-items:center; justify-content:center;
+    width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; z-index: 2;
+  }
+  .progress-check input{ position:absolute; opacity:0; width:20px; height:20px; margin:0; cursor:pointer; }
+  .progress-checkmark{
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid var(--paper-edge); background: var(--white);
+    display:flex; align-items:center; justify-content:center;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .progress-check input:checked ~ .progress-checkmark{
+    background: var(--accent); border-color: var(--accent);
+  }
+  .progress-checkmark::after{
+    content:''; width: 5px; height: 9px;
+    border: solid var(--white); border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+    opacity: 0;
+  }
+  .progress-check input:checked ~ .progress-checkmark::after{ opacity: 1; }
+  .topic-card.completed{ border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--white)); }
+  .topic-card.completed h4{ color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--accent); }
   .chevron{
     position: absolute; top: 18px; right: 14px;
     font-size: 13px; color: var(--accent);
@@ -351,10 +390,15 @@
         <p class="section-desc">Build understanding one topic at a time before moving on to full papers.</p>
       </div>
     </div>
+    <div class="progress-summary">
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <span id="progress-text" class="progress-text"></span>
+    </div>
     <div class="topic-grid">
-      <details class="topic-card">
+      <details class="topic-card" data-slug="problems-in-real-world-contexts">
         <summary class="topic-summary">
           <h4>Problems in Real-World Contexts</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -362,9 +406,10 @@
           <a href="../resources/g3/problems-in-real-world-contexts/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="numbers-and-their-operations">
         <summary class="topic-summary">
           <h4>Numbers and Their Operations</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -372,9 +417,10 @@
           <a href="../resources/g3/numbers-and-their-operations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="ratio-and-proportion">
         <summary class="topic-summary">
           <h4>Ratio and Proportion</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -382,9 +428,10 @@
           <a href="../resources/g3/ratio-and-proportion/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="percentage">
         <summary class="topic-summary">
           <h4>Percentage</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -392,9 +439,10 @@
           <a href="../resources/g3/percentage/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="rate-and-speed">
         <summary class="topic-summary">
           <h4>Rate and Speed</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -402,9 +450,10 @@
           <a href="../resources/g3/rate-and-speed/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="algebraic-expressions-and-formulae">
         <summary class="topic-summary">
           <h4>Algebraic Expressions and Formulae</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -412,9 +461,10 @@
           <a href="../resources/g3/algebraic-expressions-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="functions-and-graphs">
         <summary class="topic-summary">
           <h4>Functions and Graphs</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -422,9 +472,10 @@
           <a href="../resources/g3/functions-and-graphs/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="equations-and-inequalities">
         <summary class="topic-summary">
           <h4>Equations and Inequalities</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -432,9 +483,10 @@
           <a href="../resources/g3/equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="set-language-and-notation">
         <summary class="topic-summary">
           <h4>Set Language and Notation</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -442,9 +494,10 @@
           <a href="../resources/g3/set-language-and-notation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="matrices">
         <summary class="topic-summary">
           <h4>Matrices</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -452,9 +505,10 @@
           <a href="../resources/g3/matrices/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="angles-triangles-and-polygons">
         <summary class="topic-summary">
           <h4>Angles, Triangles and Polygons</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -462,9 +516,10 @@
           <a href="../resources/g3/angles-triangles-and-polygons/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="congruence-and-similarity">
         <summary class="topic-summary">
           <h4>Congruence and Similarity</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -472,9 +527,10 @@
           <a href="../resources/g3/congruence-and-similarity/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="properties-of-circles">
         <summary class="topic-summary">
           <h4>Properties of Circles</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -482,9 +538,10 @@
           <a href="../resources/g3/properties-of-circles/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="pythagoras-theorem-and-trigonometry">
         <summary class="topic-summary">
           <h4>Pythagoras' Theorem and Trigonometry</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -492,9 +549,10 @@
           <a href="../resources/g3/pythagoras-theorem-and-trigonometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="mensuration">
         <summary class="topic-summary">
           <h4>Mensuration</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -502,9 +560,10 @@
           <a href="../resources/g3/mensuration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="coordinate-geometry">
         <summary class="topic-summary">
           <h4>Coordinate Geometry</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -512,9 +571,10 @@
           <a href="../resources/g3/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="vectors-in-two-dimensions">
         <summary class="topic-summary">
           <h4>Vectors in Two Dimensions</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -522,9 +582,10 @@
           <a href="../resources/g3/vectors-in-two-dimensions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="data-handling-and-analysis">
         <summary class="topic-summary">
           <h4>Data Handling and Analysis</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -532,9 +593,10 @@
           <a href="../resources/g3/data-handling-and-analysis/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card">
+      <details class="topic-card" data-slug="probability">
         <summary class="topic-summary">
           <h4>Probability</h4>
+          <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
@@ -680,5 +742,48 @@
   </div>
 </footer>
 
+
+<script>
+(function(){
+  var SUBJECT = "g3";
+  function storageKey(slug){ return "progress:" + SUBJECT + ":" + slug; }
+
+  function updateSummary(){
+    var cards = document.querySelectorAll('.topic-card[data-slug]');
+    var total = cards.length;
+    var done = document.querySelectorAll('.topic-card.completed').length;
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    var fill = document.getElementById('progress-fill');
+    var text = document.getElementById('progress-text');
+    if (fill) fill.style.width = pct + '%';
+    if (text) text.textContent = done + ' of ' + total + ' topics completed';
+  }
+
+  window.toggleProgress = function(checkbox){
+    var card = checkbox.closest('.topic-card');
+    var slug = card.getAttribute('data-slug');
+    if (checkbox.checked) {
+      localStorage.setItem(storageKey(slug), 'true');
+      card.classList.add('completed');
+    } else {
+      localStorage.removeItem(storageKey(slug));
+      card.classList.remove('completed');
+    }
+    updateSummary();
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.topic-card[data-slug]').forEach(function(card){
+      var slug = card.getAttribute('data-slug');
+      var checkbox = card.querySelector('.progress-checkbox');
+      if (localStorage.getItem(storageKey(slug)) === 'true') {
+        checkbox.checked = true;
+        card.classList.add('completed');
+      }
+    });
+    updateSummary();
+  });
+})();
+</script>
 </body>
 </html>
