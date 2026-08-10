@@ -104,6 +104,36 @@
   .video-frame iframe{ position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
   .video-note{ font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
 
+
+  .quiz-box{
+    background: var(--white); border: 1px solid var(--paper-edge); border-radius: 10px;
+    padding: 22px 24px; box-shadow: 0 14px 28px -20px rgba(0,0,0,0.12);
+  }
+  .quiz-q-text{ font-size: 14.5px; font-weight: 600; margin-bottom: 14px; }
+  .quiz-options{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .quiz-opt{
+    text-align:left; font-family: 'Inter', sans-serif; font-size: 13.5px;
+    padding: 10px 14px; border-radius: 7px; border: 1px solid var(--paper-edge);
+    background: var(--bg); cursor: pointer; transition: border-color .15s ease, background .15s ease;
+  }
+  .quiz-opt:hover{ border-color: var(--accent); }
+  .quiz-opt.correct{ background: #e3f3ea; border-color: #2f6f5e; color: #1e5645; font-weight: 600; }
+  .quiz-opt.incorrect{ background: #fbeceb; border-color: var(--pen-red); color: var(--pen-red); font-weight: 600; }
+  .quiz-opt[disabled]{ cursor: default; }
+  .quiz-feedback{ font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; min-height: 16px; }
+  .quiz-next-btn{
+    margin-top: 14px; font-family:'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    color: var(--white); background: var(--accent); border: none;
+    padding: 9px 16px; border-radius: 6px; cursor: pointer;
+  }
+  .quiz-result{ text-align:center; padding: 10px 0; }
+  .quiz-score-text{ font-family:'Fraunces', serif; font-size: 20px; font-weight: 600; margin-bottom: 14px; }
+  .quiz-retry-btn{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    color: var(--white); background: var(--accent); border: none;
+    padding: 10px 18px; border-radius: 6px; cursor: pointer;
+  }
+
   footer{ border-top: 1px solid var(--grid); padding: 34px 0 40px; margin-top: 10px; }
   .footer-inner{ font-size: 13px; color: var(--ink-soft); max-width: 1040px; margin: 0 auto; padding: 0 28px; }
 
@@ -151,6 +181,50 @@
 
 <section class="section">
   <div class="wrap">
+    <div class="section-eyebrow">Quick Self-Check</div>
+    <div class="section-title">Test yourself</div>
+    <p class="section-desc">3 quick questions — try them before the worksheet to see where you stand, then again after to check what's sunk in. Replace the placeholder text below with your own questions.</p>
+    <div class="quiz-box" id="quiz-box">
+      <div class="quiz-q" data-index="0">
+        <p class="quiz-q-text">1. [Replace with your question text]</p>
+        <div class="quiz-options">
+          <button class="quiz-opt">Option A</button>
+          <button class="quiz-opt" data-correct="true">Option B</button>
+          <button class="quiz-opt">Option C</button>
+          <button class="quiz-opt">Option D</button>
+        </div>
+        <p class="quiz-feedback"></p>
+      </div>
+      <div class="quiz-q" data-index="1" hidden>
+        <p class="quiz-q-text">2. [Replace with your question text]</p>
+        <div class="quiz-options">
+          <button class="quiz-opt" data-correct="true">Option A</button>
+          <button class="quiz-opt">Option B</button>
+          <button class="quiz-opt">Option C</button>
+          <button class="quiz-opt">Option D</button>
+        </div>
+        <p class="quiz-feedback"></p>
+      </div>
+      <div class="quiz-q" data-index="2" hidden>
+        <p class="quiz-q-text">3. [Replace with your question text]</p>
+        <div class="quiz-options">
+          <button class="quiz-opt">Option A</button>
+          <button class="quiz-opt">Option B</button>
+          <button class="quiz-opt" data-correct="true">Option C</button>
+          <button class="quiz-opt">Option D</button>
+        </div>
+        <p class="quiz-feedback"></p>
+      </div>
+      <div class="quiz-result" id="quiz-result" hidden>
+        <p class="quiz-score-text">You got <span id="quiz-score">0</span> / 3 correct.</p>
+        <button class="quiz-retry-btn" onclick="resetQuiz()">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
     <div class="section-eyebrow">Videos</div>
     <div class="section-title">Concept walkthroughs</div>
     <p class="section-desc">This topic covers a few key ideas — a short video for each, so you can jump to the concept you need.</p>
@@ -185,5 +259,63 @@
   <div class="footer-inner">Cohort Math Resources — A Math Difficult Topics.</div>
 </footer>
 
+
+<script>
+(function(){
+  var score = 0;
+  var currentIndex = 0;
+  var total = document.querySelectorAll('.quiz-q').length;
+
+  document.querySelectorAll('.quiz-q').forEach(function(qBlock){
+    qBlock.querySelectorAll('.quiz-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if (btn.disabled) return;
+        var options = qBlock.querySelectorAll('.quiz-opt');
+        var correct = qBlock.querySelector('.quiz-opt[data-correct="true"]');
+        options.forEach(function(o){ o.disabled = true; });
+        if (btn.getAttribute('data-correct') === 'true') {
+          btn.classList.add('correct');
+          qBlock.querySelector('.quiz-feedback').textContent = 'Correct!';
+          score++;
+        } else {
+          btn.classList.add('incorrect');
+          if (correct) correct.classList.add('correct');
+          qBlock.querySelector('.quiz-feedback').textContent = 'Not quite — check the highlighted answer.';
+        }
+        var nextBtn = document.createElement('button');
+        nextBtn.className = 'quiz-next-btn';
+        nextBtn.textContent = (currentIndex < total - 1) ? 'Next Question' : 'See Results';
+        nextBtn.onclick = function(){
+          qBlock.hidden = true;
+          currentIndex++;
+          if (currentIndex < total) {
+            document.querySelector('.quiz-q[data-index="' + currentIndex + '"]').hidden = false;
+          } else {
+            document.getElementById('quiz-score').textContent = score;
+            document.getElementById('quiz-result').hidden = false;
+          }
+        };
+        qBlock.appendChild(nextBtn);
+      });
+    });
+  });
+
+  window.resetQuiz = function(){
+    score = 0;
+    currentIndex = 0;
+    document.querySelectorAll('.quiz-q').forEach(function(qBlock, i){
+      qBlock.hidden = (i !== 0);
+      qBlock.querySelectorAll('.quiz-opt').forEach(function(o){
+        o.disabled = false;
+        o.classList.remove('correct', 'incorrect');
+      });
+      qBlock.querySelector('.quiz-feedback').textContent = '';
+      var nextBtn = qBlock.querySelector('.quiz-next-btn');
+      if (nextBtn) nextBtn.remove();
+    });
+    document.getElementById('quiz-result').hidden = true;
+  };
+})();
+</script>
 </body>
 </html>
