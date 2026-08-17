@@ -40,19 +40,5 @@
     "label": "O Level Paper 2",
     "qp": "2023-paper-2-qp.pdf",
     "solution": "2023-paper-2-solution.pdf"
-  },
-  {
-    "year": "2022",
-    "paper": "1",
-    "label": "O Level Paper 1",
-    "qp": "2022-paper-1-qp.pdf",
-    "solution": "2022-paper-1-solution.pdf"
-  },
-  {
-    "year": "2022",
-    "paper": "2",
-    "label": "O Level Paper 2",
-    "qp": "2022-paper-2-qp.pdf",
-    "solution": null
   }
 ]
