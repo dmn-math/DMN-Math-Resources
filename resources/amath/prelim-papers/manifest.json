@@ -17,6 +17,22 @@
   },
   {
     "year": "2025",
+    "school": "mshs",
+    "paper": "1",
+    "label": "MSHS Prelim Paper 1",
+    "qp": "2025-mshs-paper-1-qp.pdf",
+    "solution": "2025-mshs-paper-1-solution.pdf"
+  },
+  {
+    "year": "2025",
+    "school": "mshs",
+    "paper": "2",
+    "label": "MSHS Prelim Paper 2",
+    "qp": "2025-mshs-paper-2-qp.pdf",
+    "solution": "2025-mshs-paper-2-solution.pdf"
+  },
+  {
+    "year": "2025",
     "school": "nass",
     "paper": "1",
     "label": "NASS Prelim Paper 1",
