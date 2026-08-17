@@ -33,6 +33,22 @@
   },
   {
     "year": "2023",
+    "school": "ahi",
+    "paper": "1",
+    "label": "AHI Prelim Paper 1",
+    "qp": "2023-ahi-paper-1-qp.pdf",
+    "solution": "2023-ahi-paper-1-solution.pdf"
+  },
+  {
+    "year": "2023",
+    "school": "ahi",
+    "paper": "2",
+    "label": "AHI Prelim Paper 2",
+    "qp": "2023-ahi-paper-2-qp.pdf",
+    "solution": "2023-ahi-paper-2-solution.pdf"
+  },
+  {
+    "year": "2023",
     "school": "dmn",
     "paper": "1",
     "label": "DMN Prelim Paper 1",
