@@ -1,6 +1,7 @@
 [
   {
     "year": "2025",
+    "school": "dmn",
     "paper": "1",
     "label": "DMN Prelim Paper 1",
     "qp": "2025-dmn-paper-1-qp.pdf",
@@ -8,6 +9,7 @@
   },
   {
     "year": "2025",
+    "school": "dmn",
     "paper": "2",
     "label": "DMN Prelim Paper 2",
     "qp": "2025-dmn-paper-2-qp.pdf",
@@ -15,6 +17,7 @@
   },
   {
     "year": "2024",
+    "school": "dmn",
     "paper": "1",
     "label": "DMN Prelim Paper 1",
     "qp": "2024-dmn-paper-1-qp.pdf",
@@ -22,6 +25,7 @@
   },
   {
     "year": "2024",
+    "school": "dmn",
     "paper": "2",
     "label": "DMN Prelim Paper 2",
     "qp": "2024-dmn-paper-2-qp.pdf",
@@ -29,6 +33,7 @@
   },
   {
     "year": "2023",
+    "school": "dmn",
     "paper": "1",
     "label": "DMN Prelim Paper 1",
     "qp": "2023-dmn-paper-1-qp.pdf",
@@ -36,6 +41,7 @@
   },
   {
     "year": "2023",
+    "school": "dmn",
     "paper": "2",
     "label": "DMN Prelim Paper 2",
     "qp": "2023-dmn-paper-2-qp.pdf",
