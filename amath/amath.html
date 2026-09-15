@@ -349,6 +349,8 @@
     .papers-row{ grid-template-columns: 60px 1fr 90px 90px; }
     .papers-row .col-hide{ display:none; }
   }
+  .topic-card { scroll-margin-top: 110px; }
+.resource-unavailable { opacity:.6; cursor:default; }
 </style>
 </head>
 <body>
@@ -373,12 +375,13 @@
     <div class="breadcrumb"><a href="../index.html">Home</a><span class="sep">/</span><span class="here">A Math</span></div>
     <span class="stream-tag-lg">SUBJECT · A MATH</span>
     <h1 class="page-title">A Math Revision Roadmap</h1>
-    <p class="page-sub">Work through the three steps below in order — start with topical practice, apply it under exam conditions with a past year national paper, then consolidate with a past prelim paper.</p>
+    <p class="page-sub">Start with topical practice, attempt national and prelim papers, then reflect on your marks to choose what to practise next.</p>
 
     <div class="stepper-nav">
       <a href="#step1"><span class="num">1</span> Topical Revision Exercises</a>
       <a href="#step2"><span class="num">2</span> Past Year National Paper</a>
       <a href="#step3"><span class="num">3</span> Past Prelim Papers</a>
+      <a href="#step4"><span class="num">4</span> Exam Reflection</a>
     </div>
   </div>
 </section>
@@ -396,7 +399,7 @@
       <span id="progress-text" class="progress-text"></span>
     </div>
     <div class="topic-grid">
-      <details class="topic-card" data-slug="quadratic-functions-equations-and-inequalities">
+      <details id="topic-quadratic-functions-equations-and-inequalities" class="topic-card" data-slug="quadratic-functions-equations-and-inequalities">
         <summary class="topic-summary">
           <h4>Quadratic Functions, Equations &amp; Inequalities</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -407,7 +410,7 @@
           <a href="../resources/amath/quadratic-functions-equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="surds">
+      <details id="topic-surds" class="topic-card" data-slug="surds">
         <summary class="topic-summary">
           <h4>Surds</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -418,7 +421,7 @@
           <a href="../resources/amath/surds/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="polynomials-cubic-equations-and-partial-fractions">
+      <details id="topic-polynomials-cubic-equations-and-partial-fractions" class="topic-card" data-slug="polynomials-cubic-equations-and-partial-fractions">
         <summary class="topic-summary">
           <h4>Polynomials, Cubic Equations &amp; Partial Fractions</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -429,7 +432,7 @@
           <a href="../resources/amath/polynomials-cubic-equations-and-partial-fractions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="binomial-theorem">
+      <details id="topic-binomial-theorem" class="topic-card" data-slug="binomial-theorem">
         <summary class="topic-summary">
           <h4>Binomial Theorem</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -440,7 +443,7 @@
           <a href="../resources/amath/binomial-theorem/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="exponential-and-logarithmic-functions">
+      <details id="topic-exponential-and-logarithmic-functions" class="topic-card" data-slug="exponential-and-logarithmic-functions">
         <summary class="topic-summary">
           <h4>Exponential &amp; Logarithmic Functions</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -451,7 +454,7 @@
           <a href="../resources/amath/exponential-and-logarithmic-functions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="coordinate-geometry">
+      <details id="topic-coordinate-geometry" class="topic-card" data-slug="coordinate-geometry">
         <summary class="topic-summary">
           <h4>Coordinate Geometry</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -462,7 +465,7 @@
           <a href="../resources/amath/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="linear-law">
+      <details id="topic-linear-law" class="topic-card" data-slug="linear-law">
         <summary class="topic-summary">
           <h4>Linear Law</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -473,7 +476,7 @@
           <a href="../resources/amath/linear-law/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="trigonometric-functions-and-equations">
+      <details id="topic-trigonometric-functions-and-equations" class="topic-card" data-slug="trigonometric-functions-and-equations">
         <summary class="topic-summary">
           <h4>Trigonometric Functions &amp; Equations</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -484,7 +487,7 @@
           <a href="../resources/amath/trigonometric-functions-and-equations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="trigonometric-identities-and-formulae">
+      <details id="topic-trigonometric-identities-and-formulae" class="topic-card" data-slug="trigonometric-identities-and-formulae">
         <summary class="topic-summary">
           <h4>Trigonometric Identities &amp; Formulae</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -495,7 +498,7 @@
           <a href="../resources/amath/trigonometric-identities-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="gradients-derivatives-and-differentiation">
+      <details id="topic-gradients-derivatives-and-differentiation" class="topic-card" data-slug="gradients-derivatives-and-differentiation">
         <summary class="topic-summary">
           <h4>Gradients, Derivatives &amp; Differentiation</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -503,21 +506,21 @@
         </summary>
         <div class="topic-downloads">
           <a href="../resources/amath/gradients-derivatives-and-differentiation/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/gradients-derivatives-and-differentiation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
+          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
         </div>
       </details>
-      <details class="topic-card" data-slug="applications-of-differentiation">
+      <details id="topic-applications-of-differentiation" class="topic-card" data-slug="applications-of-differentiation">
         <summary class="topic-summary">
           <h4>Applications of Differentiation</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
         <div class="topic-downloads">
-          <a href="../resources/amath/applications-of-differentiation/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
+          <a href="../resources/amath/applications-of-differentiation/ts.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
           <a href="../resources/amath/applications-of-differentiation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="differentiation-of-trigonometric-exponential-and-logarithmic-functions">
+      <details id="topic-differentiation-of-trigonometric-exponential-and-logarithmic-functions" class="topic-card" data-slug="differentiation-of-trigonometric-exponential-and-logarithmic-functions">
         <summary class="topic-summary">
           <h4>Differentiation of Trigonometric, Exponential &amp; Logarithmic Functions</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -525,10 +528,10 @@
         </summary>
         <div class="topic-downloads">
           <a href="../resources/amath/differentiation-of-trigonometric-exponential-and-logarithmic-functions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/differentiation-of-trigonometric-exponential-and-logarithmic-functions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
+          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
         </div>
       </details>
-      <details class="topic-card" data-slug="integration">
+      <details id="topic-integration" class="topic-card" data-slug="integration">
         <summary class="topic-summary">
           <h4>Integration</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -536,10 +539,10 @@
         </summary>
         <div class="topic-downloads">
           <a href="../resources/amath/integration/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/integration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
+          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
         </div>
       </details>
-      <details class="topic-card" data-slug="applications-of-integration">
+      <details id="topic-applications-of-integration" class="topic-card" data-slug="applications-of-integration">
         <summary class="topic-summary">
           <h4>Applications of Integration</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -550,7 +553,7 @@
           <a href="../resources/amath/applications-of-integration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="kinematics">
+      <details id="topic-kinematics" class="topic-card" data-slug="kinematics">
         <summary class="topic-summary">
           <h4>Kinematics</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -561,7 +564,7 @@
           <a href="../resources/amath/kinematics/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
         </div>
       </details>
-      <details class="topic-card" data-slug="proofs-in-plane-geometry">
+      <details id="topic-proofs-in-plane-geometry" class="topic-card" data-slug="proofs-in-plane-geometry">
         <summary class="topic-summary">
           <h4>Proofs in Plane Geometry</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
@@ -644,6 +647,17 @@
         <div class="papers-row"><span style="grid-column: 1 / -1; color: var(--ink-soft); font-size: 13px;">Loading papers…</span></div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="section" id="step4">
+  <div class="wrap">
+    <div class="section-head"><div>
+      <div class="section-eyebrow"><span class="step-dot">4</span> Exam Reflection</div>
+      <h2>Choose your next practice</h2>
+      <p class="section-desc">Reflect on your 2026 Dunman Preliminary Paper 1 or Paper 2. Enter your marks and error types to see your chapter breakdown and recommended practice questions.</p>
+    </div></div>
+    <a class="download-btn" href="reflection-amath.html">Start A-Math reflection →</a>
   </div>
 </section>
 
@@ -744,6 +758,20 @@
     loadTable('papers-main');
     loadTable('papers-prelim');
   });
+})();
+</script>
+<script>
+(function () {
+  function revealChapter() {
+    const id = location.hash.slice(1);
+    if (!id.startsWith('topic-')) return;
+    const chapter = document.getElementById(id);
+    if (!chapter || chapter.tagName !== 'DETAILS') return;
+    chapter.open = true;
+    requestAnimationFrame(() => chapter.scrollIntoView({block: 'start'}));
+  }
+  window.addEventListener('hashchange', revealChapter);
+  revealChapter();
 })();
 </script>
 </body>
