@@ -1,0 +1,4 @@
+@pdf-lib/fontkit 1.1.1
+Browser bundle distributed unmodified from the published npm package.
+https://www.npmjs.com/package/@pdf-lib/fontkit
+License: MIT, as declared by the package. Its upstream README is included in fontkit-README.md.
