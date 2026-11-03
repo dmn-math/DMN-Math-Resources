@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Algebra Town | DMN Math Resources</title>
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=illustrated-town">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div><small>DMN MATH RESOURCES</small><h1>Algebra Town</h1></div>
@@ -45,65 +45,67 @@
         </form>
       </section>
     </div>
-    <section class="mm-card"><h2>Published missions</h2><div id="mm-published"></div></section>
+    <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
   </section>
   <section data-mm-view="student" id="mm-view-student" hidden>
-    <div class="mm-card mm-hero">
-      <div>
-        <p class="mm-kicker">TOWN SQUARE</p>
+    <div class="mm-town-banner">
+      <svg viewBox="0 0 540 110" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path fill="#dfebc7" d="M0 83Q77 19 155 72T314 75Q417 12 540 72V110H0Z"/>
+        <path fill="#b4c994" d="M0 87Q79 45 152 84T339 85Q420 46 540 82V110H0Z"/>
+        <g fill="#f3cb78" stroke="#57523a" stroke-width="2" stroke-linejoin="round">
+          <path d="M46 86V69l15-14 15 14v17zM460 87V66l18-16 18 16v21zM493 86V53l13-15 13 15v33z"/>
+          <path fill="none" d="M41 71l20-20 20 20m375-2 22-21 22 21m-12-13 18-21 18 21"/>
+        </g>
+      </svg>
+      <div class="mm-banner-info">
         <h2 id="mm-student-name"></h2>
         <p id="mm-demo-note" hidden>Student preview · Sample class and coins</p>
-        <div class="mm-row mm-totals"><span>Coins <strong id="mm-balance"></strong></span><span>Leaderboard score <strong id="mm-score"></strong></span></div>
+        <div class="mm-row mm-totals"><span><i class="mm-coin" aria-hidden="true"></i> <strong id="mm-balance"></strong> coins</span><span>Lifetime score <strong id="mm-score"></strong></span></div>
       </div>
-      <svg viewBox="0 0 140 64" shape-rendering="crispEdges" aria-hidden="true">
-        <path fill="var(--sun)" d="M112 7h13v13h-13z"/>
-        <path fill="var(--hill)" d="M0 42h9v-7h8v-7h8v-7h12v7h9v8h12v-8h9v-7h12v-7h12v7h9v8h8v7h14v-5h18v33H0z"/>
-        <path fill="var(--grass)" d="M0 49h140v15H0z"/>
-        <path fill="var(--coin)" d="M0 56h140v4H0z"/>
-        <path fill="var(--door)" d="M13 32h33v24H13zM53 32h36v24H53zM99 34h29v22H99z"/>
-        <path fill="var(--wall)" d="M16 33h27v20H16zM56 33h30v20H56zM102 35h23v18h-23z"/>
-        <path fill="var(--roof)" d="M10 29h6v-6h6v-5h14v5h7v6h6v6H10zM51 25h7v-8h27v8h6v10H51zM96 32h6v-6h7v-6h11v6h6v6h5v5H96z"/>
-        <path fill="var(--glass)" d="M19 39h7v7h-7zM34 39h6v7h-6zM60 39h7v7h-7zM76 39h6v7h-6zM106 40h6v7h-6z"/>
-        <path fill="var(--door)" d="M28 44h6v9h-6zM69 44h6v9h-6zM115 43h6v10h-6z"/>
-        <path fill="var(--coin)" d="M65 24h12v2H65zM65 28h12v2H65z"/>
-      </svg>
     </div>
     <nav class="mm-row mm-destinations" aria-label="Town destinations">
-      <button type="button" data-town-destination="missions" aria-controls="mm-town-missions" aria-pressed="true">Mission Hall</button>
+      <button type="button" data-town-destination="home" aria-controls="mm-town-home" aria-pressed="true">My Home</button>
+      <button type="button" data-town-destination="missions" aria-controls="mm-town-missions" aria-pressed="false">Mission Hall</button>
       <button type="button" data-town-destination="neighbourhood" aria-controls="mm-town-neighbourhood" aria-pressed="false">Neighbourhood</button>
-      <button type="button" data-town-destination="leaderboard" aria-controls="mm-town-leaderboard" aria-pressed="false">Class Rankings</button>
       <button type="button" data-town-destination="cabin" aria-controls="mm-town-cabin" aria-pressed="false">Cabin &amp; Shop</button>
+      <button type="button" data-town-destination="leaderboard" aria-controls="mm-town-leaderboard" aria-pressed="false">Class Rankings</button>
       <button type="button" id="mm-demo-back" hidden>Back to teacher demo</button>
     </nav>
-    <section class="mm-card" data-town-panel="missions" id="mm-town-missions"><h2>My missions</h2><div id="mm-missions"></div></section>
+    <section class="mm-card mm-home-card" data-town-panel="home" id="mm-town-home">
+      <h2 class="mm-ribbon">My Home</h2>
+      <div id="mm-home-scene" class="mm-home-scene"></div>
+      <div class="mm-home-caption">
+        <h3 id="mm-house-name" tabindex="-1"></h3>
+        <p id="mm-house-level"></p>
+        <button type="button" class="mm-primary" id="mm-upgrade-house"></button>
+        <p id="mm-upgrade-note" class="mm-muted" role="status"></p>
+      </div>
+      <details class="mm-house-ladder"><summary>See all 10 house levels</summary><ol id="mm-house-ladder"></ol></details>
+    </section>
+    <section class="mm-card" data-town-panel="missions" id="mm-town-missions" hidden><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
     <section class="mm-card" data-town-panel="leaderboard" id="mm-town-leaderboard" hidden><h2>Class leaderboard</h2><ul id="mm-leaderboard"></ul></section>
     <section class="mm-card" data-town-panel="neighbourhood" id="mm-town-neighbourhood" hidden>
-      <div class="mm-street-head">
-        <div><p class="mm-kicker">CLASS STREET</p><h2>Neighbourhood</h2><p>See your classmates’ cabins and characters.</p></div>
-        <div class="mm-row" role="group" aria-label="Neighbourhood view">
-          <button id="mm-street-view" type="button" aria-pressed="true">Street view</button>
-          <button id="mm-overview-view" type="button" aria-pressed="false">Overview</button>
-        </div>
-      </div>
+      <h2 class="mm-ribbon">Neighbourhood</h2>
+      <p>Walk down the street to see your classmates’ homes and outfits.</p>
       <p id="mm-street-status" role="status" class="mm-muted"></p>
-      <ul class="mm-street" id="mm-street" aria-label="Classmate cabins" tabindex="0"></ul>
-      <div id="mm-street-controls" class="mm-row" hidden>
-        <button id="mm-street-prev" type="button">Previous</button>
-        <button id="mm-street-next" type="button">Next</button>
-      </div>
+      <ul class="mm-street" id="mm-street" aria-label="Classmate homes"></ul>
     </section>
     <section class="mm-card" data-town-panel="cabin" id="mm-town-cabin" hidden>
-      <h2>My cabin</h2>
-      <div class="mm-cabin-layout">
-        <div id="mm-own-plot"></div>
-        <form id="mm-look-form" class="mm-form">
-          <label>Roof colour<select id="mm-home-style"></select></label>
-          <label>Character<select id="mm-character-style"></select></label>
-          <button class="mm-primary" id="mm-save-look" type="submit">Save look</button>
-          <small>Your roof, character and decorations appear on Class Street.</small>
-        </form>
+      <h2 class="mm-ribbon">Cabin &amp; Shop</h2>
+      <div class="mm-wardrobe-preview">
+        <div id="mm-own-avatar"></div>
+        <div class="mm-wardrobe-details">
+          <p class="mm-kicker">FITTING ROOM</p>
+          <h3 id="mm-outfit-title" tabindex="-1">Your look</h3>
+          <p id="mm-outfit-description"></p>
+          <div class="mm-row" id="mm-outfit-tools"></div>
+          <p id="mm-shop-message" role="status" class="mm-muted"></p>
+        </div>
       </div>
-      <h3>Decorations</h3><div id="mm-cabin" class="mm-row"></div><div id="mm-shop"></div>
+      <nav class="mm-shop-jumps" aria-label="Shop categories">
+        <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a><a href="#mm-shop-decor">Decorations</a>
+      </nav>
+      <div id="mm-shop"></div>
     </section>
   </section>
 </div>
@@ -138,7 +140,10 @@
     #dmn-mission-wireframe button:disabled{opacity:.55}
     #dmn-mission-wireframe .questions{padding:0;margin:2px 0 0;list-style:none;border-top:1px solid var(--line)}
     #dmn-mission-wireframe .questions li{display:grid;grid-template-columns:1fr auto;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--line)}
-    #dmn-mission-wireframe .question-text{display:block;font:500 17px/1.35 Georgia,serif}
+    #dmn-mission-wireframe .question-text{display:block;font:500 17px/1.65 Georgia,serif;overflow-wrap:anywhere}
+    #dmn-mission-wireframe .question-text .frac{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;line-height:1.15;margin:0 .1em}
+    #dmn-mission-wireframe .question-text .frac>span:first-child{border-bottom:1px solid;padding:0 .13em .08em}
+    #dmn-mission-wireframe .question-text .frac>span:last-child{padding:.08em .13em 0}
     #dmn-mission-wireframe .highlight{background:var(--wash);padding:9px 11px;border-radius:5px}
     #dmn-mission-wireframe .feedback{min-height:1.45em}
     #dmn-mission-wireframe .error{color:var(--error)}
@@ -153,28 +158,47 @@
       <div class="cols">
         <section class="group" aria-label="Task settings">
           <h3>1. Set up the task</h3>
+          <label class="field">Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option></select></label>
           <label class="field">Task title<input data-title value="Solve equations without fractions" maxlength="100"></label>
           <label class="field">Assign to class<input data-class value="3B G2" maxlength="50"></label>
           <div class="pair">
-            <label class="field">Questions<select data-count><option>4</option><option selected>6</option><option>8</option><option>10</option></select></label>
+            <label class="field">Questions<select data-count aria-label="Number of questions"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label>
             <label class="field">Coins for completion<input data-coins type="number" min="0" max="100" step="1" value="10"></label>
           </div>
-          <fieldset><legend>Equation types</legend>
+          <label class="field">Release date and time <span>Singapore time · leave blank to publish now</span><input type="datetime-local" data-release></label>
+          <fieldset data-types-whole><legend>Equation types to generate</legend>
             <label class="choice"><input type="checkbox" value="one" checked> One step</label>
             <label class="choice"><input type="checkbox" value="two" checked> Two steps</label>
             <label class="choice"><input type="checkbox" value="both" checked> Unknown on both sides</label>
             <label class="choice"><input type="checkbox" value="brackets" checked> Equations with brackets</label>
+          </fieldset>
+          <fieldset data-types-fraction hidden><legend>Equation types to generate</legend>
+            <label class="choice"><input type="checkbox" value="fraction-one" checked> Fraction and whole number</label>
+            <label class="choice"><input type="checkbox" value="fraction-numerator" checked> Bracketed numerator</label>
+            <label class="choice"><input type="checkbox" value="fraction-both" checked> Fractions on both sides</label>
+            <label class="choice"><input type="checkbox" value="fraction-denominator" checked> Unknown in a linear denominator</label>
           </fieldset>
           <label class="choice"><input data-hints type="checkbox" checked> Offer hints</label>
           <div class="row"><button type="button" class="cursor-interaction" data-generate>Generate questions</button><small data-settings-message role="status"></small></div>
         </section>
         <section class="group" aria-label="Question review">
           <div class="row between"><h3>2. Review questions</h3><small data-total></small></div>
+          <p class="mm-question-help">Edit an equation to type your own. Equation Lab calculates the answer for you.</p>
           <ol class="questions" data-list></ol>
           <button type="button" class="cursor-interaction" data-preview>Preview as student</button>
         </section>
       </div>
     </div>
+    <dialog data-question-editor aria-labelledby="mm-edit-equation-title">
+      <form data-question-form>
+        <h3 id="mm-edit-equation-title" data-question-heading>Edit equation</h3>
+        <label class="field">Equation<input data-question-input maxlength="100" required aria-describedby="mm-edit-equation-help mm-edit-equation-error"></label>
+        <p id="mm-edit-equation-help" data-question-help></p>
+        <div class="mm-author-preview"><small>Equation preview</small><div class="question-text" data-question-live></div></div>
+        <p id="mm-edit-equation-error" class="error" data-question-error role="alert"></p>
+        <div class="row"><button type="submit" class="main">Save equation</button><button type="button" data-question-cancel>Cancel</button></div>
+      </form>
+    </dialog>
     <section class="body group" data-view="preview" hidden>
       <div class="row between"><h3>Student preview</h3><button type="button" class="cursor-interaction" data-back>Back to setup</button></div>
       <p data-preview-title></p>
@@ -221,6 +245,7 @@ main{display:block;max-width:none;margin:0;padding:0}
     <section class="body group" data-view="assign" hidden>
       <div class="row between"><h3>3. Review assignment</h3><button type="button" class="cursor-interaction" data-edit>Back to setup</button></div>
       <p data-summary></p>
+      <p data-release-summary></p>
       <p class="highlight" data-reward></p>
       <small data-demo-only>Demo only: no task will be sent to students.</small>
       <div class="row"><button type="button" class="main cursor-interaction" data-publish hidden>Publish mission</button><span data-publish-message role="status"></span></div>
@@ -482,10 +507,10 @@ function finalValid(){let a=finalCandidates();return a.length===expected.length&
 function domainText(){let excluded=[],other=[];for(let r of restrictions){if(r.value.constant())continue;if(r.type==='nonzero'){try{for(let x of polynomialRoots(r.value.n))if(!excluded.some(v=>v.eq(x)))excluded.push(x)}catch{other.push(fText(r.value)+' ≠ 0')}}else{let p=r.value.n;if(p.length===2&&r.value.d.length===1){let boundary=p[0].neg().div(p[1]);other.push('x '+(p[1].n>0n?'≥':'≤')+' '+boundary.str())}else other.push(fText(r.value)+' ≥ 0')}}return [...(excluded.length?['x ≠ '+excluded.map(v=>v.str()).join(', ')]:[]),...new Set(other)].join(' · ')}
 function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent='Non-fractional · I’ll write the working';$('difficulty-note').textContent=notes[family][difficulty-1];$('history-count').textContent=steps.length-1+' balanced step'+(steps.length===2?'':'s');$('history').innerHTML=steps.map((s,i)=>'<div class="history-row"><span class="step-number">'+i+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join('');lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
 function cleanInputs(){freeDraft='';freeError='';for(let side of ['left','right']){$(side+'-value').value='';$('work-'+side).value=''}$('hint').classList.add('hidden')}
-function start(l,r,custom=false){let ld=parseDetail(l),rd=parseDetail(r),rules=[...ld.rules,...rd.rules],answers=solveEquation(ld.value,rd.value,rules);if(!answers.length)throw Error('Choose an equation with at least one real solution.');if(answers.length>2)throw Error('Use an equation with at most two answers.');restrictions=rules;expected=answers;initial={left:ld.value,right:rd.value,leftText:l,rightText:r,note:'Starting equation',hasSquare:/\^2|²/.test(l+r),hasRoot:/sqrt|√/.test(l+r)};steps=[initial];pending=null;counted=false;isCustom=custom;cleanInputs();resetOperators();feedback('','A balanced beginning.',mode==='auto'?'Choose an operation and a value on either side to take your first step.':'Choose matching operations for both sides. Then type the next line yourself.');if(isFreeWorking())feedback('','Choose your own method.',family==='whole'?'Enter your next complete equation and press Check.':'Simplify the fractions, combine them, or clear the denominators. Enter your next equation and press Check.');render();if(isolated(initial.left,initial.right))complete()}
+function start(l,r,custom=false){let ld=parseDetail(l),rd=parseDetail(r),rules=[...ld.rules,...rd.rules],answers=solveEquation(ld.value,rd.value,rules);if(!answers.length)throw Error('Choose an equation with at least one real solution.');if(answers.length>2)throw Error('Use an equation with at most two answers.');restrictions=rules;expected=answers;initial={left:ld.value,right:rd.value,leftText:l,rightText:r,note:'Starting equation',hasSquare:/\^2|²/.test(l+r),hasRoot:/sqrt|√/.test(l+r)};steps=[initial];pending=null;counted=false;isCustom=custom;cleanInputs();resetOperators();feedback('','A balanced beginning.',mode==='auto'?'Choose an operation and a value on either side to take your first step.':'Choose matching operations for both sides. Then type the next line yourself.');if(isFreeWorking())feedback('','Choose your own method.',family==='whole'?'Enter your next complete equation and press Check.':'Simplify the fractions, combine them, or clear the denominators. Enter your next equation and press Check.');render();if(isolated(initial.left,initial.right)&&!(missionTotal&&family==='fraction'))complete()}
 function rand(a,b){return a+Math.floor(Math.random()*(b-a+1))}
 function newQuestion(){difficulty=Math.min(4,Math.max(1,difficulty));question++;if(difficulty===4){let key=family==='fraction'?'linearDenominators':'squares',b=advanced[key];start(...b[(question-1)%b.length]);return}if(difficulty===1){let b=banks[family];start(...b[(question-1)%b.length]);return}let x=rand(-5,9),a=rand(2,6),b=rand(1,8),d=rand(2,5);if(family==='whole'){if(difficulty===2)start(a+'(x - '+b+')',String(a*(x-b)));else{let c=rand(1,a-1);start(a+'x - '+b,c+'x + '+((a-c)*x-b))}}else if(difficulty===2)start('(x + '+b+')/'+d,String(new Q(x+b,d).str()));else{let den=rand(2,4);start('(x + '+b+')/'+d,'x/'+(d*den)+' + '+new Q(x*(den-1)+b*den,d*den).str())}}
-function complete(){if(!finalValid()){feedback('error','Check the answers in the original equation.','These values do not give the complete valid solution set. Squaring can add an extra answer, and a denominator must never be zero. Use Undo to review your steps.');render();return}if(!counted){solved++;counted=true;reportSolved?.(Number(expected[0].str()));}feedback('success',expected.length===2?'You found both solutions!':'You solved it. Nicely balanced!','x = '+expected.map(v=>v.str()).join(' or ')+'. '+(initial.hasRoot?'Checked in the original equation after squaring.':restrictions.length?'Checked against the original equation and its restrictions.':'Checked in the original equation.')+'');render()}
+function complete(){if(!finalValid()){feedback('error','Check the answers in the original equation.','These values do not give the complete valid solution set. Squaring can add an extra answer, and a denominator must never be zero. Use Undo to review your steps.');render();return}if(!counted){solved++;counted=true;reportSolved?.(expected[0].str());}feedback('success',expected.length===2?'You found both solutions!':'You solved it. Nicely balanced!','x = '+expected.map(v=>v.str()).join(' or ')+'. '+(initial.hasRoot?'Checked in the original equation after squaring.':restrictions.length?'Checked against the original equation and its restrictions.':'Checked in the original equation.')+'');render()}
 function commit(left,right,leftText,rightText){let p=pending.left,note=p.op==='root'?'Square roots of both sides; keep both roots':p.op==='square'?'Square both sides; check answers':SYMBOL[p.op]+' ('+valueText(p.value)+') on both sides';steps.push({left,right,leftText,rightText,note});pending=null;cleanInputs();feedback('','Correct — matching operations.',mode==='auto'?'What will help you isolate x next?':'Your working is correct. Choose your next operation.');render();if(isolated(left,right))complete()}
 function apply(side){try{let detail=parseDetail($(side+'-value').value),value=detail.value,op=selectedOp,other=side==='left'?'right':'left';if(detail.rules.some(rule=>expected.some(x=>!permitted(x,[rule]))))throw Error('That expression is undefined at a valid answer. Choose a value that respects the original restrictions.');if(((op==='+'||op==='-')&&vzero(value))||((op==='*'||op==='/')&&veq(value,vc(1))))throw Error('That leaves the equation unchanged. Choose a step that helps isolate x.');let result=operate(current()[side],op,value,restrictions);if(!pending)pending={};pending[side]={value,op,result};$('hint').classList.add('hidden');if(pending.left&&pending.right&&pending.left.op===pending.right.op&&same(pending.left.value,pending.right.value))afterPair();else{let mismatch=!!pending[other];feedback('warn',mismatch?'The two sides do not match yet.':'Not balanced yet — change the other side too.',mismatch?'Update the '+other+'-hand side with the same operation and value, or correct this side again.':'You applied '+SYMBOL[op]+' ('+valueText(value)+') to the '+side+'-hand side only. Apply the same to the '+other+'-hand side.');render();$(other+'-value').focus()}}catch(e){feedback('error','Check your operation.',e.message)}}
 function afterPair(){if(mode==='auto')commit(pending.left.result,pending.right.result,valueText(pending.left.result),valueText(pending.right.result));else{feedback('','Matching operations. Now show your working.',pending.left.op==='root'?'Remember both the positive and negative roots. Type ±n or list both values separated by a comma.':pending.left.op==='square'?'Square each whole side. The result will need to be checked in the original equation.':'Calculate each side yourself and type the next line.');render();$('work-left').focus()}}
@@ -502,16 +527,56 @@ $('check-working').onclick=checkWorking;for(let s of ['left','right'])$('work-'+
 $('next').onclick=newQuestion;$('reset').onclick=()=>start(initial.leftText,initial.rightText,isCustom);$('undo').onclick=()=>{if(isFreeWorking()){if(steps.length>1){let removed=steps.pop();freeDraft=removed.freeSource||removed.leftText+' = '+removed.rightText}freeError='';pending=null;$('hint').classList.add('hidden');feedback('','Step undone. Revise this line.','Your previous working is ready to edit.');render();focusMathEditor();return}if(pending)pending=null;else if(steps.length>1)steps.pop();cleanInputs();feedback('','Step undone. Try another approach.','Choose an operation that moves you closer to x on its own.');render()};$('hint-btn').onclick=hint;$('help-btn').onclick=()=>$('help').showModal();$('close-help').onclick=()=>$('help').close();$('custom-btn').onclick=()=>{$('custom-error').textContent='';$('custom').showModal();$('custom-equation').focus()};$('close-custom').onclick=()=>$('custom').close();$('start-custom').onclick=()=>{try{let e=$('custom-equation').value.split('=');if(e.length!==2)throw Error('Enter one equals sign, with an expression on each side.');start(e[0].trim(),e[1].trim(),true);$('custom').close()}catch(e){$('custom-error').textContent=e.message}};$('custom-equation').addEventListener('keydown',e=>{if(e.key==='Enter')$('start-custom').click()});
 
 lab.querySelectorAll('[data-insert]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>insertWorkingTemplate(b.dataset.insert)});
+mount.formatMissionEquation=(source)=>{
+  const [left,right]=source.split('=');
+  return math(left)+' <span class="working-equals">=</span> '+math(right);
+};
+mount.validateMissionEquation=(source,kind)=>{
+  const isFraction=kind==='fraction';
+  const eq=source.trim().replace(/[−–]/g,'-').replace(/X/g,'x').replace(/\s+/g,' ');
+  const [lhs,rhs,...extra]=eq.split('=').map(part=>part.trim());
+  if(!lhs||!rhs||extra.length||lhs.length+rhs.length+3>100||!eq.includes('x')||!/^[x0-9()+ =/-]+$/.test(eq)||/\d \d/.test(eq)||isFraction!==eq.includes('/'))
+    throw Error(isFraction?'Enter one equation with x and at least one fraction written using /.':'Enter one equation with x, using whole numbers and no fractions.');
+  let l,r;
+  try{l=parseDetail(lhs);r=parseDetail(rhs);}
+  catch(error){throw Error(error.message.includes('zero')?'A denominator cannot be zero.':'Check the equation and its brackets.');}
+  const left=l.value.p,right=r.value.p,difference=left.sub(right);
+  if(isFraction){
+    const rules=[...l.rules,...r.rules];
+    if(rules.some(rule=>rule.value.n.length>2||rule.value.d.length!==1))
+      throw Error('Use numbers or linear expressions such as x + 2 in denominators.');
+    let answers;
+    try{answers=solveEquation(l.value,r.value,rules);}catch{}
+    if(answers?.length!==1||difference.n.length!==2)
+      throw Error('Choose a fractional equation that reduces to a linear equation with one valid answer. An answer cannot make a denominator zero.');
+    const answer=answers[0].str();
+    if(!/^-?[0-9]{1,6}(?:\/[1-9][0-9]{0,5})?$/.test(answer))
+      throw Error('Use smaller numbers so the answer is easier to enter.');
+    const type=rules.some(rule=>!rule.value.constant())?'fraction-denominator':
+      lhs.includes('/')&&rhs.includes('/')?'fraction-both':/\)\s*\//.test(eq)?'fraction-numerator':'fraction-one';
+    return {eq:lhs+' = '+rhs,type,x:answer};
+  }
+  if(left.n.length>2||right.n.length>2||difference.n.length!==2)
+    throw Error('Use a linear equation with exactly one solution.');
+  const answer=difference.n[0].neg().div(difference.n[1]);
+  if(answer.d!==1n||Math.abs(answer.num())>999)
+    throw Error('Choose an equation with an integer answer between -999 and 999.');
+  const type=eq.includes('(')?'brackets':left.n.length===2&&right.n.length===2?'both':
+    left.n.length===1||right.n.length===1?
+      ((left.n.length===2?left:right).n[0].zero()||(left.n.length===2?left:right).n[1].eq(ONE)?'one':'two'):'two';
+  return {eq:lhs+' = '+rhs,type,x:answer.num()};
+};
 mount.openMissionEquation=(equation, position, total, showHint, next, onSolved)=>{
   reportSolved=onSolved;
   const [left,right]=equation.replaceAll('−','-').split('=').map(s=>s.trim());
   missionTotal=total;
   question=position;
   solved=0;
-  family='whole';
+  family=equation.includes('/')?'fraction':'whole';
+  difficulty=1;
   mode='manual';
   start(left,right,true);
-  $('exercise-label').textContent='Non-fractional · I’ll write the working';
+  $('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · I’ll write the working';
   $('solved-count').textContent='Question '+position+' of '+total;
   $('hint-btn').hidden=!showHint;
   $('next').textContent='Next question →';
@@ -530,21 +595,80 @@ mount.setMissionBusy=(busy,last)=>{
   const pick = k => root.querySelector('[data-' + k + ']');
   const views = [...root.querySelectorAll('[data-view]')];
   const types = [...root.querySelectorAll('fieldset input')];
-  const names = {one:'One step',two:'Two steps',both:'Unknown on both sides',brackets:'Brackets'};
+  const names = {one:'One step',two:'Two steps',both:'Unknown on both sides',brackets:'Brackets',
+    'fraction-one':'Fraction and whole number','fraction-numerator':'Bracketed numerator',
+    'fraction-both':'Fractions on both sides','fraction-denominator':'Unknown in denominator'};
+  const family=()=>pick('family').value;
+  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations'};
+  function setFamily(kind){
+    pick('family').value=kind;
+    pick('types-whole').hidden=kind!=='whole';
+    pick('types-fraction').hidden=kind!=='fraction';
+  }
+  const activeTypes=()=>[...pick('types-'+family()).querySelectorAll('input')];
   const rand = (a,b) => a + Math.floor(Math.random() * (b-a+1));
   const constant = n => n < 0 ? ' − ' + Math.abs(n) : ' + ' + n;
   const number = n => String(n).replace('-', '−');
   let rows=[], index=0, lastMix='', storageKey='', publish=null, playing=null, saveAnswer=null, leave=null, saving=false, playToken=0;
   const lab=root.querySelector('[data-equation-lab]');
+  let editing=-1;
+  function editEquation(i){
+    editing=i;
+    pick('question-heading').textContent='Edit question '+(i+1);
+    pick('question-input').value=rows[i].eq;
+    pick('question-error').textContent='';
+    pick('question-help').textContent=family()==='fraction'?
+      'Use / for fractions and brackets to group terms, e.g. (x + 1)/3 = 2 or 4/(x - 1) = 2.':
+      'Use x, whole numbers and brackets, e.g. 5x - 4 = 2x + 11. The answer must be an integer.';
+    updateEquationPreview();
+    pick('question-editor').showModal();
+    pick('question-input').select();
+  }
+  function updateEquationPreview(){
+    const output=pick('question-live');
+    try{
+      const q=lab.validateMissionEquation(pick('question-input').value,family());
+      output.innerHTML=lab.formatMissionEquation(q.eq);
+    }catch{output.textContent='Enter a valid equation to see it here.';}
+  }
+  pick('question-input').oninput=()=>{
+    pick('question-error').textContent='';
+    updateEquationPreview();
+  };
+  pick('question-cancel').onclick=()=>pick('question-editor').close();
+  pick('question-form').onsubmit=e=>{
+    e.preventDefault();
+    try {
+      const question=lab.validateMissionEquation(pick('question-input').value,family());
+      if(rows.some((r,i)=>i!==editing&&r.eq.replace(/\s/g,'').replaceAll('−','-')===question.eq.replace(/\s/g,'')))
+        throw Error('This equation is already in the mission.');
+      rows[editing]=question;
+      pick('question-editor').close();
+      review();status('Draft · Question '+(editing+1)+' updated');
+      pick('list').children[editing].querySelector('button').focus();
+    }catch(error){
+      pick('question-error').textContent=error.message;
+      pick('question-input').focus();
+    }
+  };
   function make(type) {
     const x = rand(-8,12), a = rand(2,6), b = rand(1,9) * (Math.random() < .5 ? -1 : 1), c = rand(2,6);
+    if(type.startsWith('fraction-')){
+      const d=rand(2,7), e=d+rand(1,3);
+      let equation;
+      if(type==='fraction-one')equation='x/'+d+constant(b)+' = '+(x+b);
+      else if(type==='fraction-numerator')equation='('+a+'x'+constant(b)+')/'+d+' = '+x;
+      else if(type==='fraction-both')equation='x/'+d+constant(b)+' = x/'+e+constant(b+c);
+      else equation=a+'/(x'+constant(b)+') = '+(a+c)+'/(x'+constant(b+1)+')';
+      return {...lab.validateMissionEquation(equation,'fraction'),type};
+    }
     if (type === 'one') return {type, x, eq:'x' + constant(b) + ' = ' + number(x+b), hint:'Undo the addition or subtraction on both sides.'};
     if (type === 'two') return {type, x, eq:a+'x'+constant(b)+' = '+number(a*x+b), hint:'Undo the constant term before dividing by the coefficient of x.'};
     if (type === 'both') return {type, x, eq:(a+c)+'x'+constant(b)+' = '+c+'x'+constant(a*x+b), hint:'Subtract the same x-term from both sides to collect the unknowns on one side.'};
     return {type, x, eq:a+'(x'+constant(b)+') = '+number(a*(x+b)), hint:'Divide both sides by the number outside the brackets first.'};
   }
-  const chosen = () => types.filter(e=>e.checked).map(e=>e.value);
-  const mix = () => chosen().join(',') + '/' + pick('count').value;
+  const chosen = () => activeTypes().filter(e=>e.checked).map(e=>e.value);
+  const mix = () => family()+'/'+chosen().join(',') + '/' + pick('count').value;
   function unique(type) {
     let q;
     do { q = make(type); } while (rows.some(r => r.eq === q.eq));
@@ -557,12 +681,17 @@ mount.setMissionBusy=(busy,last)=>{
     rows.forEach((r,i)=>{
       const li = document.createElement('li'), data = document.createElement('div');
       const q = document.createElement('span'), meta = document.createElement('small');
-      q.className='question-text'; q.textContent=(i+1)+'.  '+r.eq;
+      q.className='question-text';
+      if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatMissionEquation(r.eq);
+      else q.textContent=(i+1)+'.  '+r.eq;
       meta.textContent=names[r.type]+' · x = '+number(r.x);
       data.append(q,meta);
       const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
-      btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button').focus();});
-      li.append(data,btn);list.append(li);
+      btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
+      const edit=document.createElement('button');
+      edit.type='button';edit.textContent='Edit';edit.setAttribute('aria-label','Edit question '+(i+1));edit.onclick=()=>editEquation(i);
+      const actions=document.createElement('div');actions.className='row';actions.append(edit,btn);
+      li.append(data,actions);list.append(li);
     });
     pick('total').textContent=rows.length+' questions';
   }
@@ -576,11 +705,15 @@ mount.setMissionBusy=(busy,last)=>{
     lastMix=mix();message('');review();status('Draft · Questions generated');
   }
   function show(name){views.forEach(v=>v.hidden=v.dataset.view!==name);}
-  function ready(){
+  const releaseInstant=()=>pick('release').value ? new Date(pick('release').value+'+08:00') : null;
+  function ready(previewOnly=false){
     if(lastMix!==mix()){show('setup');message('Generate questions to apply your new settings.',true);return false;}
-    for(const key of ['title','class','coins']){
+    for(const key of previewOnly?['title']:['title','class','coins']){
       const el=pick(key);
       if(!el.value.trim() || !el.checkValidity()){show('setup');message('Check the title, class and coin reward.',true);el.focus();return false;}
+    }
+    if(!previewOnly&&(!pick('release').checkValidity() || (releaseInstant() && !Number.isFinite(+releaseInstant())))){
+      show('setup');message('Enter a valid release date and time.',true);pick('release').focus();return false;
     }
     message('');return true;
   }
@@ -610,8 +743,12 @@ mount.setMissionBusy=(busy,last)=>{
     }catch(error){
       if(token===playToken){
         pick('play-status').textContent='Couldn’t save: '+error.message;
-        pick('retry').hidden=false;
-        pick('retry').onclick=()=>submitAnswer(i,answer,token,total);
+        if(error.message==='Mission unavailable.'){
+          pick('play-status').textContent='This mission is no longer available. Go back to Mission Hall for your current missions.';
+        }else{
+          pick('retry').hidden=false;
+          pick('retry').onclick=()=>submitAnswer(i,answer,token,total);
+        }
       }
     }finally{
       if(token===playToken){
@@ -622,15 +759,21 @@ mount.setMissionBusy=(busy,last)=>{
       }
     }
   }
+  pick('family').onchange=()=>{
+    const kind=family();
+    if(Object.values(defaultTitle).includes(pick('title').value))pick('title').value=defaultTitle[kind];
+    setFamily(kind);
+    message(lastMix===mix()?'':'Generate questions to start this mission type.');
+  };
   pick('generate').onclick=generate;
   [...types,pick('count')].forEach(el=>el.addEventListener('change',()=>message(lastMix===mix()?'':'Generate questions to apply changes.')));
-  pick('preview').onclick=()=>{if(ready()){index=0;show('preview');preview();pick('back').focus();}};
+  pick('preview').onclick=()=>{if(ready(true)){index=0;show('preview');preview();pick('back').focus();}};
   pick('prev').onclick=()=>{if(index>0){index--;preview();}};
   pick('back').onclick=()=>playing?leave():show('setup');
   pick('edit').onclick=()=>show('setup');
   function draft(){
     return {title:pick('title').value.trim(),className:pick('class').value,coins:Number(pick('coins').value),
-      hints:pick('hints').checked,selected:chosen(),questions:rows};
+      hints:pick('hints').checked,family:family(),selected:chosen(),questions:rows,release:pick('release').value,releaseAt:releaseInstant()?.toISOString()||null};
   }
   pick('save').onclick=()=>{
     if(!ready())return;
@@ -640,7 +783,12 @@ mount.setMissionBusy=(busy,last)=>{
   pick('assign').onclick=()=>{
     if(!ready())return;
     const coins=Number(pick('coins').value);
-    pick('summary').textContent=pick('title').value+' · '+pick('class').value+' · '+rows.length+' questions';
+    const cls=pick('class'), release=releaseInstant();
+    pick('summary').textContent=pick('title').value+' · '+(cls.selectedOptions?.[0]?.textContent||cls.value)+' · '+rows.length+' questions';
+    pick('release-summary').textContent=release?'Release: '+new Intl.DateTimeFormat('en-SG',{
+      dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Singapore'
+    }).format(release)+' (Singapore time)':'Release: As soon as you publish.';
+    pick('publish').textContent=release?'Schedule mission':'Publish mission';
     pick('reward').textContent='First completion: +'+coins+' spendable coins and +'+coins+' to leaderboard score. Further practice does not award the same coins again.';
     pick('publish-message').textContent='';
     show('assign');
@@ -650,18 +798,20 @@ mount.setMissionBusy=(busy,last)=>{
     draftKey(key){
       if(storageKey===key)return;
       storageKey=key;
-      pick('title').value='Solve equations without fractions';
+      setFamily('whole');pick('title').value=defaultTitle.whole;
       pick('coins').value='10';
+      pick('release').value='';
       pick('hints').checked=true;
       pick('count').value='6';
       types.forEach(el=>el.checked=true);
       generate();
       try {
         const d=JSON.parse(localStorage.getItem(key));
-        if(!d||![4,6,8,10].includes(d.questions?.length)||!Array.isArray(d.selected))return;
-        pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;
+        if(!d||!(d.questions?.length>=1&&d.questions.length<=10)||!Array.isArray(d.selected))return;
+        pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;pick('release').value=d.release||'';
         pick('count').value=d.questions.length;
-        types.forEach(el=>el.checked=d.selected.includes(el.value));
+        setFamily(d.family==='fraction'?'fraction':'whole');
+        activeTypes().forEach(el=>el.checked=d.selected.includes(el.value));
         rows=d.questions;lastMix=mix();review();
         this.savedClass=d.className;
         if(pick('class').tagName==='INPUT')pick('class').value=d.className;
@@ -681,9 +831,21 @@ mount.setMissionBusy=(busy,last)=>{
       pick('publish').hidden=false;
       pick('demo-only').hidden=true;
     },
-    published(){
+    duplicate(m){
+      if(!m.questions?.length)return;
+      pick('title').value=('Copy of '+m.title).slice(0,100);
+      pick('class').value=m.classId;
+      pick('coins').value=m.coins;pick('hints').checked=m.hints;pick('release').value='';
+      pick('count').value=m.questions.length;
+      setFamily(m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
+      activeTypes().forEach(el=>el.checked=m.questions.some(r=>r.type===el.value));
+      rows=m.questions.map(r=>({...r}));lastMix=mix();review();message('');
+      status('Draft · Copied mission');show('setup');pick('title').focus();
+    },
+    published(scheduled){
       try{localStorage.removeItem(storageKey);}catch{}
-      status('Mission published');
+      const key=storageKey;storageKey='';this.draftKey(key);
+      status(scheduled?'Mission scheduled':'Mission published');
       show('setup');
     },
     publishError(message){pick('publish-message').textContent=message;},
@@ -709,6 +871,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js"></script>
-<script src="app.js"></script>
+<script src="town-art.js?v=illustrated-town"></script>
+<script src="app.js?v=illustrated-town"></script>
 </body></html>
