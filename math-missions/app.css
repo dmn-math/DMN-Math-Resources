@@ -1,0 +1,77 @@
+:root{
+  color-scheme:light;
+  --page:#f5f2df;--dot:#d6d9b7;--ink:#192c35;--soft:#435851;
+  --paper:#fffdf0;--panel:#edf0d6;--line:#233a3a;--shadow:#233a3a;
+  --accent:#20584d;--on:#fffdf0;--focus:#a84418;--coin:#ffe39a;--coin-ink:#473007;
+  --error:#922924;--sky:#badbd8;--hill:#85b889;--grass:#4c886d;--roof:#bc502f;--wall:#ffdc99;
+  --glass:#3c6e7f;--sun:#ffd471;--door:#274d49;--mono:ui-monospace,Consolas,"Courier New",monospace
+}
+:root[data-town-theme=night]{
+  color-scheme:dark;
+  --page:#14242d;--dot:#32454f;--ink:#fff1d5;--soft:#c8dbd6;
+  --paper:#20343f;--panel:#2c4650;--line:#8fb6ad;--shadow:#081317;
+  --accent:#a9ead4;--on:#142b2b;--focus:#ffe49a;--coin:#f9db85;--coin-ink:#392907;
+  --error:#ffb5ab;--sky:#263e56;--hill:#385e6b;--grass:#346253;--roof:#bb5839;--wall:#d8a870;
+  --glass:#f9d98c;--sun:#f1edba;--door:#203b42
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{max-width:990px;min-height:100vh;margin:0 auto;padding:24px;background-color:var(--page);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:10px 10px;color:var(--ink);font:15px/1.55 system-ui,sans-serif}
+#missions-app,#dmn-mission-wireframe{min-width:0}
+#missions-app h1,#missions-app h2,#missions-app h3{font-family:var(--mono);font-weight:800;line-height:1.15;margin:0 0 10px}
+#missions-app h1{font-size:clamp(1.75rem,5vw,3.15rem);letter-spacing:-.09em}
+#missions-app h2{font-size:clamp(1.12rem,3vw,1.5rem);letter-spacing:-.035em}
+#missions-app h3{margin-top:20px}
+#missions-app p{margin:5px 0 10px}
+#missions-app .mm-header,#missions-app .mm-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#missions-app .mm-header{justify-content:space-between;gap:14px;padding:0 0 14px}
+#missions-app nav{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.mm-kicker{font:700 .74rem/1.25 var(--mono);letter-spacing:.13em;color:var(--accent)}
+#missions-app a{color:var(--accent);text-underline-offset:.2em}
+#missions-app .mm-card{border:2px solid var(--line);border-radius:3px;background:var(--paper);box-shadow:4px 4px 0 var(--shadow);padding:16px;margin:14px 4px 14px 0}
+#missions-app .mm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#missions-app .mm-grid>*{min-width:0}
+#missions-app .mm-form{display:grid;gap:8px;justify-items:start}
+#missions-app .mm-form label{width:100%}
+#missions-app label{display:grid;gap:3px;min-width:0}
+#missions-app button,#missions-app input,#missions-app select,#missions-app textarea{font:inherit;color:inherit;border:2px solid var(--line);border-radius:2px;padding:7px 10px;background:var(--paper)}
+#missions-app input,#missions-app select,#missions-app textarea{width:100%}
+#missions-app button,.cursor-interaction{cursor:pointer}
+#missions-app button{font-family:var(--mono);font-weight:700;box-shadow:2px 3px 0 var(--shadow);min-height:40px}
+#missions-app button:active:not(:disabled){transform:translate(2px,2px);box-shadow:none}
+#missions-app button:disabled,.cursor-interaction:disabled{cursor:default;opacity:.6}
+#missions-app button.mm-primary,#missions-app [data-town-destination][aria-pressed=true]{background:var(--accent);color:var(--on)}
+#missions-app :focus-visible,#dmn-mission-wireframe :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+#missions-app .mm-mission{justify-content:space-between;border-top:1px dashed var(--line);padding:12px 0}
+#missions-app .mm-mission>div{min-width:0;overflow-wrap:anywhere}
+#missions-app small{display:block}
+#missions-app .mm-muted,#missions-app small{color:var(--soft)}
+#missions-app .mm-totals span,#mm-cabin span{padding:6px 10px;background:var(--panel);border:1px solid var(--line)}
+#missions-app .mm-totals span:first-child{background:var(--coin);color:var(--coin-ink)}
+#mm-leaderboard{margin:0;padding-left:0;list-style:none}
+#mm-leaderboard li{padding:7px 9px;overflow-wrap:anywhere}
+#mm-leaderboard .mm-you{font-weight:700;background:var(--panel)}
+#missions-app .mm-notice{background:var(--paper);border:2px solid var(--line);padding:8px 12px}
+#missions-app .mm-notice:empty{display:none}
+#missions-app .mm-error{color:var(--error)}
+#missions-app .mm-hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:center;padding:20px}
+.mm-hero svg{display:block;width:100%;height:auto;border:2px solid var(--line);background:var(--sky)}
+#missions-app .mm-destinations{margin:16px 0}
+#missions-app .mm-guest{margin-top:18px}
+#missions-app .mm-meter{display:block;max-width:100%;width:185px;height:10px;margin-top:5px;accent-color:var(--accent)}
+#dmn-mission-wireframe#dmn-mission-wireframe{
+  color-scheme:inherit;--page:var(--panel);--ink:light-dark(#192c35,#fff1d5);
+  --panel:light-dark(#fffdf0,#20343f);--soft:light-dark(#435851,#c8dbd6);
+  --line:light-dark(#233a3a,#8fb6ad);--accent:light-dark(#20584d,#a9ead4);
+  --wash:light-dark(#edf0d6,#2c4650);--on:light-dark(#fffdf0,#142b2b);
+  --error:light-dark(#922924,#ffb5ab);padding:12px 4px 12px 0
+}
+#dmn-mission-wireframe#dmn-mission-wireframe .frame{border:2px solid var(--line);border-radius:3px;box-shadow:4px 4px 0 var(--shadow)}
+#dmn-mission-wireframe#dmn-mission-wireframe header,#dmn-mission-wireframe#dmn-mission-wireframe footer{background:var(--wash)}
+#dmn-mission-wireframe#dmn-mission-wireframe h2{font-family:var(--mono);font-weight:750}
+#dmn-mission-wireframe#dmn-mission-wireframe button{border-radius:2px}
+@media(max-width:650px){
+  body{padding:13px}#missions-app .mm-grid,#missions-app .mm-hero{grid-template-columns:1fr;gap:12px}
+  #missions-app .mm-hero{padding:14px}#missions-app button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){#missions-app button{transform:none!important}}

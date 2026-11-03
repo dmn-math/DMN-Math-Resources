@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algebra Town | DMN Math Resources</title>
+<link rel="stylesheet" href="app.css">
+</head><body><div id="missions-app">
+  <header class="mm-header">
+    <div><small>DMN MATH RESOURCES</small><h1>Algebra Town</h1></div>
+    <nav aria-label="Website">
+      <a href="../index.html">Resources</a>
+      <button id="mm-theme" type="button" aria-pressed="false">Night mode</button>
+      <button id="mm-logout" type="button" hidden>Sign out</button>
+    </nav>
+  </header>
+  <p id="mm-notice" class="mm-notice" role="status" aria-live="polite"></p>
+  <section data-mm-view="login" class="mm-card" hidden>
+    <h2>Sign in</h2><p>Use the school Google account on your teacher’s class list.</p>
+    <button id="mm-login" class="mm-primary" type="button">Continue with Google</button>
+  </section>
+  <section data-mm-view="demo" class="mm-card mm-guest" hidden>
+    <h2>Teacher demo</h2><p>Create a task and try the Equation Lab preview. Add your Supabase settings to enable sign-in, class assignments and saved student progress.</p>
+    <button id="mm-demo-student" type="button" class="mm-primary">Preview student town</button>
+  </section>
+  <section data-mm-view="join" class="mm-card" hidden>
+    <h2>Class access pending</h2>
+    <p>This Google account is not on a class list yet. Check that you chose your school account, or ask your teacher to add you.</p>
+    <button id="mm-check-roster" type="button">Check again</button>
+  </section>
+  <section data-mm-view="teacher" hidden>
+    <div class="mm-grid">
+      <section class="mm-card">
+        <h2>Classes</h2>
+        <form id="mm-class-form" class="mm-row">
+          <label>Class name<input id="mm-class-name" placeholder="e.g. 3B G2" required maxlength="50"></label>
+          <button type="submit">Create class</button>
+        </form>
+      </section>
+      <section class="mm-card">
+        <h2>Add your class list</h2>
+        <form id="mm-roster-form" class="mm-form">
+          <label>Class<select id="mm-roster-class" required></select></label>
+          <label>School email and nickname, one student per line<textarea id="mm-roster" rows="4" required maxlength="30000" autocomplete="off" placeholder="student@school.example, IslandExplorer"></textarea></label>
+          <small>Paste two columns from a spreadsheet, or separate email and nickname with a comma.</small>
+          <button type="submit">Add students</button>
+        </form>
+      </section>
+    </div>
+    <section class="mm-card"><h2>Published missions</h2><div id="mm-published"></div></section>
+  </section>
+  <section data-mm-view="student" id="mm-view-student" hidden>
+    <div class="mm-card mm-hero">
+      <div>
+        <p class="mm-kicker">TOWN SQUARE</p>
+        <h2 id="mm-student-name"></h2>
+        <p id="mm-demo-note" hidden>Student preview · Sample class and coins</p>
+        <div class="mm-row mm-totals"><span>Coins <strong id="mm-balance"></strong></span><span>Leaderboard score <strong id="mm-score"></strong></span></div>
+      </div>
+      <svg viewBox="0 0 140 64" shape-rendering="crispEdges" aria-hidden="true">
+        <path fill="var(--sun)" d="M112 7h13v13h-13z"/>
+        <path fill="var(--hill)" d="M0 42h9v-7h8v-7h8v-7h12v7h9v8h12v-8h9v-7h12v-7h12v7h9v8h8v7h14v-5h18v33H0z"/>
+        <path fill="var(--grass)" d="M0 49h140v15H0z"/>
+        <path fill="var(--coin)" d="M0 56h140v4H0z"/>
+        <path fill="var(--door)" d="M13 32h33v24H13zM53 32h36v24H53zM99 34h29v22H99z"/>
+        <path fill="var(--wall)" d="M16 33h27v20H16zM56 33h30v20H56zM102 35h23v18h-23z"/>
+        <path fill="var(--roof)" d="M10 29h6v-6h6v-5h14v5h7v6h6v6H10zM51 25h7v-8h27v8h6v10H51zM96 32h6v-6h7v-6h11v6h6v6h5v5H96z"/>
+        <path fill="var(--glass)" d="M19 39h7v7h-7zM34 39h6v7h-6zM60 39h7v7h-7zM76 39h6v7h-6zM106 40h6v7h-6z"/>
+        <path fill="var(--door)" d="M28 44h6v9h-6zM69 44h6v9h-6zM115 43h6v10h-6z"/>
+        <path fill="var(--coin)" d="M65 24h12v2H65zM65 28h12v2H65z"/>
+      </svg>
+    </div>
+    <nav class="mm-row mm-destinations" aria-label="Town destinations">
+      <button type="button" data-town-destination="missions" aria-controls="mm-town-missions" aria-pressed="true">Mission Hall</button>
+      <button type="button" data-town-destination="leaderboard" aria-controls="mm-town-leaderboard" aria-pressed="false">Class Rankings</button>
+      <button type="button" data-town-destination="cabin" aria-controls="mm-town-cabin" aria-pressed="false">Cabin &amp; Shop</button>
+      <button type="button" id="mm-demo-back" hidden>Back to teacher demo</button>
+    </nav>
+    <section class="mm-card" data-town-panel="missions" id="mm-town-missions"><h2>My missions</h2><div id="mm-missions"></div></section>
+    <section class="mm-card" data-town-panel="leaderboard" id="mm-town-leaderboard" hidden><h2>Class leaderboard</h2><ul id="mm-leaderboard"></ul></section>
+    <section class="mm-card" data-town-panel="cabin" id="mm-town-cabin" hidden><h2>My cabin</h2><div id="mm-cabin" class="mm-row"></div><h3>Decorations</h3><div id="mm-shop"></div></section>
+  </section>
+</div>
+<div id="dmn-mission-wireframe" hidden>
+  <style>
+    #dmn-mission-wireframe{color-scheme:light dark;--page:light-dark(#f5f6f0,#20251f);--panel:light-dark(#fffefb,#252b24);--ink:light-dark(#1b2a4a,#e6ecf6);--soft:light-dark(#4a5570,#b5c2d5);--line:light-dark(#d5ddd6,#526055);--accent:light-dark(#26584b,#a9dfcb);--wash:light-dark(#e6efe9,#293e35);--on:light-dark(#fffefb,#152d25);--error:light-dark(#9c2222,#ffaaaa);padding:12px;font:400 14px/1.45 system-ui,sans-serif;color:var(--ink)}
+    #dmn-mission-wireframe *{box-sizing:border-box}
+    #dmn-mission-wireframe [hidden]{display:none!important}
+    #dmn-mission-wireframe .frame{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+    #dmn-mission-wireframe header,#dmn-mission-wireframe footer{padding:12px 16px;background:var(--page)}
+    #dmn-mission-wireframe header{border-bottom:1px solid var(--line);padding-right:96px}
+    #dmn-mission-wireframe footer{border-top:1px solid var(--line)}
+    #dmn-mission-wireframe h2,#dmn-mission-wireframe h3,#dmn-mission-wireframe p{margin:0}
+    #dmn-mission-wireframe h2{font:500 22px/1.25 Georgia,serif;margin-top:3px}
+    #dmn-mission-wireframe h3{font-size:15px;font-weight:500;margin-bottom:9px}
+    #dmn-mission-wireframe small{color:var(--soft);font-size:12px}
+    #dmn-mission-wireframe .body{padding:14px 16px}
+    #dmn-mission-wireframe .cols{display:grid;grid-template-columns:1fr 1.14fr;gap:18px;align-items:start}
+    #dmn-mission-wireframe .cols>*{min-width:0}
+    #dmn-mission-wireframe .group{display:grid;gap:10px}
+    #dmn-mission-wireframe .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    #dmn-mission-wireframe label.field{display:grid;gap:3px;min-width:0}
+    #dmn-mission-wireframe input:not([type=checkbox]),#dmn-mission-wireframe select{width:100%;min-width:0;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:6px 8px}
+    #dmn-mission-wireframe fieldset{margin:0;padding:7px 9px;border:1px solid var(--line);border-radius:5px}
+    #dmn-mission-wireframe legend{padding:0 4px}
+    #dmn-mission-wireframe .choice{display:flex;gap:6px;align-items:center;min-height:29px}
+    #dmn-mission-wireframe input[type=checkbox]{accent-color:var(--accent)}
+    #dmn-mission-wireframe .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    #dmn-mission-wireframe .between{justify-content:space-between}
+    #dmn-mission-wireframe button{font:500 13px/1.35 system-ui,sans-serif;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:7px 10px}
+    #dmn-mission-wireframe button.main{background:var(--accent);color:var(--on);border-color:var(--accent)}
+    #dmn-mission-wireframe button:disabled{opacity:.55}
+    #dmn-mission-wireframe .questions{padding:0;margin:2px 0 0;list-style:none;border-top:1px solid var(--line)}
+    #dmn-mission-wireframe .questions li{display:grid;grid-template-columns:1fr auto;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--line)}
+    #dmn-mission-wireframe .question-text{display:block;font:500 17px/1.35 Georgia,serif}
+    #dmn-mission-wireframe .highlight{background:var(--wash);padding:9px 11px;border-radius:5px}
+    #dmn-mission-wireframe .feedback{min-height:1.45em}
+    #dmn-mission-wireframe .error{color:var(--error)}
+    #dmn-mission-wireframe .answer{max-width:220px}
+    @media (max-width:620px){#dmn-mission-wireframe .cols{grid-template-columns:1fr}#dmn-mission-wireframe{padding:6px}}
+    @media (max-width:365px){#dmn-mission-wireframe .pair{grid-template-columns:1fr}}
+    @media (pointer:coarse){#dmn-mission-wireframe button,#dmn-mission-wireframe .choice{min-height:44px}#dmn-mission-wireframe input:not([type=checkbox]),#dmn-mission-wireframe select{font-size:16px;min-height:44px}}
+  </style>
+  <section class="frame" aria-label="Algebra Town teacher setup">
+    <header><small>Algebra Town / Teacher setup</small><h2>Create a maths task</h2></header>
+    <div class="body" data-view="setup">
+      <div class="cols">
+        <section class="group" aria-label="Task settings">
+          <h3>1. Set up the task</h3>
+          <label class="field">Task title<input data-title value="Solve equations without fractions" maxlength="100"></label>
+          <label class="field">Assign to class<input data-class value="3B G2" maxlength="50"></label>
+          <div class="pair">
+            <label class="field">Questions<select data-count><option>4</option><option selected>6</option><option>8</option><option>10</option></select></label>
+            <label class="field">Coins for completion<input data-coins type="number" min="0" max="100" step="1" value="10"></label>
+          </div>
+          <fieldset><legend>Equation types</legend>
+            <label class="choice"><input type="checkbox" value="one" checked> One step</label>
+            <label class="choice"><input type="checkbox" value="two" checked> Two steps</label>
+            <label class="choice"><input type="checkbox" value="both" checked> Unknown on both sides</label>
+            <label class="choice"><input type="checkbox" value="brackets" checked> Equations with brackets</label>
+          </fieldset>
+          <label class="choice"><input data-hints type="checkbox" checked> Offer hints</label>
+          <div class="row"><button type="button" class="cursor-interaction" data-generate>Generate questions</button><small data-settings-message role="status"></small></div>
+        </section>
+        <section class="group" aria-label="Question review">
+          <div class="row between"><h3>2. Review questions</h3><small data-total></small></div>
+          <ol class="questions" data-list></ol>
+          <button type="button" class="cursor-interaction" data-preview>Preview as student</button>
+        </section>
+      </div>
+    </div>
+    <section class="body group" data-view="preview" hidden>
+      <div class="row between"><h3>Student preview</h3><button type="button" class="cursor-interaction" data-back>Back to setup</button></div>
+      <p data-preview-title></p>
+      <p data-play-status role="status" aria-live="polite"></p>
+      <button type="button" class="cursor-interaction" data-retry hidden>Retry saving</button>
+      <button type="button" class="cursor-interaction" data-prev>Previous question</button>
+      <div data-equation-lab></div><template data-equation-lab-template><style>
+:host{--ink:#263b37;--muted:#73817c;--green:#236b52;--pale:#edf5ed;--line:#dfe6df;--paper:#fff;--bg:#f6f7f2;--purple:#735aaa;--orange:#a86622}*{box-sizing:border-box}:host{display:block;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad95db;outline-offset:3px}header{height:83px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 5%;gap:15px}.brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:750;letter-spacing:-.7px}.brand-icon{display:grid;place-items:center;background:var(--green);color:#fff;border-radius:13px;width:42px;height:42px;font-family:Georgia;font-size:28px}.brand span:last-child{color:var(--green)}.header-right{display:flex;align-items:center;gap:20px}.tag{background:var(--pale);color:var(--green);font-size:11px;font-weight:750;letter-spacing:1.2px;padding:8px 11px;border-radius:6px}.textbtn{background:none;border:0;color:var(--muted);padding:8px}.intro{max-width:1240px;margin:35px auto 25px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:800;color:var(--green);margin-bottom:9px}h1{font-size:32px;line-height:1.2;letter-spacing:-1.2px;margin:0 0 9px}p{line-height:1.6;margin:0;color:var(--muted)}.intro-note{font-family:Georgia,serif;font-style:italic;max-width:195px;font-size:17px;color:#7d8b78;transform:rotate(-3deg)}main{max-width:1240px;padding:0 32px 40px;margin:auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.card{background:var(--paper);border:1px solid var(--line);border-radius:17px}.settings{padding:23px 19px;height:fit-content}.section-title{font-size:11px;font-weight:750;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:16px}.setting-label{font-size:12px;font-weight:700;margin:19px 0 9px;display:block}.type-tabs{display:flex;background:#f2f4ef;border-radius:9px;padding:4px;gap:3px}.type-tabs button{background:transparent;border:0;border-radius:6px;font-size:12px;padding:9px 5px;flex:1;color:var(--muted)}.type-tabs button.active{background:white;color:var(--green);box-shadow:0 1px 5px #263b3712;font-weight:700}.levels{display:flex;gap:7px}.levels button{flex:1;border:1px solid var(--line);background:white;border-radius:9px;padding:10px 3px;font-size:12px;color:var(--muted)}.levels button.active{background:var(--green);border-color:var(--green);color:white}.difficulty-note{font-size:11px;min-height:36px;margin:10px 0 17px}.divider{height:1px;background:var(--line);margin:20px 0}.mode{width:100%;display:flex;text-align:left;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 10px;background:white;color:var(--ink);margin:8px 0}.mode.active{border-color:#89ac96;background:#f2f8f0}.radio{border:1.5px solid #c5cec3;width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:2px}.mode.active .radio{border:4px solid var(--green)}.mode strong{font-size:12px;display:block;margin-bottom:4px}.mode small{font-size:10px;line-height:1.5;display:block;color:var(--muted)}.rule-card{padding:16px;border-radius:10px;background:#f4f0fa;margin-top:21px}.rule-card strong{color:var(--purple);font-size:12px}.rule-card p{font-size:11px;color:#807091;margin-top:7px}.workspace{min-width:0}.exercise-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;gap:10px}.exercise-label{font-size:12px;font-weight:650}.exercise-label span{color:var(--muted);font-weight:400;margin-left:8px}.pill{font-size:10px;border:1px solid var(--line);padding:6px 10px;border-radius:20px;background:white;color:var(--muted)}.lab{overflow:hidden}.lab-top{display:flex;justify-content:space-between;align-items:center;padding:20px 25px 0}.lab-top small{font-size:10px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.status{font-size:11px;color:var(--green);background:var(--pale);padding:7px 10px;border-radius:20px;display:flex;align-items:center;gap:6px}.dot{width:6px;height:6px;background:currentColor;border-radius:50%}.status.warn{background:#fff0df;color:var(--orange)}.equation-area{padding:18px 25px 0}.equation{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);align-items:center;min-height:100px;gap:12px}.math{font-family:Cambria,"Times New Roman",serif;font-size:42px;line-height:1.6;letter-spacing:-.5px;text-align:center;overflow-wrap:anywhere}.math var{font-style:italic}.equal{font-family:Georgia,serif;font-size:33px;color:#98a79a;text-align:center}.frac{display:inline-flex;vertical-align:middle;flex-direction:column;align-items:center;font-size:.78em;line-height:1.15;margin:0 .08em}.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .12em .08em}.frac>span:last-child{padding:.08em .12em 0}.operation-fraction{font-size:1em;line-height:1.3}.balance-art{display:block;width:100%;height:48px;margin:0 auto 1px;overflow:visible}.balance-beam{transform-origin:350px 13px;transition:transform .3s}.balance-art.warn .balance-beam{transform:rotate(4deg)}.side-labels{display:grid;grid-template-columns:1fr 45px 1fr;gap:12px;text-align:center;font-size:9px;letter-spacing:1.3px;font-weight:700;color:#96a294;margin-bottom:12px}.controls{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);gap:12px;padding:0 25px 24px}.control-panel{background:#f6f8f3;border:1px solid #e7ece2;padding:13px;border-radius:12px}.operator-row{display:flex;gap:5px}.op{flex:1;border:1px solid #dce4d8;border-radius:6px;padding:6px 2px;background:#fff;color:#6f7d6b;font-size:21px;line-height:1.1}.op.selected{border-color:var(--green);background:#e4eee1;color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}.value-row{display:flex;gap:7px;margin-top:9px}.value-row input{width:0;min-width:0;flex:1;border:1px solid #dce4d8;border-radius:7px;background:white;padding:10px;color:var(--ink)}.apply{border:0;background:var(--green);color:white;border-radius:7px;padding:9px 14px;font-size:11px;font-weight:650}.side-done{font-size:11px;color:var(--green);margin-top:8px;min-height:16px}.controls-middle{display:flex;align-items:center;justify-content:center;color:#b3bdb0;font-size:20px}.feedback{padding:16px 23px;background:#edf5ed;border-top:1px solid #dce9da;display:flex;gap:11px;align-items:flex-start;min-height:72px}.feedback.warn{background:#fff5e8;border-color:#f0dfc6}.feedback.error{background:#fff0ed;border-color:#f0d7cf}.feedback.success{background:#e4f4e9}.feedback-icon{border:1px solid currentColor;border-radius:50%;width:19px;height:19px;flex-shrink:0;display:grid;place-items:center;color:var(--green);font-weight:700;font-size:11px;margin-top:1px}.feedback.warn .feedback-icon{color:var(--orange)}.feedback.error .feedback-icon{color:#b74b32}.feedback strong{display:block;font-size:12px;margin-bottom:4px}.feedback p{font-size:11px;color:#6b7c67;line-height:1.6}.feedback.warn p{color:#92774c}.feedback.error p{color:#a46353}.actions{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px}.secondary{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 13px;font-size:11px;color:#53674f}.actions-left{display:flex;gap:7px}.primary{border:0;background:var(--green);color:#fff;border-radius:8px;padding:11px 18px;font-size:11px;font-weight:700}.history{padding:21px 23px}.history-header{display:flex;align-items:center;justify-content:space-between}.history-header h2{font-size:13px;margin:0}.history-header small{font-size:10px;color:var(--muted)}.history-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #edf0e9}.history-row:last-child{border:0;padding-bottom:0}.step-number{width:24px;height:24px;border-radius:50%;background:#f0f4ed;color:#84907d;display:grid;place-items:center;font-size:10px}.history-math{font-family:Cambria,Georgia,serif;font-size:22px;overflow-wrap:anywhere}.history-note{font-size:10px;color:#7c8d74;text-align:right;max-width:150px}.footnote{margin:17px 0 0;font-size:10px;color:#96a18f;text-align:center}.manual{padding:0 25px 23px}.manual-inner{background:#f4f0fa;border:1px solid #e5dcf0;border-radius:10px;padding:16px}.manual-title{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px}.manual p{font-size:11px;color:#8a799f;margin-bottom:11px}.working-inputs{display:grid;grid-template-columns:1fr 25px 1fr;align-items:center;gap:10px}.working-inputs input{width:100%;padding:11px;border:1px solid #d5c6e6;border-radius:7px;background:white;color:var(--ink)}.check{margin-top:10px;background:var(--purple);color:white;border:0;border-radius:7px;padding:10px 15px;font-size:11px}.hint{background:#fff8e9;border:1px solid #ecdfc5;border-radius:9px;padding:13px 16px;font-size:12px;line-height:1.6;margin-bottom:14px;color:#92703e}.hidden{display:none!important}dialog{max-width:590px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:17px;color:var(--ink);padding:28px;box-shadow:0 20px 100px #17332733}dialog::backdrop{background:#20382e66}dialog h2{font-size:23px;letter-spacing:-.6px;margin:0 0 16px}dialog p,dialog li{font-size:13px;line-height:1.8}dialog li{margin:8px 0;color:var(--muted)}dialog .secondary{margin-top:16px}#custom input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;margin:16px 0}#custom-error{color:#b74b32;font-size:12px}footer{max-width:1176px;margin:0 auto 25px;border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;font-size:10px;color:#96a18f}.mobile-settings{display:none}@media(min-width:1450px){.intro{margin-top:48px}main{gap:30px}.equation-area{padding-top:30px;padding-bottom:8px}.math{font-size:48px}}@media(max-width:850px){header{padding:0 24px}.intro-note{display:none}.intro,main{padding-left:22px;padding-right:22px}main{grid-template-columns:220px minmax(0,1fr);gap:16px}.settings{padding:20px 14px}.controls{padding-left:16px;padding-right:16px;gap:5px;grid-template-columns:1fr 20px 1fr}.control-panel{padding:9px}.math{font-size:34px}.value-row{flex-wrap:wrap}.value-row input{flex-basis:100%;width:100%}.apply{width:100%}.header-right{gap:8px}footer{margin-left:22px;margin-right:22px}}@media(max-width:650px){header{height:70px;padding:0 18px}.brand{font-size:20px}.tag{display:none}.header-right .textbtn{font-size:12px}.intro{margin:25px auto 20px;padding:0 18px}h1{font-size:28px}.intro p{font-size:12px}main{display:block;padding:0 14px 28px}.settings{margin-bottom:18px;padding:16px}.settings>.section-title{margin-bottom:12px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setting-label{margin-top:3px}.difficulty-note{min-height:0;margin-bottom:0}.settings .divider{margin:15px 0}.mode-wrap{display:flex;gap:8px}.mode{margin:0;flex:1;padding:10px 7px}.mode small{font-size:9px}.mode strong{font-size:10px}.rule-card{display:none}.lab-top{padding:16px 16px 0}.equation-area{padding:12px 12px 0}.math{font-size:34px}.equation{gap:5px;grid-template-columns:1fr 30px 1fr}.side-labels{grid-template-columns:1fr 30px 1fr}.controls{padding:0 12px 18px;grid-template-columns:1fr 20px 1fr}.controls-middle{font-size:15px}.op{font-size:21px}.actions{flex-wrap:wrap}.actions-left{gap:4px}.secondary{padding:10px;font-size:10px}.primary{padding:11px 12px}.history{padding:18px}.history-note{font-size:9px;max-width:95px}.history-math{font-size:20px}.manual{padding:0 12px 18px}.working-inputs{gap:5px}.working-inputs input{padding:10px 7px}.feedback{padding:14px 16px}footer{margin:0 18px 20px}.exercise-label span{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.levels{flex-wrap:wrap;gap:6px}.levels button{flex:0 0 calc((100% - 12px)/3)}.radical{display:inline-flex;align-items:stretch;vertical-align:middle;line-height:1.2}.root-sign{font-size:1.15em;line-height:1.1}.radicand{border-top:1px solid currentColor;padding:0 .1em}.math sup,.history-math sup{font-size:.55em}.or-word{font-family:Inter,system-ui,sans-serif;font-size:.45em;color:var(--muted);white-space:nowrap}.domain{text-align:center;color:#8d6b36;font-size:11px;background:#fff7e9;border-radius:8px;padding:8px 10px;margin:5px 0 10px}.value-help{font-size:10px;color:var(--muted);padding:0 25px 15px;margin-top:-10px}.root-preview{font-size:.55em}.equation{min-height:120px}.math{font-size:37px}.history-math{line-height:1.8}@media(max-width:650px){.levels button{font-size:11px;padding:8px 1px}.value-help{padding:0 12px 14px;font-size:9px}.math{font-size:30px}.domain{font-size:10px}.history-math{font-size:19px}}
+@media(max-width:650px){}
+
+.free-mode-note{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}.free-mode-note .section-title{display:block;margin-bottom:11px}.free-mode-note strong{font-size:13px}.free-mode-note p{font-size:11px;margin-top:8px}.free-workspace{padding:0 25px 25px}.free-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0}.free-heading h2{font-size:15px;margin:0}.free-heading .pill{font-size:9px;background:#f6f8f3}.free-input-help{font-size:11px;margin-bottom:14px;line-height:1.7}.free-tools{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding-left:72px;margin-bottom:12px}.notation-tool{background:#f8f9f5;border:1px solid var(--line);border-radius:6px;padding:7px 10px;color:#677861;font-size:10px;min-height:32px}.notation-tool:hover:not(:disabled){background:#eaf3e6}.notation-tool .frac{font-family:Cambria,Georgia,serif;font-size:12px;margin-right:5px}.free-row{display:grid;grid-template-columns:60px minmax(0,1fr) 72px;column-gap:12px;padding:14px 0;align-items:start}.free-step{font-size:12px;font-weight:700;white-space:nowrap;line-height:1.5;padding-top:13px}.draft-row{border-top:1px solid var(--line);margin-top:5px}.free-editor{min-width:0}.free-editor textarea{display:block;width:100%;min-height:76px;padding:14px;border:1px solid #b9cbb1;border-radius:9px;background:#fbfcf8;color:var(--ink);font-size:16px;line-height:1.6;resize:vertical;font-family:Cambria,Georgia,serif}.free-editor textarea[aria-invalid=true]{border-color:#c78571;background:#fff9f7}.free-check{align-self:start;margin-top:12px;background:var(--green);color:#fff;border:0;border-radius:7px;padding:12px 10px;font-size:12px;font-weight:700}.free-preview{display:flex;align-items:center;gap:12px;min-height:45px;padding:10px 2px 0;overflow-wrap:anywhere}.preview-label{font-size:9px;color:#96a18f;flex-shrink:0}.working-math{font-family:Cambria,Georgia,serif;font-size:25px;line-height:1.9;letter-spacing:0;overflow-wrap:anywhere;min-width:0}.working-math var{font-style:italic}.working-math sup{font-size:.58em}.working-equals{margin:0 .2em;color:#8c9f85}.preview-placeholder{font-size:10px;color:#a0aa99;line-height:1.5}.free-row-error{font-size:11px;color:#a3533d;margin-top:9px;line-height:1.7}.accepted-row{border-bottom:1px solid #edf0e8;align-items:center}.accepted-row .free-step{padding-top:0}.checked-label{display:block;font-size:9px;color:var(--green);font-weight:500;margin-top:4px}.accepted-working{padding:5px 1px}.free-edit{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--muted);padding:9px 8px;font-size:11px}.free-edit:hover{color:var(--green);border-color:#b9cbb1}.free-finished{font-size:12px;line-height:1.7;color:var(--green);background:#f0f7ec;padding:13px 15px;border-radius:8px;margin-top:18px}.free-layout .equation{min-height:115px}.free-layout .equation-area{padding-bottom:12px}@media(max-width:850px){.free-workspace{padding-left:16px;padding-right:16px}.free-row{grid-template-columns:49px minmax(0,1fr) 62px;column-gap:8px}.free-tools{padding-left:57px}.free-step{font-size:11px}.working-math{font-size:22px}.free-editor textarea{font-size:15px;padding:11px}.free-preview{gap:7px}.preview-label{display:none}}@media(max-width:650px){.free-workspace{padding:0 12px 18px}.free-row{grid-template-columns:42px minmax(0,1fr) 53px;column-gap:7px}.free-step{font-size:10px}.free-tools{padding-left:49px;gap:4px}.notation-tool{padding:6px 7px;font-size:9px}.free-check{font-size:10px;padding:11px 6px}.free-editor textarea{font-size:14px;padding:10px;min-height:80px}.working-math{font-size:20px}.free-input-help{font-size:10px}.free-heading h2{font-size:14px}.free-row-error{font-size:10px}.free-edit{font-size:10px}.checked-label{font-size:8px}.free-layout .math{font-size:28px}}
+
+.notation-tool{min-width:40px;min-height:38px;font-family:Cambria,Georgia,serif;font-size:20px;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px}.notation-tool .notation-fraction{font-size:12px;margin:0;line-height:1.15}.structured-math-editor{display:flex;flex-wrap:wrap;align-items:center;gap:3px;min-height:110px;width:100%;padding:14px 12px;border:1px solid #b9cbb1;border-radius:9px;background:#fbfcf8;color:var(--ink);font-family:Cambria,Georgia,serif;font-size:25px;line-height:1.6;cursor:text;overflow-x:auto}.structured-math-editor:focus{outline:none}.structured-math-editor:focus-within{outline:3px solid #ad95db;outline-offset:2px}.structured-math-editor[aria-invalid=true]{border-color:#c78571;background:#fff9f7}.math-token-input{display:inline-block;flex:0 0 auto;min-width:1.2ch;max-width:100%;border:0;border-radius:3px;outline:none!important;outline-offset:0!important;background:transparent;padding:3px 2px;margin:0;color:inherit;font:inherit;line-height:1.25;caret-color:var(--green)}.math-token-input:focus-visible{outline:none!important}.math-token-input::placeholder{color:#a5b29c;font-size:.72em}.single-math-cell{min-width:2ch}.editing-fraction{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;max-width:100%;min-width:55px;line-height:1.25;font-size:.92em}.math-slot{display:flex;align-items:center;justify-content:center;gap:2px;min-height:35px;min-width:55px;padding:1px 3px}.numerator-slot{border-bottom:1.5px solid currentColor;padding-bottom:4px}.denominator-slot{padding-top:4px}.fraction-cell{text-align:center}.fraction-cell:placeholder-shown{background:#edf2e8;border:1px dashed #bdcdb2;min-width:2ch}.math-slot .editing-fraction{font-size:.84em}.free-check{margin-top:23px}.free-step{padding-top:25px}.accepted-row .free-step{padding-top:0}.free-preview{padding-top:12px}.math-token-input::-ms-clear{display:none}@media(max-width:650px){.notation-tool{min-width:36px;min-height:36px;font-size:19px;padding:6px 8px}.structured-math-editor{font-size:22px;padding:12px 8px;min-height:105px;gap:2px}.editing-fraction,.math-slot{min-width:43px}.math-slot{min-height:31px;padding-left:2px;padding-right:2px}.free-step{padding-top:24px}.accepted-row .free-step{padding-top:0}.free-check{margin-top:22px}}
+.levels button{flex-basis:calc((100% - 6px)/2)}
+.controls{grid-template-columns:minmax(0,1fr) 154px minmax(0,1fr);align-items:stretch}.operator-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.controls-middle{min-width:0}.equation-actions{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;width:100%}.both-sides-action{width:100%;min-height:38px;padding:8px 6px;border:1px solid #d8e3d1;border-radius:7px;background:#f5f8f1;color:#46613e;font-size:11px;line-height:1.25;font-weight:600}.both-sides-action:hover:not(:disabled){background:#e6f0e0;border-color:#94b185}.both-sides-action:disabled{opacity:.45}@media(max-width:850px){.controls{grid-template-columns:minmax(0,1fr) 124px minmax(0,1fr);gap:6px}}@media(max-width:650px){.controls{grid-template-columns:minmax(0,1fr) 104px minmax(0,1fr);gap:4px}.equation-actions{gap:6px}.both-sides-action{font-size:10px;padding:6px 3px;min-height:38px}}
+.controls-middle{flex-direction:column;gap:9px}.shared-operators{width:100%}.shared-operators .op{min-width:0}.control-panel{display:flex;flex-direction:column;justify-content:center}.control-panel .value-row{margin-top:0}.controls-middle .equation-actions{justify-content:flex-start}@media(max-width:650px){.shared-operators .op{font-size:18px;padding:6px 0}.controls-middle{gap:6px}}
+
+:host{color-scheme:light;border:2px solid var(--line);border-radius:3px;padding:12px;min-width:0}
+header,.intro,.settings,footer,#custom-btn{display:none!important}
+main{display:block;max-width:none;margin:0;padding:0}
+.lab .equation-area{min-width:0}
+@media(max-width:530px){:host{padding:7px}.lab-top{gap:4px;padding-inline:10px}.equation-area{padding-inline:10px}.actions{flex-wrap:wrap}}
+</style>
+<header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
+<div class="intro"><div><div class="eyebrow">SMALL STEPS. BIG UNDERSTANDING.</div><h1>Keep it balanced.</h1><p>Two sides. One golden rule. Find your way to <i>x</i>.</p></div><div class="intro-note">Whatever you do to one side,<br>do to the other.</div></div>
+<main>
+<aside class="settings card"><div class="section-title">Your practice</div><div class="settings-grid"><div><label class="setting-label">Equation type</label><div class="type-tabs" id="types"><button data-type="whole" class="active" aria-pressed="true">Non-fractional</button><button data-type="fraction" aria-pressed="false">Fractional</button></div></div><div><label class="setting-label">Difficulty</label><div class="levels" id="levels"><button data-level="1" class="active" aria-pressed="true">Level 1</button><button data-level="2" aria-pressed="false">Level 2</button><button data-level="3" aria-pressed="false">Level 3</button><button data-level="4" aria-pressed="false">Level 4</button></div></div></div><p class="difficulty-note" id="difficulty-note"></p><div id="mode-settings"><div class="divider"></div><div class="section-title">Working mode</div><div class="mode-wrap"><button class="mode active" data-mode="auto" aria-pressed="true"><span class="radio"></span><span><strong>1 · Calculate for me</strong><small>You choose the operation.<br>We calculate the result.</small></span></button><button class="mode" data-mode="manual" aria-pressed="false"><span class="radio"></span><span><strong>2 · I’ll write the working</strong><small>Write each step yourself.<br>We check the equation.</small></span></button></div></div><div id="free-mode-note" class="free-mode-note hidden"><span class="section-title">YOUR METHOD</span><strong>Write your own working</strong><p id="free-mode-description">Simplify, combine fractions or clear denominators. Each valid next equation is accepted.</p></div><div class="rule-card"><strong>✧ The golden rule</strong><p>Keep the equation equivalent by applying the same operation and value to both sides.</p></div></aside>
+<section class="workspace" aria-label="Equation workspace"><div class="exercise-bar"><div class="exercise-label" id="exercise-label">Non-fractional · Level 1 <span>Let’s isolate x</span></div><span class="pill" id="solved-count">0 solved this session</span></div>
+<div class="lab card"><div class="lab-top"><small id="step-label">YOUR EQUATION</small><div class="status" id="status"><span class="dot"></span><span id="status-text">Balanced</span></div></div><div class="equation-area"><div class="equation"><div class="math" id="left-equation"></div><div class="equal" id="equals">=</div><div class="math" id="right-equation"></div></div><div id="domain" class="domain hidden"></div><svg class="balance-art" id="balance-art" viewBox="0 0 700 48" aria-hidden="true"><g class="balance-beam"><path d="M115 13H585" stroke="#b2c7a8" stroke-width="2" stroke-linecap="round"/><circle cx="115" cy="13" r="4" fill="#d3dfcb"/><circle cx="585" cy="13" r="4" fill="#d3dfcb"/></g><path d="M350 15L336 39H364Z" fill="#e1e9d9"/><path d="M323 42H377" stroke="#c4d3ba" stroke-width="2" stroke-linecap="round"/><circle cx="350" cy="13" r="5" fill="#93ad86"/></svg><div class="side-labels"><span>LEFT-HAND SIDE</span><span></span><span>RIGHT-HAND SIDE</span></div></div>
+<div id="operation-controls" class="controls"><div class="control-panel" data-side="left"><div class="value-row"><input id="left-value" aria-label="Value for left side" placeholder="Enter a value" autocomplete="off" spellcheck="false"><button class="apply" id="apply-left">Apply</button></div><div class="side-done" id="left-done"></div></div><div class="controls-middle"><div class="shared-operators operator-row" role="group" aria-label="Choose an operation for both sides"><button class="op selected" data-op="+" aria-pressed="true" aria-label="Add">+</button><button class="op" data-op="-" aria-pressed="false" aria-label="Subtract">−</button><button class="op" data-op="*" aria-pressed="false" aria-label="Multiply">×</button><button class="op" data-op="/" aria-pressed="false" aria-label="Divide">÷</button></div><div id="equation-actions" class="equation-actions" role="group" aria-label="Operations on both sides"><button type="button" class="both-sides-action" data-action="square">Square both sides</button><button type="button" class="both-sides-action" data-action="root">Square root both sides</button></div></div><div class="control-panel" data-side="right"><div class="value-row"><input id="right-value" aria-label="Value for right side" placeholder="Enter a value" autocomplete="off" spellcheck="false"><button class="apply" id="apply-right">Apply</button></div><div class="side-done" id="right-done"></div></div></div>
+<p id="value-help" class="value-help hidden">Input tips: x^2 · (x+3)^2 · sqrt(x+4) · x+1 · (x-2)(x+2)</p><div class="manual hidden" id="manual"><div class="manual-inner"><div class="manual-title">Your turn: write the next line.</div><p id="manual-instructions">Work out both sides, then enter the resulting expressions.</p><div class="working-inputs"><input id="work-left" aria-label="Your next left-hand side" placeholder="Left-hand side" autocomplete="off" spellcheck="false"><span style="text-align:center">=</span><input id="work-right" aria-label="Your next right-hand side" placeholder="Right-hand side" autocomplete="off" spellcheck="false"></div><button class="check" id="check-working">Check my working →</button></div></div>
+<section id="free-workspace" class="free-workspace hidden" aria-label="Your working"><div class="free-heading"><h2>Your working</h2><span id="free-equation-kind" class="pill"></span></div><p id="free-input-help" class="free-input-help">Write one complete equation per step. Use the symbols when needed; Tab moves between numerator and denominator fields.</p><div class="free-tools" role="group" aria-label="Insert mathematical notation"><button class="notation-tool" data-insert="fraction" title="Insert fraction" aria-label="Insert fraction"><span class="frac notation-fraction" aria-hidden="true"><span>□</span><span>□</span></span></button><button class="notation-tool" data-insert="brackets" aria-label="Insert brackets" title="Insert brackets">( )</button><button class="notation-tool" data-insert="square" aria-label="Square current term" title="Square current term">x²</button><button class="notation-tool" data-insert="plusminus" aria-label="Insert plus or minus">±</button></div><div id="free-rows"></div></section>
+<div class="feedback" id="feedback" role="status" aria-live="polite"><div class="feedback-icon" id="feedback-icon">✓</div><div><strong id="feedback-title">A balanced beginning.</strong><p id="feedback-text">Choose an operation and a value on either side to take your first step.</p></div></div></div>
+<div class="actions"><div class="actions-left"><button class="secondary" id="undo">↶ Undo</button><button class="secondary" id="reset">↻ Restart</button><button class="secondary" id="hint-btn">✧ Hint</button><button class="secondary" id="custom-btn">Custom</button></div><button class="primary" id="next">New equation →</button></div><div class="hint hidden" id="hint" role="status"></div>
+<div id="working-trail" class="history card"><div class="history-header"><h2>Your working trail</h2><small id="history-count">Every balanced step counts</small></div><div id="history"></div></div><p class="footnote">Take your time. A good method matters more than a quick answer.</p>
+</section></main>
+<footer><span>Equation Lab &nbsp; / &nbsp; Learn by balancing</span><button class="textbtn" id="download" style="padding:0;font-size:10px">Download offline HTML ↓</button></footer>
+<dialog id="help"><h2>One equation. Two equal sides.</h2><p>Our goal is to get <b>x on its own</b>, with a number on the other side.</p><ol><li>Choose <b>+, −, × or ÷</b> and enter a value, then press <b>Apply</b> on either side.</li><li>Changing just one side breaks the balance. Apply the <b>same operation with the same value</b> to the other side.</li><li>In <b>Calculate for me</b>, each side simplifies automatically. In <b>I’ll write the working</b>, enter a complete next equation in each numbered step and press Check.</li><li>Repeat until you reach <b>x = a number</b> (or a number = x).</li></ol><p><b>Input tips:</b> Type 3x, -2, 1/2 or (x+1)/3. You can add or subtract x terms and x^2. Use sqrt(x+4) for a square root. With variable denominators, multiply by the common denominator and keep its excluded values. For two answers, type ±3 or 3, -3.</p><p style="margin-top:12px"><b>Difficulty:</b> Level 1 has x on one side; Level 2 adds brackets or more steps; Level 3 has x on both sides. Non-fractional Level 4 adds squared expressions. Fractional Level 4 adds linear denominators without a standalone added constant; these equations reduce to linear equations. In “I’ll write the working” for either equation type, or Fractional Level 4, enter a complete equation in each numbered working row and select Check. You can simplify or clear denominators in any valid order. Use the square symbol after a term: x becomes x², and (x+2) becomes (x+2)². The square symbol does not insert brackets. Select Edit to revise a checked step; later steps will be cleared. For squared equations, keep both roots. After squaring, check answers in the original equation.</p><button class="secondary" id="close-help">Got it</button></dialog>
+<dialog id="custom"><h2>Try your own equation</h2><p>Enter an equation with one or two rational real solutions. Try (x+3)^2 = 16, sqrt(x+4) = 5, or 6/(x+1) = 2.</p><input id="custom-equation" aria-label="Custom equation" placeholder="2x - 5 = 5" autocomplete="off" spellcheck="false"><p id="custom-error" role="alert"></p><div style="display:flex;gap:10px"><button class="primary" id="start-custom">Start equation</button><button class="secondary" id="close-custom" style="margin:0">Cancel</button></div></dialog>
+</template>
+    </section>
+    <section class="body group" data-view="assign" hidden>
+      <div class="row between"><h3>3. Review assignment</h3><button type="button" class="cursor-interaction" data-edit>Back to setup</button></div>
+      <p data-summary></p>
+      <p class="highlight" data-reward></p>
+      <small data-demo-only>Demo only: no task will be sent to students.</small>
+      <div class="row"><button type="button" class="main cursor-interaction" data-publish hidden>Publish mission</button><span data-publish-message role="status"></span></div>
+    </section>
+    <footer class="row between">
+      <small data-status aria-live="polite">Draft · Sample questions</small>
+      <div class="row">
+        <button type="button" class="cursor-interaction" data-save>Save draft</button>
+        <button type="button" class="main cursor-interaction" data-assign>Review assignment</button>
+      </div>
+    </footer>
+  </section>
+</div>
+<script>
+(() => {
+  const host=document.getElementById('dmn-mission-wireframe');
+  const mount=host.querySelector('[data-equation-lab]');
+  const lab=mount.attachShadow({mode:'open'});
+  lab.append(host.querySelector('[data-equation-lab-template]').content.cloneNode(true));
+  let missionTotal=0, reportSolved=null;
+
+'use strict';
+// Exact rational functions, with one square-root term. No eval or remote dependencies.
+function gcd(a,b){while(b)[a,b]=[b,a%b];return a<0n?-a:a}
+class Q{constructor(n,d=1n){n=BigInt(n);d=BigInt(d);if(!d)throw Error('Division by zero is not allowed.');if(d<0n){n=-n;d=-d}let g=gcd(n,d);this.n=n/g;this.d=d/g;if(this.n.toString().length>45||this.d.toString().length>45)throw Error('These numbers are too large. Try a smaller value.')}add(v){return new Q(this.n*v.d+v.n*this.d,this.d*v.d)}neg(){return new Q(-this.n,this.d)}sub(v){return this.add(v.neg())}mul(v){return new Q(this.n*v.n,this.d*v.d)}div(v){return new Q(this.n*v.d,this.d*v.n)}eq(v){return this.n===v.n&&this.d===v.d}zero(){return this.n===0n}str(){return this.d===1n?String(this.n):this.n+'/'+this.d}num(){return Number(this.n)/Number(this.d)}}
+const q=n=>new Q(n),Z=q(0),ONE=q(1);
+function integerRoot(n){if(n<0n)return null;if(n<2n)return n;let a=n,b=(a+1n)/2n;while(b<a){a=b;b=(a+n/a)/2n}return a*a===n?a:null}
+function sqrtQ(v){let a=integerRoot(v.n),b=integerRoot(v.d);return a===null||b===null?null:new Q(a,b)}
+const trim=p=>{while(p.length>1&&p.at(-1).zero())p.pop();return p},pz=p=>p.length===1&&p[0].zero();
+function pa(a,b){return trim(Array.from({length:Math.max(a.length,b.length)},(_,i)=>(a[i]||Z).add(b[i]||Z)))}
+const pn=a=>a.map(v=>v.neg()),ps=(a,b)=>pa(a,pn(b));
+function pm(a,b){if(a.length+b.length>12)throw Error('This expression is getting too complicated. Undo and choose a simpler step.');let out=Array.from({length:a.length+b.length-1},()=>Z);a.forEach((v,i)=>b.forEach((w,j)=>out[i+j]=out[i+j].add(v.mul(w))));return trim(out)}
+function pd(a,b){if(pz(b))throw Error('Division by zero is not allowed.');let r=a.slice(),out=Array.from({length:Math.max(1,a.length-b.length+1)},()=>Z);while(!pz(r)&&r.length>=b.length){let k=r.length-b.length,c=r.at(-1).div(b.at(-1));out[k]=c;r=ps(r,Array.from({length:k},()=>Z).concat(b.map(v=>v.mul(c))))}return [trim(out),r]}
+function pg(a,b){let count=0;while(!pz(b)){[a,b]=[b,pd(a,b)[1]];if(++count>16)throw Error('Use a simpler expression.')}let c=a.at(-1);return a.map(v=>v.div(c))}
+class F{constructor(n=[Z],d=[ONE]){n=trim(n.slice());d=trim(d.slice());if(pz(d))throw Error('Division by zero is not allowed.');if(pz(n)){this.n=[Z];this.d=[ONE];return}let g=pg(n,d);n=pd(n,g)[0];d=pd(d,g)[0];let c=d.at(-1);this.n=n.map(v=>v.div(c));this.d=d.map(v=>v.div(c))}add(v){return new F(pa(pm(this.n,v.d),pm(v.n,this.d)),pm(this.d,v.d))}neg(){return new F(pn(this.n),this.d)}sub(v){return this.add(v.neg())}mul(v){return new F(pm(this.n,v.n),pm(this.d,v.d))}div(v){return new F(pm(this.n,v.d),pm(this.d,v.n))}eq(v){return pz(ps(pm(this.n,v.d),pm(v.n,this.d)))}zero(){return pz(this.n)}constant(){return this.n.length===1&&this.d.length===1}at(x){const ev=p=>p.reduceRight((s,c)=>s.mul(x).add(c),Z);return ev(this.n).div(ev(this.d))}}
+const fc=v=>new F([v]),FX=new F([Z,ONE]),FZ=fc(Z),FONE=fc(ONE);
+function val(p=FZ,t=FZ,rad=null){return t.zero()?{p,t:FZ,rad:null}:{p,t,rad}}
+const vc=n=>val(fc(q(n))),VX=val(FX);
+function radical(r){if(r.constant()){let c=r.n[0];if(c.n<0n)throw Error('A square root must have a non-negative radicand.');let root=sqrtQ(c);if(root)return val(fc(root))}if(r.d.length!==1||r.n.length>2)throw Error('Use square roots of numbers or linear expressions, such as sqrt(x+3).');return val(FZ,FONE,r)}
+function rootContext(a,b){if(a.rad&&b.rad&&!a.rad.eq(b.rad))throw Error('Use one kind of square-root expression in each equation.');return a.rad||b.rad}
+function va(a,b){return val(a.p.add(b.p),a.t.add(b.t),rootContext(a,b))}const vn=a=>val(a.p.neg(),a.t.neg(),a.rad),vs=(a,b)=>va(a,vn(b));
+function vm(a,b){let r=rootContext(a,b);return val(a.p.mul(b.p).add(r?a.t.mul(b.t).mul(r):FZ),a.p.mul(b.t).add(a.t.mul(b.p)),r)}
+function vd(a,b){if(!b.rad)return val(a.p.div(b.p),a.t.div(b.p),a.rad);let r=rootContext(a,b),norm=b.p.mul(b.p).sub(b.t.mul(b.t).mul(r)),numerator=vm(a,val(b.p,b.t.neg(),b.rad));return val(numerator.p.div(norm),numerator.t.div(norm),r)}
+const vzero=a=>a.p.zero()&&a.t.zero(),vconstant=a=>a.p.constant()&&a.t.constant()&&(!a.rad||a.rad.constant());
+function veq(a,b){if(a.rad&&b.rad&&!a.rad.eq(b.rad))return false;return a.p.eq(b.p)&&a.t.eq(b.t)}
+function vAt(a,x){let p=a.p.at(x),t=a.t.at(x);if(!a.rad)return p.num();let r=a.rad.at(x);if(r.n<0n)throw Error('The square root is not real here.');return p.num()+t.num()*Math.sqrt(r.num())}
+function uniqueValues(values){return values.filter((v,i)=>!values.slice(0,i).some(w=>veq(v,w)))}
+const branch=values=>{let a=uniqueValues(values);return a.length===1?a[0]:{branches:a}},variants=v=>v.branches||[v];
+function same(a,b){let aa=variants(a),bb=variants(b);return aa.length===bb.length&&aa.every(v=>bb.some(w=>veq(v,w)))}
+function mapValue(a,fn){return branch(variants(a).map(fn))}
+function polyText(p){let s='';for(let i=p.length-1;i>=0;i--){let c=p[i];if(c.zero())continue;let abs=c.n<0n?c.neg():c,term=(i&&abs.eq(ONE)?'':abs.str())+(i?'x'+(i>1?'^'+i:''):'');s+=s?(c.n<0n?' - ':' + ')+term:(c.n<0n?'-':'')+term}return s||'0'}
+function fText(f){return f.d.length===1?polyText(f.n):'('+polyText(f.n)+')/('+polyText(f.d)+')'}
+function valueText(v){if(v.branches){let a=v.branches;if(a.length===2&&!a[0].rad&&!a[1].rad&&a[0].p.constant()&&a[1].p.eq(a[0].p.neg())){let c=a[0].p.n[0];return '±'+(c.n<0n?c.neg():c).str()}return a.map(valueText).join(' or ')}if(!v.rad)return fText(v.p);let term=(v.t.eq(FONE)?'':v.t.eq(fc(q(-1)))?'-':'('+fText(v.t)+')*')+'sqrt('+fText(v.rad)+')';return v.p.zero()?term:term+' + ('+fText(v.p)+')'}
+function parseDetail(source){let s=String(source).trim().replace(/[−–]/g,'-').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/²/g,'^2').replace(/√/g,'sqrt').replace(/X/g,'x').replace(/\s+/g,'');if(!s||s.length>180)throw Error('Enter an expression such as 3x, (x+2)^2, sqrt(x+4) or 2/(x-1).');let t=s.match(/sqrt|(?:\d+(?:\.\d+)?|\.\d+)|[x()+\-*/^]/g);if(!t||t.join('')!==s)throw Error('Use numbers, x, +, -, *, /, ^2, sqrt and brackets.');let i=0,depth=0,rules=[];const node=(kind,v,left,right)=>({kind,v,left,right});function expr(){let n=term();while(t[i]==='+'||t[i]==='-'){let op=t[i++],r=term();n=node(op,op==='+'?va(n.v,r.v):vs(n.v,r.v),n,r)}return n}function term(){let n=unary();while(t[i]==='*'||t[i]==='/'||t[i]==='x'||t[i]==='('||t[i]==='sqrt'){let op=t[i]==='*'||t[i]==='/'?t[i++]:'implicit',r=unary();if(op==='/'){if(r.v.rad)throw Error('Use a number or polynomial as a denominator.');rules.push({type:'nonzero',value:r.v.p});n=node('/',vd(n.v,r.v),n,r)}else n=node(op,vm(n.v,r.v),n,r)}return n}function unary(){if(t[i]==='+'){i++;return unary()}if(t[i]==='-'){i++;let n=unary();return node('neg',vn(n.v),n)}return power()}function power(){let n=atom();if(t[i]==='^'){i++;let exponent=t[i++];if(exponent!=='2')throw Error('This tool supports squared expressions using ^2.');n=node('square',vm(n.v,n.v),n)}return n}function atom(){if(t[i]==='('){if(++depth>14)throw Error('Use fewer nested brackets.');i++;let n=expr();if(t[i++]!==')')throw Error('Check your opening and closing brackets.');depth--;return node('group',n.v,n)}if(t[i]==='sqrt'){i++;let n=atom();if(n.v.rad)throw Error('Use a simple square root such as sqrt(x+2).');rules.push({type:'nonnegative',value:n.v.p});return node('sqrt',radical(n.v.p),n)}if(t[i]==='x'){i++;return node('x',VX)}let n=t[i++];if(!n||!/^\d|^\./.test(n))throw Error('The expression is incomplete. Check signs and brackets.');let parts=n.split('.'),d=parts[1]?10n**BigInt(parts[1].length):1n;let number=new Q(BigInt((parts[0]||'0')+(parts[1]||'')),d);return {...node('number',val(fc(number))),text:n}}let ast=expr();if(i!==t.length)throw Error('Check your expression and brackets.');return {value:ast.v,ast,rules}}
+const parse=s=>parseDetail(s).value;
+function parseWorking(s){s=String(s).trim();if(s.startsWith('±')){let v=parse(s.slice(1));if(!vconstant(v))throw Error('Use ± with a number.');return branch([v,vn(v)])}let parts=s.split(/\s+or\s+|,/);return parts.length>1?branch(parts.map(parse)):parse(s)}
+function polynomialRoots(p){p=trim(p.slice());if(p.length===1)return [];if(p.length===2)return [p[0].neg().div(p[1])];if(p.length!==3)throw Error('Choose an equation that reduces to a linear equation or a simple quadratic.');let disc=p[1].mul(p[1]).sub(q(4).mul(p[2]).mul(p[0]));if(disc.n<0n)return [];let root=sqrtQ(disc);if(!root)throw Error('Choose an equation with rational real answers for this practice tool.');let den=q(2).mul(p[2]);return [p[1].neg().add(root).div(den),p[1].neg().sub(root).div(den)].filter((v,i,a)=>!a.slice(0,i).some(w=>v.eq(w)))}
+function permitted(x,rules){return rules.every(r=>{try{let v=r.value.at(x);return r.type==='nonzero'?!v.zero():v.n>=0n}catch{return false}})}
+function solveEquation(l,r,rules){let diff=vs(l,r),f=diff.rad?diff.p.mul(diff.p).sub(diff.t.mul(diff.t).mul(diff.rad)):diff.p;if(f.zero())throw Error('Choose an equation with a finite set of solutions.');return polynomialRoots(f.n).filter(x=>{if(!permitted(x,rules))return false;try{return Math.abs(vAt(l,x)-vAt(r,x))<1e-8}catch{return false}})}
+function nonzeroOnDomain(v,rules){if(v.rad)return false;if(v.p.zero())return false;if(v.p.constant())return true;try{let roots=polynomialRoots(v.p.n);return roots.every(x=>!permitted(x,rules))}catch{return false}}
+function operate(u,op,v,rules=[]){if(op==='square')return mapValue(u,a=>vm(a,a));if(op==='+')return mapValue(u,a=>va(a,v));if(op==='-')return mapValue(u,a=>vs(a,v));if(!nonzeroOnDomain(v,rules))throw Error('For × or ÷, use a non-zero number, or a denominator expression already known to be non-zero. This avoids adding or losing answers.');return mapValue(u,a=>op==='*'?vm(a,v):vd(a,v))}
+function squareRootPair(l,r){if(l.branches||r.branches)throw Error('Finish simplifying the existing two answers first.');let swap=vconstant(l)&&!vconstant(r),expression=swap?r:l,number=swap?l:r;if(expression.rad||number.rad||!number.p.constant()||number.p.n[0].n<0n||expression.p.d.length!==1)throw Error('First isolate a perfect-square expression on one side and a non-negative square number on the other.');let p=expression.p.n;if(p.length!==3)throw Error('First isolate x^2 or a bracketed square.');let a=sqrtQ(p[2]);if(!a||a.zero())throw Error('Divide out the coefficient of the square first.');let b=(p[1]||Z).div(q(2).mul(a));if(!b.mul(b).eq(p[0]))throw Error('First remove the constant outside the squared expression.');let n=sqrtQ(number.p.n[0]);if(!n)throw Error('Use a perfect-square number for this square-root step.');let out=val(new F([b,a])),answers=branch([val(fc(n)),val(fc(n.neg()))]);return swap?[answers,out]:[out,answers]}
+function isolated(l,r){return same(l,VX)&&variants(r).every(vconstant)||same(r,VX)&&variants(l).every(vconstant)}
+const SYMBOL={'+':'+','-':'−','*':'×','/':'÷',square:'Square',root:'Undo square (±)'};
+// A local structured math editor. Text cells and nested fractions share the same equation model.
+let mathTree=[],mathTokenId=0,activeMathId=null;
+const newMathText=value=>({kind:'text',id:'m'+(++mathTokenId),value:String(value)});
+const newMathFraction=(numerator=[newMathText('')],denominator=[newMathText('')])=>({kind:'fraction',id:'f'+(++mathTokenId),numerator,denominator});
+function serialiseMath(tokens){return tokens.map(t=>t.kind==='text'?t.value:'('+serialiseMath(t.numerator)+')/('+serialiseMath(t.denominator)+')').join('')}
+function incompleteMath(tokens){return tokens.some(t=>t.kind==='fraction'&&(!serialiseMath(t.numerator).trim()||!serialiseMath(t.denominator).trim()||incompleteMath(t.numerator)||incompleteMath(t.denominator)))}
+function matchingMathBracket(s,pos,direction){let depth=0;for(let i=pos;i>=0&&i<s.length;i+=direction){if(s[i]===(direction===1?'(':')'))depth++;else if(s[i]===(direction===1?')':'(')&&--depth===0)return i}return -1}
+function ungroupMath(s){return s[0]==='('&&matchingMathBracket(s,0,1)===s.length-1?s.slice(1,-1):s}
+function mathTokensFromSource(source){
+  let s=String(source),tokens=[],cursor=0,depth=0;
+  for(let i=0;i<s.length;i++){
+    if(s[i]==='('){depth++;continue}if(s[i]===')'){depth--;continue}if(s[i]!=='/'||depth!==0)continue;
+    let endBase=i,start=i,denStart=i+1,denEnd=denStart;
+    while(endBase>cursor&&/\s/.test(s[endBase-1]))endBase--;
+    if(s.slice(endBase-2,endBase)==='^2')endBase-=2;else if(s[endBase-1]==='²')endBase--;
+    if(s[endBase-1]===')')start=matchingMathBracket(s,endBase-1,-1);else{start=endBase;while(start>cursor&&/[0-9xX.]/.test(s[start-1]))start--}
+    while(denStart<s.length&&/\s/.test(s[denStart]))denStart++;
+    if(s[denStart]==='('){let close=matchingMathBracket(s,denStart,1);if(close<0)continue;denEnd=close+1}
+    else{let match=s.slice(denStart).match(/^[+-]?(?:\d+(?:\.\d+)?|\.\d+|[xX])/);if(!match)continue;denEnd=denStart+match[0].length}
+    if(s.slice(denEnd,denEnd+2)==='^2')denEnd+=2;else if(s[denEnd]==='²')denEnd++;
+    if(start<cursor||start<0||start===endBase)continue;
+    tokens.push(newMathText(s.slice(cursor,start)),newMathFraction(mathTokensFromSource(ungroupMath(s.slice(start,i).trim())),mathTokensFromSource(ungroupMath(s.slice(denStart,denEnd).trim()))));
+    cursor=denEnd;i=denEnd-1;
+  }
+  tokens.push(newMathText(s.slice(cursor)));return tokens;
+}
+function findMathToken(id,tokens=mathTree,ancestors=[]){for(let i=0;i<tokens.length;i++){let t=tokens[i];if(t.id===id)return {token:t,index:i,list:tokens,ancestors};if(t.kind==='fraction')for(let slot of ['numerator','denominator']){let found=findMathToken(id,t[slot],[...ancestors,{fraction:t,slot,list:tokens,index:i}]);if(found)return found}}return null}
+function mathLeaves(tokens=mathTree){return tokens.flatMap(t=>t.kind==='text'?[t]:[...mathLeaves(t.numerator),...mathLeaves(t.denominator)])}
+function insertMathFractionAt(id,start,end){let loc=findMathToken(id);if(!loc||loc.token.kind!=='text')return null;let value=loc.token.value,selected=value.slice(start,end),fraction=newMathFraction([newMathText(selected)],[newMathText('')]);loc.list.splice(loc.index,1,newMathText(value.slice(0,start)),fraction,newMathText(value.slice(end)));return selected?fraction.denominator[0].id:fraction.numerator[0].id}
+function removeMathFraction(id){let loc=findMathToken(id);if(!loc||loc.token.kind!=='fraction')return null;let before=loc.list[loc.index-1],after=loc.list[loc.index+1],left=before?.kind==='text'?before.value:'',right=after?.kind==='text'?after.value:'',merged=newMathText(left+right),start=loc.index-(before?.kind==='text'?1:0),count=1+(before?.kind==='text'?1:0)+(after?.kind==='text'?1:0);loc.list.splice(start,count,merged);return {id:merged.id,caret:left.length}}
+function mathCellWidth(t,only=false){return only&&!t.value?'100%':Math.min(40,Math.max(2,t.value.length+1))+'ch'}
+function mathEditorHTML(tokens,context='',counter={fraction:0,text:0}){
+  let part=0,only=tokens.length===1&&tokens[0].kind==='text';
+  return tokens.map(t=>{
+    if(t.kind==='fraction'){let n=++counter.fraction;return '<span class="editing-fraction" role="group" aria-label="Fraction '+n+'"><span class="math-slot numerator-slot">'+mathEditorHTML(t.numerator,'Numerator '+n,counter)+'</span><span class="math-slot denominator-slot">'+mathEditorHTML(t.denominator,'Denominator '+n,counter)+'</span></span>'}
+    let rootOnly=!context&&only,label=context?(context+(only?'':' part '+(++part))):(rootOnly?'Working for Step '+steps.length:'Equation text '+(++counter.text));
+    let placeholder=context?'□':rootOnly?'Enter your next equation…':'…';
+    return '<input type="text" id="math-cell-'+t.id+'" class="math-token-input'+(context?' fraction-cell':'')+(rootOnly?' single-math-cell':'')+'" data-math-token="'+t.id+'" aria-label="'+esc(label)+'" value="'+esc(t.value)+'" placeholder="'+placeholder+'" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:'+mathCellWidth(t,rootOnly)+'">';
+  }).join('');
+}
+function focusMathCell(id,caret){let input=$('math-cell-'+id);if(!input)return;activeMathId=id;input.focus();let value=findMathToken(id)?.token.value||'';let pos=caret===undefined?value.length:Math.min(caret,value.length);if(input.setSelectionRange)input.setSelectionRange(pos,pos)}
+function focusMathEditor(){let first=findMathToken(activeMathId)?.token||mathLeaves().find(t=>t.value)||mathLeaves()[0];if(first)focusMathCell(first.id)}
+function clearMathError(){freeError='';$('free-row-error').classList.add('hidden');$('free-input').removeAttribute('aria-invalid')}
+function syncMathDraft(){freeDraft=serialiseMath(mathTree);clearMathError();showFreePreview()}
+function moveMathFocus(id,direction){let leaves=mathLeaves(),i=leaves.findIndex(t=>t.id===id),next=leaves[i+direction];if(next)focusMathCell(next.id,direction>0?0:undefined)}
+function handleMathKey(event,id){
+  let input=event.currentTarget,loc=findMathToken(id);if(!loc)return;let parent=loc.ancestors.at(-1),atStart=input.selectionStart===0&&input.selectionEnd===0,atEnd=input.selectionStart===input.value.length&&input.selectionEnd===input.value.length;
+  if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(parent)moveMathFocus(id,1);else checkFreeWorking();return}
+  if(event.key==='ArrowDown'&&parent?.slot==='numerator'){event.preventDefault();focusMathCell(mathLeaves(parent.fraction.denominator)[0].id);return}
+  if(event.key==='ArrowUp'&&parent?.slot==='denominator'){event.preventDefault();focusMathCell(mathLeaves(parent.fraction.numerator)[0].id);return}
+  if(event.key==='ArrowRight'&&atEnd){let leaves=mathLeaves();if(leaves.at(-1).id!==id){event.preventDefault();moveMathFocus(id,1)}return}
+  if(event.key==='ArrowLeft'&&atStart){let leaves=mathLeaves();if(leaves[0].id!==id){event.preventDefault();moveMathFocus(id,-1)}return}
+  if(event.key==='Backspace'&&atStart&&parent&&!serialiseMath(parent.fraction.numerator)&&!serialiseMath(parent.fraction.denominator)){event.preventDefault();let target=removeMathFraction(parent.fraction.id);syncMathDraft();renderMathTree(target.id,target.caret);return}
+  let adjacent=event.key==='Backspace'&&atStart?loc.list[loc.index-1]:event.key==='Delete'&&atEnd?loc.list[loc.index+1]:null;
+  if(adjacent?.kind==='fraction'){event.preventDefault();if(incompleteMath([adjacent])&&!serialiseMath(adjacent.numerator)&&!serialiseMath(adjacent.denominator)){let target=removeMathFraction(adjacent.id);syncMathDraft();renderMathTree(target.id,target.caret)}else focusMathCell(mathLeaves(event.key==='Backspace'?adjacent.denominator:adjacent.numerator)[0].id)}
+}
+function renderMathTree(focusId,caret){
+  let editor=$('free-input');if(!editor)return;editor.innerHTML=mathEditorHTML(mathTree);
+  lab.querySelectorAll('[data-math-token]').forEach(input=>{
+    let id=input.dataset.mathToken;input.addEventListener('focus',()=>activeMathId=id);
+    input.addEventListener('input',()=>{let loc=findMathToken(id);if(!loc)return;loc.token.value=input.value;activeMathId=id;input.style.width=mathCellWidth(loc.token,input.classList.contains('single-math-cell'));syncMathDraft()});
+    input.addEventListener('keydown',e=>handleMathKey(e,id));
+    input.addEventListener('paste',e=>{let text=e.clipboardData?.getData('text/plain');if(!text||!text.includes('/')||!input.classList.contains('single-math-cell'))return;e.preventDefault();let loc=findMathToken(id),a=input.selectionStart||0,b=input.selectionEnd||a;freeDraft=loc.token.value.slice(0,a)+text+loc.token.value.slice(b);mathTree=mathTokensFromSource(freeDraft);clearMathError();renderMathTree();showFreePreview();focusMathEditor()});
+  });
+  if(focusId)focusMathCell(focusId,caret);
+}
+function initialiseMathEditor(source){mathTree=mathTokensFromSource(source);activeMathId=(mathLeaves().find(t=>t.value)||mathLeaves()[0])?.id||null;renderMathTree()}
+function squareMathTerm(value,start,end){
+  let position=end;
+  while(position>0&&/\s/.test(value[position-1]))position--;
+  if(!position||!/[0-9xX)\u00b2]/.test(value[position-1]))throw Error('Write a term first, then press the square symbol.');
+  if(value[position-1]==='²'||value.slice(position-2,position)==='^2')throw Error('This term is already squared. Add your own brackets if you want to square the whole expression again.');
+  return {value:value.slice(0,position)+'²'+value.slice(position),caret:position+1};
+}
+function insertMathNotation(kind){
+  if(!$('free-input'))return;
+  let loc=findMathToken(activeMathId)||findMathToken(mathLeaves().at(-1)?.id);if(!loc||loc.token.kind!=='text')return;
+  let input=$('math-cell-'+loc.token.id),start=input?.selectionStart??loc.token.value.length,end=input?.selectionEnd??start,target,caret;
+  if(kind==='fraction'){target=insertMathFractionAt(loc.token.id,start,end);caret=0}
+  else if(kind==='square'){try{let result=squareMathTerm(loc.token.value,start,end);loc.token.value=result.value;target=loc.token.id;caret=result.caret}catch(e){feedback('warn','Choose a term to square.',e.message);return}}
+  else{let selected=loc.token.value.slice(start,end),text=kind==='brackets'?'('+selected+')':'±';loc.token.value=loc.token.value.slice(0,start)+text+loc.token.value.slice(end);target=loc.token.id;caret=start+(kind==='plusminus'?1:selected?text.length:1)}
+  syncMathDraft();renderMathTree(target,caret);
+}
+// Open working: validate each complete equation against the original solution set and domain.
+let freeDraft='',freeError='';
+function isFreeWorking(){return mode==='manual'||family==='fraction'&&difficulty===4}
+function normaliseWritten(s){return String(s).replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/\s+/g,'')}
+function parseFreeEquation(source){
+  let text=String(source).trim();
+  if(!text)throw Error('Enter your next equation before checking.');
+  if(text.length>450)throw Error('Keep each step to one short equation.');
+  let equals=(text.match(/=/g)||[]).length;
+  if(equals>1){
+    let alternatives=text.split(/\s+or\s+/i);
+    if(alternatives.length<2)throw Error('Use one equals sign per equation. For final answers, write x = 0 or x = 3.');
+    let parsed=alternatives.map(parseFreeEquation);
+    if(parsed.some(p=>!isolated(p.left,p.right)||!p.answerWritten))throw Error('Enter one equation per step. Use “or” between separate final answers, such as x = 0 or x = 3.');
+    let values=parsed.flatMap(p=>variants(same(p.left,VX)?p.right:p.left));
+    return {left:VX,right:branch(values),leftText:'x',rightText:values.map(valueText).join(' or '),rules:parsed.flatMap(p=>p.rules),source:text,answerWritten:true};
+  }
+  if(equals!==1)throw Error('Write a complete equation with an equals sign, for example (3x-1)/((x-1)(x+1)) = 1.');
+  let [leftText,rightText]=text.split('=').map(s=>s.trim());
+  let l=parseDetailIfSingle(leftText),r=parseDetailIfSingle(rightText);
+  let answerWritten=(normaliseWritten(leftText)==='x'&&variants(r.value).every(vconstant))||(normaliseWritten(rightText)==='x'&&variants(l.value).every(vconstant));
+  return {left:l.value,right:r.value,leftText,rightText,rules:[...l.rules,...r.rules],source:text,answerWritten};
+}
+function validateFreeEquation(source){
+  let p=parseFreeEquation(source);
+  if(p.rules.some(rule=>expected.some(x=>!permitted(x,[rule]))))throw Error('This line introduces a restriction that removes a valid answer. Check any factor you divided or cancelled.');
+  // Give direct feedback if an explicit final answer contains a forbidden value.
+  if(p.answerWritten){let values=variants(same(p.left,VX)?p.right:p.left);for(let v of values){if(v.rad||!v.p.constant())continue;if(!permitted(v.p.n[0],restrictions))throw Error('One of these answers makes an original denominator zero. Remove the excluded value.');}}
+  let roots=[];
+  for(let l of variants(p.left))for(let r of variants(p.right)){
+    let answers;
+    try{answers=solveEquation(l,r,[...restrictions,...p.rules])}catch(e){
+      if(e.message.includes('finite set'))throw Error('This line is true for every permitted x, so it has lost the equation to solve. Check what you cancelled.');
+      if(e.message.includes('rational real answers'))throw Error('This equation has different possible answers. Check the signs, brackets and common denominator.');
+      if(e.message.includes('reduces to'))throw Error('Simplify this line to a linear or quadratic equation, then check again.');
+      throw e;
+    }
+    for(let x of answers)if(!roots.some(v=>v.eq(x)))roots.push(x);
+  }
+  let missing=expected.filter(x=>!roots.some(v=>v.eq(x))),extra=roots.filter(x=>!expected.some(v=>v.eq(x)));
+  if(missing.length||extra.length){
+    if(p.answerWritten&&missing.length&&!extra.length)throw Error('You have a valid answer, but another answer is missing. Keep all valid solutions.');
+    if(p.answerWritten)throw Error('These answers do not all satisfy the original equation. Substitute each one back and check that no valid answer is missing.');
+    throw Error(family==='whole'?'This step changes the possible answers. Check your signs, brackets and arithmetic.':'This step changes the possible answers. Check your signs, brackets, numerator subtraction and denominator clearing.');
+  }
+  let previous=current().freeSource||current().leftText+' = '+current().rightText;
+  if(normaliseWritten(p.source)===normaliseWritten(previous))throw Error('This repeats the previous line. Show your next simplification or rearrangement.');
+  return p;
+}
+function freeEquationHTML(source){try{let p=parseFreeEquation(source);return math(p.leftText)+' <span class="working-equals">=</span> '+math(p.rightText)}catch{return esc(source)}}
+function showFreePreview(){let preview=$('free-preview');if(!preview)return;let text=freeDraft.trim();try{if(!text)throw Error();parseFreeEquation(text);preview.innerHTML='<span class="preview-label">Preview</span><span class="working-math">'+freeEquationHTML(text)+'</span>'}catch{preview.innerHTML='<span class="preview-placeholder">'+(text?'Complete your equation to see the mathematical preview.':'Use the symbols above to write your equation.')+'</span>'}}
+function checkFreeWorking(){
+  try{
+    if(serialiseMath(mathTree)===freeDraft&&incompleteMath(mathTree))throw Error('Complete every numerator and denominator before checking.');
+    let p=validateFreeEquation(freeDraft);
+    steps.push({...p,note:'Your working',freeSource:p.source});
+    freeDraft='';freeError='';pending=null;$('hint').classList.add('hidden');
+    feedback('','Correct — this is an equivalent equation.','Your method keeps the same valid answers. Continue with your next line of working.');
+    render();
+    if(p.answerWritten)complete();else focusMathEditor();
+  }catch(e){
+    freeError=e.message;
+    feedback('error','Check this step.',e.message);
+    $('free-row-error').textContent=e.message;$('free-row-error').classList.remove('hidden');
+    $('free-input').setAttribute('aria-invalid','true');
+  }
+}
+function editFreeStep(index){
+  if(index<1||index>=steps.length)return;
+  freeDraft=steps[index].freeSource||steps[index].leftText+' = '+steps[index].rightText;
+  steps=steps.slice(0,index);pending=null;freeError='';
+  feedback('','Editing Step '+index+'.','Later steps have been cleared so you can continue from this line.');
+  render();focusMathEditor();
+}
+function insertWorkingTemplate(kind){insertMathNotation(kind)}
+function renderFreeWorking(done){
+  if(!isFreeWorking())return;
+  let rows=steps.slice(1).map((s,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ Checked</span></span><div class="accepted-working working-math">'+freeEquationHTML(s.freeSource||s.leftText+' = '+s.rightText)+'</div><button class="free-edit" data-edit-step="'+(i+1)+'" aria-label="Edit Step '+(i+1)+'">Edit</button></div>').join('');
+  if(!done){rows+='<div class="free-row draft-row"><span class="free-step">Step '+steps.length+'</span><div class="free-editor"><div id="free-input" class="structured-math-editor" role="group" tabindex="-1" aria-label="Working space for Step '+steps.length+'" aria-describedby="free-input-help free-row-error"></div><div id="free-preview" class="free-preview" aria-live="off"></div><p id="free-row-error" role="alert" class="free-row-error'+(freeError?'':' hidden')+'">'+esc(freeError)+'</p></div><button id="free-check" class="free-check" aria-label="Check Step '+steps.length+'">Check</button></div>'}
+  else rows+='<div class="free-finished">✓ All valid answers checked in the original equation.</div>';
+  $('free-rows').innerHTML=rows;
+  $('free-equation-kind').textContent=vs(initial.left,initial.right).p.n.length>2?'Quadratic result':'Linear result';
+  lab.querySelectorAll('[data-edit-step]').forEach(b=>b.onclick=()=>editFreeStep(+b.dataset.editStep));
+  lab.querySelectorAll('[data-insert]').forEach(b=>b.disabled=done);
+  if(!done){
+    initialiseMathEditor(freeDraft);
+    $('free-check').onclick=checkFreeWorking;showFreePreview();
+  }
+}
+function renderFreeMode(){
+  let free=isFreeWorking();
+  $('operation-controls').classList.toggle('hidden',free);$('equation-actions').classList.toggle('hidden',free);$('free-workspace').classList.toggle('hidden',!free);$('mode-settings').classList.toggle('hidden',family==='fraction'&&difficulty===4);$('free-mode-note').classList.toggle('hidden',!free);$('free-mode-description').textContent=family==='whole'?'Write one complete equation per step. Use any valid method to isolate x.':'Simplify, combine fractions or clear denominators. Each valid next equation is accepted.';$('working-trail').classList.toggle('hidden',free);lab.querySelector('.lab').classList.toggle('free-layout',free);lab.querySelector('.side-labels').classList.toggle('hidden',free);$('balance-art').classList.toggle('hidden',free);
+  if(!free)return;
+  let done=isolated(current().left,current().right)&&finalValid()&&(!!current().answerWritten||family==='whole'&&steps.length>1);
+  $('left-equation').innerHTML=math(initial.leftText);$('right-equation').innerHTML=math(initial.rightText);$('equals').textContent='=';$('status').className='status';$('status-text').textContent=done?'Solved!':'Your working';$('step-label').textContent='ORIGINAL EQUATION';$('manual').classList.add('hidden');$('value-help').classList.add('hidden');renderFreeWorking(done);
+}
+// UI
+const $=id=>lab.getElementById(id);
+let family='whole',difficulty=1,mode='manual',solved=0,question=0,initial,steps=[],pending=null,selectedOp='+',counted=false,isCustom=false,restrictions=[],expected=[];
+const banks={whole:[['2x - 5','5'],['3x + 4','19'],['4x - 7','13'],['5x + 6','-9'],['7 - 2x','15']],fraction:[['x/3 + 2','6'],['x/4 - 3','2'],['x/2 + 5','8'],['x/5 - 2','-3'],['2x/3 + 1','7']]};
+const advanced={squares:[['x^2 - 9','16'],['(x + 3)^2','16'],['2(x - 2)^2 + 3','21'],['(x + 2)^2','x^2 + 16'],['3x^2 + 5','80'],['(x - 4)^2 - 6','19']],linearDenominators:[['6/(x + 1)','2'],['(2x + 3)/(x - 1)','5'],['3/(x - 2)','5/(x + 2)'],['(x + 4)/(x - 1)','2'],['2/(2x + 1)','7/(x + 4)'],['(x + 3)/(x - 2)','(x + 5)/(x + 1)']]};
+const notes={whole:['Two steps, with x on one side.','Brackets and more than one step.','Bring x terms together from both sides.','Squared expressions: x² and (x + a)². Remember both roots.'],fraction:['A fraction and a whole number.','A bracketed numerator or multiple fractions.','Fractional x terms on both sides.','Linear denominators, without a standalone added constant. Clear the fractions to obtain a linear equation.']};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fractionHTML(n,d,large=false){return '<span class="frac'+(large?' operation-fraction':'')+'"><span>'+n+'</span><span>'+d+'</span></span>'}
+function astHTML(n){switch(n.kind){case 'number':return esc(n.text);case 'x':return '<var>x</var>';case 'group':return '('+astHTML(n.left)+')';case 'neg':return '−'+astHTML(n.left);case 'square':return astHTML(n.left)+'<sup>2</sup>';case 'sqrt':{let a=n.left.kind==='group'?n.left.left:n.left;return '<span class="radical"><span class="root-sign">√</span><span class="radicand">'+astHTML(a)+'</span></span>'}case '/':{let ungroup=a=>astHTML(a.kind==='group'?a.left:a);return fractionHTML(ungroup(n.left),ungroup(n.right))}case 'implicit':return astHTML(n.left)+astHTML(n.right);case '*':return astHTML(n.left)+' × '+astHTML(n.right);default:return astHTML(n.left)+(n.kind==='+'?' + ':' − ')+astHTML(n.right)}}
+function math(s){s=String(s).trim();if(s.startsWith('±'))return '±'+math(s.slice(1));if(s.includes(' or '))return s.split(' or ').map(math).join('<span class="or-word"> or </span>');if(s.includes(','))return s.split(',').map(math).join('<span class="or-word"> or </span>');try{return astHTML(parseDetail(s).ast)}catch{return esc(s)}}
+function current(){return steps.at(-1)}
+function renderSide(side){let base=current(),p=pending&&pending[side];if(!p)return math(base[side+'Text']);if(mode==='auto')return math(valueText(p.result));if(p.op==='/')return fractionHTML(math(base[side+'Text']),math(valueText(p.value)),true);if(p.op==='square')return '('+math(base[side+'Text'])+')<sup>2</sup>';if(p.op==='root')return '<span class="radical"><span class="root-sign">√</span><span class="radicand">'+math(base[side+'Text'])+'</span></span>';return math(base[side+'Text'])+' '+SYMBOL[p.op]+' ('+math(valueText(p.value))+')'}
+function feedback(kind,title,description){$('feedback').className='feedback '+kind;$('feedback-title').textContent=title;$('feedback-text').textContent=description;$('feedback-icon').textContent=kind==='error'||kind==='warn'?'!':'✓'}
+function finalCandidates(){let c=current();if(!isolated(c.left,c.right))return [];return variants(same(c.left,VX)?c.right:c.left)}
+function finalValid(){let a=finalCandidates();return a.length===expected.length&&expected.every(x=>a.some(v=>veq(v,val(fc(x)))))}
+function domainText(){let excluded=[],other=[];for(let r of restrictions){if(r.value.constant())continue;if(r.type==='nonzero'){try{for(let x of polynomialRoots(r.value.n))if(!excluded.some(v=>v.eq(x)))excluded.push(x)}catch{other.push(fText(r.value)+' ≠ 0')}}else{let p=r.value.n;if(p.length===2&&r.value.d.length===1){let boundary=p[0].neg().div(p[1]);other.push('x '+(p[1].n>0n?'≥':'≤')+' '+boundary.str())}else other.push(fText(r.value)+' ≥ 0')}}return [...(excluded.length?['x ≠ '+excluded.map(v=>v.str()).join(', ')]:[]),...new Set(other)].join(' · ')}
+function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent='Non-fractional · I’ll write the working';$('difficulty-note').textContent=notes[family][difficulty-1];$('history-count').textContent=steps.length-1+' balanced step'+(steps.length===2?'':'s');$('history').innerHTML=steps.map((s,i)=>'<div class="history-row"><span class="step-number">'+i+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join('');lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
+function cleanInputs(){freeDraft='';freeError='';for(let side of ['left','right']){$(side+'-value').value='';$('work-'+side).value=''}$('hint').classList.add('hidden')}
+function start(l,r,custom=false){let ld=parseDetail(l),rd=parseDetail(r),rules=[...ld.rules,...rd.rules],answers=solveEquation(ld.value,rd.value,rules);if(!answers.length)throw Error('Choose an equation with at least one real solution.');if(answers.length>2)throw Error('Use an equation with at most two answers.');restrictions=rules;expected=answers;initial={left:ld.value,right:rd.value,leftText:l,rightText:r,note:'Starting equation',hasSquare:/\^2|²/.test(l+r),hasRoot:/sqrt|√/.test(l+r)};steps=[initial];pending=null;counted=false;isCustom=custom;cleanInputs();resetOperators();feedback('','A balanced beginning.',mode==='auto'?'Choose an operation and a value on either side to take your first step.':'Choose matching operations for both sides. Then type the next line yourself.');if(isFreeWorking())feedback('','Choose your own method.',family==='whole'?'Enter your next complete equation and press Check.':'Simplify the fractions, combine them, or clear the denominators. Enter your next equation and press Check.');render();if(isolated(initial.left,initial.right))complete()}
+function rand(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function newQuestion(){difficulty=Math.min(4,Math.max(1,difficulty));question++;if(difficulty===4){let key=family==='fraction'?'linearDenominators':'squares',b=advanced[key];start(...b[(question-1)%b.length]);return}if(difficulty===1){let b=banks[family];start(...b[(question-1)%b.length]);return}let x=rand(-5,9),a=rand(2,6),b=rand(1,8),d=rand(2,5);if(family==='whole'){if(difficulty===2)start(a+'(x - '+b+')',String(a*(x-b)));else{let c=rand(1,a-1);start(a+'x - '+b,c+'x + '+((a-c)*x-b))}}else if(difficulty===2)start('(x + '+b+')/'+d,String(new Q(x+b,d).str()));else{let den=rand(2,4);start('(x + '+b+')/'+d,'x/'+(d*den)+' + '+new Q(x*(den-1)+b*den,d*den).str())}}
+function complete(){if(!finalValid()){feedback('error','Check the answers in the original equation.','These values do not give the complete valid solution set. Squaring can add an extra answer, and a denominator must never be zero. Use Undo to review your steps.');render();return}if(!counted){solved++;counted=true;reportSolved?.(Number(expected[0].str()));}feedback('success',expected.length===2?'You found both solutions!':'You solved it. Nicely balanced!','x = '+expected.map(v=>v.str()).join(' or ')+'. '+(initial.hasRoot?'Checked in the original equation after squaring.':restrictions.length?'Checked against the original equation and its restrictions.':'Checked in the original equation.')+'');render()}
+function commit(left,right,leftText,rightText){let p=pending.left,note=p.op==='root'?'Square roots of both sides; keep both roots':p.op==='square'?'Square both sides; check answers':SYMBOL[p.op]+' ('+valueText(p.value)+') on both sides';steps.push({left,right,leftText,rightText,note});pending=null;cleanInputs();feedback('','Correct — matching operations.',mode==='auto'?'What will help you isolate x next?':'Your working is correct. Choose your next operation.');render();if(isolated(left,right))complete()}
+function apply(side){try{let detail=parseDetail($(side+'-value').value),value=detail.value,op=selectedOp,other=side==='left'?'right':'left';if(detail.rules.some(rule=>expected.some(x=>!permitted(x,[rule]))))throw Error('That expression is undefined at a valid answer. Choose a value that respects the original restrictions.');if(((op==='+'||op==='-')&&vzero(value))||((op==='*'||op==='/')&&veq(value,vc(1))))throw Error('That leaves the equation unchanged. Choose a step that helps isolate x.');let result=operate(current()[side],op,value,restrictions);if(!pending)pending={};pending[side]={value,op,result};$('hint').classList.add('hidden');if(pending.left&&pending.right&&pending.left.op===pending.right.op&&same(pending.left.value,pending.right.value))afterPair();else{let mismatch=!!pending[other];feedback('warn',mismatch?'The two sides do not match yet.':'Not balanced yet — change the other side too.',mismatch?'Update the '+other+'-hand side with the same operation and value, or correct this side again.':'You applied '+SYMBOL[op]+' ('+valueText(value)+') to the '+side+'-hand side only. Apply the same to the '+other+'-hand side.');render();$(other+'-value').focus()}}catch(e){feedback('error','Check your operation.',e.message)}}
+function afterPair(){if(mode==='auto')commit(pending.left.result,pending.right.result,valueText(pending.left.result),valueText(pending.right.result));else{feedback('','Matching operations. Now show your working.',pending.left.op==='root'?'Remember both the positive and negative roots. Type ±n or list both values separated by a comma.':pending.left.op==='square'?'Square each whole side. The result will need to be checked in the original equation.':'Calculate each side yourself and type the next line.');render();$('work-left').focus()}}
+function applyBoth(op){if(pending||!['square','root'].includes(op))return;try{let c=current(),pair=op==='root'?squareRootPair(c.left,c.right):[operate(c.left,'square'),operate(c.right,'square')];if(op==='square'&&(c.left.branches||c.right.branches))throw Error('Simplify the two-answer branch instead of squaring it again.');pending={left:{op,result:pair[0]},right:{op,result:pair[1]}};afterPair()}catch(e){feedback('error','Check this step.',e.message)}}
+function checkWorking(){if(!(pending&&pending.left&&pending.right))return;try{let ld=parseDetailIfSingle($('work-left').value),rd=parseDetailIfSingle($('work-right').value),l=ld.value,r=rd.value,lOk=same(l,pending.left.result),rOk=same(r,pending.right.result);if(!lOk||!rOk){feedback('error','Check the '+(!lOk&&!rOk?'left- and right-hand sides':!lOk?'left-hand side':'right-hand side')+'.',pending.left.op==='root'?'Keep both roots. For example, x² = 9 gives x = ±3, not just 3. Check your arithmetic too.':'Your expression does not match the selected operation. Check signs, brackets and arithmetic.');return}if([...ld.rules,...rd.rules].some(rule=>expected.some(x=>!permitted(x,[rule]))))throw Error('This working introduces a restriction that removes a valid solution. Simplify without adding a new denominator.');let lt=$('work-left').value.trim(),rt=$('work-right').value.trim();if(isolated(l,r)){let variableText=same(l,VX)?lt:rt;if(variableText.replace(/\s/g,'')!=='x'){feedback('warn','One more simplification.','Write the isolated variable simply as x to finish.');return}}commit(l,r,lt,rt)}catch(e){feedback('error','Check your working.',e.message)}}
+function parseDetailIfSingle(s){if(!/±|,|\sor\s/.test(s))return parseDetail(s);let parts=String(s).trim().replace(/^±/,'').split(/\s+or\s+|,/),rules=parts.flatMap(v=>parseDetail(v).rules);return {value:parseWorking(s),rules}}
+function linearCoefficients(v){if(v.branches||v.rad||v.p.d.length!==1||v.p.n.length>2)return null;return {a:v.p.n[1]||Z,b:v.p.n[0]}}
+function hint(){let c=current(),s;if(pending){if(pending.left&&pending.right)s=pending.left.op==='root'?'Keep both square roots. For example, (x+2)² = 9 gives x+2 = ±3.':'Work out the selected operation on each whole side, then enter both expressions.';else{let p=pending.left||pending.right;s='Apply '+SYMBOL[p.op]+' ('+valueText(p.value)+') to the '+(pending.left?'right':'left')+'-hand side too.'}}else if(isolated(c.left,c.right))s=finalValid()?'You have already isolated x. Choose New equation for more practice.':'Substitute each answer into the original equation. Undo any step that lost a solution.';else if(c.left.rad||c.right.rad){let v=c.left.rad?c.left:c.right;if(!v.p.zero())s='Isolate the square root: subtract '+fText(v.p)+' from both sides.';else if(!v.t.eq(FONE))s='Divide both sides by '+fText(v.t)+' to leave just the square root.';else s='Now use Square both sides to remove the square root. Check the final answer in the original equation.'}else if(c.left.p.d.length>1||c.right.p.d.length>1){let factors=[c.left.p.d,c.right.p.d].filter(p=>p.length>1),distinct=[];for(let p of factors){let f=new F(p);if(!distinct.some(v=>v.eq(f)))distinct.push(f)}let lcd=distinct.reduce((v,f)=>v.mul(f),FONE);s='Clear the denominators. Multiply both sides by '+fText(lcd)+'. Keep the original restrictions: '+domainText()+'.'}else{let l=linearCoefficients(c.left),r=linearCoefficients(c.right);if(!l||!r){let lp=c.left.p.n,rp=c.right.p.n;if(lp.length===3&&rp.length===3&&lp[2].eq(rp[2]))s='The x² terms can cancel. Subtract '+polyText([Z,Z,lp[2]])+' from both sides.';else{try{squareRootPair(c.left,c.right);s='The square is isolated. Use Square root both sides, and keep both the positive and negative roots.'}catch{let quadraticSide=lp.length===3?'left':rp.length===3?'right':null;if(quadraticSide){let expression=c[quadraticSide].p,other=c[quadraticSide==='left'?'right':'left'].p,p=expression.n;if(other.n.length>1)s='Move the variable terms to the '+quadraticSide+'-hand side: subtract '+polyText([Z,...other.n.slice(1)])+' from both sides.';else if(!p[2].eq(ONE))s='To complete the square, divide both sides by '+p[2].str()+' so the coefficient of x² is 1.';else if(!p[0].zero())s='Remove the constant beside the x² and x terms: subtract '+p[0].str()+' from both sides.';else{let half=(p[1]||Z).div(q(2)),amount=half.mul(half);s='Complete the square: half the coefficient of x is '+half.str()+'. Add its square, '+amount.str()+', to both sides. Then use Square root both sides and keep both roots.'}}else s='First isolate the squared expression: remove any constant outside the square, then divide out its multiplier. Expand brackets in your working if helpful.'}}}else if(!l.a.zero()&&!r.a.zero())s='Collect the x terms. Subtract '+valueText(val(new F([Z,r.a])))+' from both sides.';else{let v=l.a.zero()?r:l;if(!v.b.zero())s='Remove the constant: '+(v.b.n>0n?'subtract '+v.b.str():'add '+v.b.neg().str())+' on both sides.';else s='Divide both sides by '+v.a.str()+' to leave x on its own.'}}if(isFreeWorking())s=s.replace('Use Square root both sides','Take square roots').replace('use Square root','take square roots').replace('Expand brackets in your working if helpful.','Expand brackets in your next line if helpful.');$('hint').textContent=s;$('hint').classList.remove('hidden')}
+function resetOperators(){selectedOp='+';lab.querySelectorAll('.shared-operators .op').forEach(b=>{let on=b.dataset.op==='+';b.classList.toggle('selected',on);b.setAttribute('aria-pressed',on)})}
+lab.querySelectorAll('.shared-operators .op').forEach(b=>b.onclick=()=>{selectedOp=b.dataset.op;lab.querySelectorAll('.shared-operators .op').forEach(o=>{let on=o===b;o.classList.toggle('selected',on);o.setAttribute('aria-pressed',on)})});
+for(let side of ['left','right']){$('apply-'+side).onclick=()=>apply(side);$(side+'-value').addEventListener('keydown',e=>{if(e.key==='Enter')apply(side)})}
+lab.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{family=b.dataset.type;question=0;newQuestion()});lab.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{difficulty=+b.dataset.level;question=0;newQuestion()});lab.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{if(mode===b.dataset.mode)return;mode=b.dataset.mode;pending=null;cleanInputs();feedback('','Working mode changed.',mode==='manual'?'Write your next complete equation in the working space, then press Check.':'Choose an operation and we’ll calculate each side.');render()});
+$('check-working').onclick=checkWorking;for(let s of ['left','right'])$('work-'+s).addEventListener('keydown',e=>{if(e.key==='Enter')checkWorking()});lab.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>applyBoth(b.dataset.action));
+$('next').onclick=newQuestion;$('reset').onclick=()=>start(initial.leftText,initial.rightText,isCustom);$('undo').onclick=()=>{if(isFreeWorking()){if(steps.length>1){let removed=steps.pop();freeDraft=removed.freeSource||removed.leftText+' = '+removed.rightText}freeError='';pending=null;$('hint').classList.add('hidden');feedback('','Step undone. Revise this line.','Your previous working is ready to edit.');render();focusMathEditor();return}if(pending)pending=null;else if(steps.length>1)steps.pop();cleanInputs();feedback('','Step undone. Try another approach.','Choose an operation that moves you closer to x on its own.');render()};$('hint-btn').onclick=hint;$('help-btn').onclick=()=>$('help').showModal();$('close-help').onclick=()=>$('help').close();$('custom-btn').onclick=()=>{$('custom-error').textContent='';$('custom').showModal();$('custom-equation').focus()};$('close-custom').onclick=()=>$('custom').close();$('start-custom').onclick=()=>{try{let e=$('custom-equation').value.split('=');if(e.length!==2)throw Error('Enter one equals sign, with an expression on each side.');start(e[0].trim(),e[1].trim(),true);$('custom').close()}catch(e){$('custom-error').textContent=e.message}};$('custom-equation').addEventListener('keydown',e=>{if(e.key==='Enter')$('start-custom').click()});
+
+lab.querySelectorAll('[data-insert]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>insertWorkingTemplate(b.dataset.insert)});
+mount.openMissionEquation=(equation, position, total, showHint, next, onSolved)=>{
+  reportSolved=onSolved;
+  const [left,right]=equation.replaceAll('−','-').split('=').map(s=>s.trim());
+  missionTotal=total;
+  question=position;
+  solved=0;
+  family='whole';
+  mode='manual';
+  start(left,right,true);
+  $('exercise-label').textContent='Non-fractional · I’ll write the working';
+  $('solved-count').textContent='Question '+position+' of '+total;
+  $('hint-btn').hidden=!showHint;
+  $('next').textContent='Next question →';
+  $('next').disabled=position===total;
+  $('next').onclick=next;
+};
+mount.setMissionBusy=(busy,last)=>{
+  $('next').disabled=busy||last;
+};
+
+})();
+</script>
+<script>
+(() => {
+  const root = document.getElementById('dmn-mission-wireframe');
+  const pick = k => root.querySelector('[data-' + k + ']');
+  const views = [...root.querySelectorAll('[data-view]')];
+  const types = [...root.querySelectorAll('fieldset input')];
+  const names = {one:'One step',two:'Two steps',both:'Unknown on both sides',brackets:'Brackets'};
+  const rand = (a,b) => a + Math.floor(Math.random() * (b-a+1));
+  const constant = n => n < 0 ? ' − ' + Math.abs(n) : ' + ' + n;
+  const number = n => String(n).replace('-', '−');
+  let rows=[], index=0, lastMix='', storageKey='', publish=null, playing=null, saveAnswer=null, leave=null, saving=false, playToken=0;
+  const lab=root.querySelector('[data-equation-lab]');
+  function make(type) {
+    const x = rand(-8,12), a = rand(2,6), b = rand(1,9) * (Math.random() < .5 ? -1 : 1), c = rand(2,6);
+    if (type === 'one') return {type, x, eq:'x' + constant(b) + ' = ' + number(x+b), hint:'Undo the addition or subtraction on both sides.'};
+    if (type === 'two') return {type, x, eq:a+'x'+constant(b)+' = '+number(a*x+b), hint:'Undo the constant term before dividing by the coefficient of x.'};
+    if (type === 'both') return {type, x, eq:(a+c)+'x'+constant(b)+' = '+c+'x'+constant(a*x+b), hint:'Subtract the same x-term from both sides to collect the unknowns on one side.'};
+    return {type, x, eq:a+'(x'+constant(b)+') = '+number(a*(x+b)), hint:'Divide both sides by the number outside the brackets first.'};
+  }
+  const chosen = () => types.filter(e=>e.checked).map(e=>e.value);
+  const mix = () => chosen().join(',') + '/' + pick('count').value;
+  function unique(type) {
+    let q;
+    do { q = make(type); } while (rows.some(r => r.eq === q.eq));
+    return q;
+  }
+  function status(s){pick('status').textContent=s;}
+  function review(){
+    const list = pick('list');
+    list.replaceChildren();
+    rows.forEach((r,i)=>{
+      const li = document.createElement('li'), data = document.createElement('div');
+      const q = document.createElement('span'), meta = document.createElement('small');
+      q.className='question-text'; q.textContent=(i+1)+'.  '+r.eq;
+      meta.textContent=names[r.type]+' · x = '+number(r.x);
+      data.append(q,meta);
+      const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
+      btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button').focus();});
+      li.append(data,btn);list.append(li);
+    });
+    pick('total').textContent=rows.length+' questions';
+  }
+  function message(s,error=false){const msg=pick('settings-message');msg.textContent=s;msg.classList.toggle('error',error);}
+  function generate(){
+    const pool=chosen();
+    if(!pool.length){message('Select at least one equation type.',true);return;}
+    rows=[];
+    for(let i=0;i<Number(pick('count').value);i++) rows.push(unique(pool[i%pool.length]));
+    rows.sort((a,b)=>Object.keys(names).indexOf(a.type)-Object.keys(names).indexOf(b.type));
+    lastMix=mix();message('');review();status('Draft · Questions generated');
+  }
+  function show(name){views.forEach(v=>v.hidden=v.dataset.view!==name);}
+  function ready(){
+    if(lastMix!==mix()){show('setup');message('Generate questions to apply your new settings.',true);return false;}
+    for(const key of ['title','class','coins']){
+      const el=pick(key);
+      if(!el.value.trim() || !el.checkValidity()){show('setup');message('Check the title, class and coin reward.',true);el.focus();return false;}
+    }
+    message('');return true;
+  }
+  function preview(){
+    const questions=playing?.questions||rows;
+    pick('preview-title').textContent=playing?.title||pick('title').value;
+    pick('prev').disabled=index===0;
+    pick('play-status').textContent=playing?.solved.includes(index)?'Solved previously. You can practise again.':'';
+    pick('retry').hidden=true;
+    const token=++playToken, i=index;
+    lab.openMissionEquation(
+      questions[index].eq, index+1, questions.length, playing?.hints??pick('hints').checked,
+      ()=>{if(!saving&&index<questions.length-1){index++;preview();}},
+      playing ? answer=>submitAnswer(i,answer,token,questions.length) : null);
+  }
+  async function submitAnswer(i,answer,token,total){
+    if(saving||token!==playToken)return;
+    saving=true;
+    pick('retry').hidden=true;
+    lab.setMissionBusy(true,i===total-1);
+    pick('prev').disabled=true;
+    pick('back').disabled=true;
+    pick('play-status').textContent='Saving your answer…';
+    try {
+      const message=await saveAnswer(i,answer);
+      if(token===playToken)pick('play-status').textContent=message;
+    }catch(error){
+      if(token===playToken){
+        pick('play-status').textContent='Couldn’t save: '+error.message;
+        pick('retry').hidden=false;
+        pick('retry').onclick=()=>submitAnswer(i,answer,token,total);
+      }
+    }finally{
+      if(token===playToken){
+        saving=false;
+        pick('prev').disabled=i===0;
+        pick('back').disabled=false;
+        lab.setMissionBusy(false,i===total-1);
+      }
+    }
+  }
+  pick('generate').onclick=generate;
+  [...types,pick('count')].forEach(el=>el.addEventListener('change',()=>message(lastMix===mix()?'':'Generate questions to apply changes.')));
+  pick('preview').onclick=()=>{if(ready()){index=0;show('preview');preview();pick('back').focus();}};
+  pick('prev').onclick=()=>{if(index>0){index--;preview();}};
+  pick('back').onclick=()=>playing?leave():show('setup');
+  pick('edit').onclick=()=>show('setup');
+  function draft(){
+    return {title:pick('title').value.trim(),className:pick('class').value,coins:Number(pick('coins').value),
+      hints:pick('hints').checked,selected:chosen(),questions:rows};
+  }
+  pick('save').onclick=()=>{
+    if(!ready())return;
+    try{localStorage.setItem(storageKey,JSON.stringify(draft()));status('Draft saved on this device');}
+    catch{status('Draft could not be saved on this device.');}
+  };
+  pick('assign').onclick=()=>{
+    if(!ready())return;
+    const coins=Number(pick('coins').value);
+    pick('summary').textContent=pick('title').value+' · '+pick('class').value+' · '+rows.length+' questions';
+    pick('reward').textContent='First completion: +'+coins+' spendable coins and +'+coins+' to leaderboard score. Further practice does not award the same coins again.';
+    pick('publish-message').textContent='';
+    show('assign');
+  };
+  pick('publish').onclick=()=>{if(publish&&ready())publish(draft(),pick('publish'));};
+  root.missionBuilder={
+    draftKey(key){
+      if(storageKey===key)return;
+      storageKey=key;
+      pick('title').value='Solve equations without fractions';
+      pick('coins').value='10';
+      pick('hints').checked=true;
+      pick('count').value='6';
+      types.forEach(el=>el.checked=true);
+      generate();
+      try {
+        const d=JSON.parse(localStorage.getItem(key));
+        if(!d||![4,6,8,10].includes(d.questions?.length)||!Array.isArray(d.selected))return;
+        pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;
+        pick('count').value=d.questions.length;
+        types.forEach(el=>el.checked=d.selected.includes(el.value));
+        rows=d.questions;lastMix=mix();review();
+        this.savedClass=d.className;
+        if(pick('class').tagName==='INPUT')pick('class').value=d.className;
+        status('Saved draft');
+      }catch{}
+    },
+    teacher(classes,onPublish){
+      const old=pick('class'), prior=this.savedClass||old.value;
+      const select=document.createElement('select');
+      select.dataset.class='';
+      select.append(new Option('Select a class',''));
+      classes.forEach(c=>select.append(new Option(c.label,c.id)));
+      select.value=classes.some(c=>c.id===prior)?prior:classes.length===1?classes[0].id:'';
+      this.savedClass=null;
+      old.replaceWith(select);
+      publish=onPublish;
+      pick('publish').hidden=false;
+      pick('demo-only').hidden=true;
+    },
+    published(){
+      try{localStorage.removeItem(storageKey);}catch{}
+      status('Mission published');
+      show('setup');
+    },
+    publishError(message){pick('publish-message').textContent=message;},
+    play(m,onSolve,onBack){
+      playing=m;saveAnswer=onSolve;leave=onBack;
+      index=m.questions.findIndex((_,i)=>!m.solved.includes(i));
+      if(index<0)index=0;
+      root.querySelector('header').hidden=true;
+      root.querySelector('footer').hidden=true;
+      pick('back').textContent='Back to my missions';
+      show('preview');preview();
+    },
+    exit(){
+      ++playToken;playing=null;saving=false;pick('back').disabled=false;
+      root.querySelector('header').hidden=false;
+      root.querySelector('footer').hidden=false;
+      pick('back').textContent='Back to setup';show('setup');
+    }
+  };
+  generate();
+  status('Draft · Sample questions');
+})();
+</script>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="app.js"></script>
+</body></html>
