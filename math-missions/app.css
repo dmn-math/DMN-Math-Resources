@@ -189,6 +189,11 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #mm-login-class-name{font-weight:750;color:var(--accent)}
 #missions-app .mm-login-roster-list{list-style:none;margin:12px 0;padding:0;max-height:330px;overflow:auto}
 #missions-app .mm-login-roster-list li{justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule)}
-#mm-teacher-class-code,#mm-issued-codes{font-family:ui-monospace,monospace}
+#mm-teacher-class-code,#mm-teacher-code-input{font-family:ui-monospace,monospace}
 #missions-app .mm-remember-class{display:flex;align-items:center;gap:7px}
 #missions-app .mm-remember-class input{width:auto;margin:0;accent-color:var(--accent)}
+
+#missions-app .mm-login-step{font-size:.82rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase;color:var(--accent)}
+.mm-login-slides{overflow:clip;padding:4px}
+#missions-app #mm-password-form{margin-top:0;border-top:0;padding-top:0}
+#missions-app #mm-password-fields{width:100%}

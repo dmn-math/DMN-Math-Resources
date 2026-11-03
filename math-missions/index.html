@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Algebra Town | DMN Math Resources</title>
-<link rel="stylesheet" href="app.css?v=class-login">
+<link rel="stylesheet" href="app.css?v=class-login-2">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div><small>DMN MATH RESOURCES</small><h1>Algebra Town</h1></div>
@@ -15,23 +15,27 @@
   <p id="mm-notice" class="mm-notice" role="status" aria-live="polite"></p>
   <section data-mm-view="login" class="mm-card mm-sign-in" hidden>
     <h2>Sign in to Algebra Town</h2>
-    <p>Enter the class code your teacher gave you.</p>
-    <form id="mm-class-code-form" class="mm-form">
-      <label>Class code<input id="mm-class-code" required maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
-      <label class="mm-remember-class"><input id="mm-remember-class" type="checkbox"> Remember my class on this device</label>
-      <button type="submit">Find my class</button>
-    </form>
-    <form id="mm-password-form" class="mm-form" hidden>
-      <p id="mm-login-class-name"></p>
-      <label>Your name<select id="mm-login-member" required></select></label>
-      <label id="mm-setup-label" hidden>Personal setup code<input id="mm-setup-code" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
-      <label><span id="mm-password-label">Password</span><input id="mm-password" type="password" required minlength="8" maxlength="72" autocomplete="current-password"></label>
-      <small id="mm-setup-help" hidden>Choose at least 8 characters. Your setup code is used only once.</small>
-      <div class="mm-row">
-        <button id="mm-password-submit" class="mm-primary" type="submit">Sign in</button>
-        <button id="mm-toggle-setup" type="button">First time or reset password</button>
-      </div>
-    </form>
+    <p id="mm-login-step" class="mm-login-step">Step 1 of 2 · Class code</p>
+    <div class="mm-login-slides">
+      <form id="mm-class-code-form" class="mm-form">
+        <p>Enter the class code your teacher gave you.</p>
+        <label>Class code<input id="mm-class-code" required maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+        <label class="mm-remember-class"><input id="mm-remember-class" type="checkbox"> Remember my class on this device</label>
+        <button type="submit">Continue</button>
+      </form>
+      <form id="mm-password-form" class="mm-form" hidden>
+        <div class="mm-row">
+          <button id="mm-change-class" type="button">← Change class</button>
+          <p id="mm-login-class-name"></p>
+        </div>
+        <label>Your name<select id="mm-login-member" required></select></label>
+        <div id="mm-password-fields" class="mm-form" hidden>
+          <label><span id="mm-password-label">Password</span><input id="mm-password" type="password" required minlength="8" maxlength="72" autocomplete="current-password"></label>
+          <small id="mm-setup-help" hidden>Choose at least 8 characters. Check that you picked your own name.</small>
+          <button id="mm-password-submit" class="mm-primary" type="submit">Sign in</button>
+        </div>
+      </form>
+    </div>
     <div class="mm-google-sign-in"><button id="mm-login" type="button">Continue with Google</button></div>
   </section>
   <section data-mm-view="demo" class="mm-card mm-guest" hidden>
@@ -66,6 +70,8 @@
       <h2>Class login without Google</h2>
       <form id="mm-login-roster-form" class="mm-form">
         <label>Class<select id="mm-login-roster-class" required></select></label>
+        <label>Class code<input id="mm-teacher-code-input" required maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+        <small>Choose 6–24 letters or numbers. Avoid a code that is easy to guess, such as the class name alone.</small>
         <label>Student names or nicknames, one per line<textarea id="mm-login-names" rows="4" maxlength="4000" autocomplete="off" placeholder="IslandExplorer"></textarea></label>
         <small>Saving also imports names from this class’s existing roster. Use the same names for students who already have progress.</small>
         <div class="mm-row">
@@ -75,11 +81,7 @@
       </form>
       <div id="mm-login-roster-result" hidden>
         <p>Class code: <strong id="mm-teacher-class-code"></strong></p>
-        <button type="button" id="mm-issue-codes">Generate codes for students who need one</button>
         <ul id="mm-login-roster-list" class="mm-login-roster-list"></ul>
-        <label id="mm-issued-label" hidden>Share each student’s personal code privately. These codes expire in 7 days and are only shown here once.
-          <textarea id="mm-issued-codes" rows="6" readonly spellcheck="false"></textarea>
-        </label>
       </div>
     </section>
     <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
@@ -952,6 +954,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js?v=class-login"></script>
-<script src="app.js?v=class-login"></script>
+<script src="town-art.js?v=class-login-2"></script>
+<script src="app.js?v=class-login-2"></script>
 </body></html>

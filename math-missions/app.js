@@ -427,64 +427,55 @@
   const loginClass=()=>q('mm-login-roster-class').value;
   function clearLoginRoster(){
     q('mm-login-roster-result').hidden=true;
-    q('mm-issued-codes').value='';
-    q('mm-issued-label').hidden=true;
+    q('mm-teacher-code-input').value='';
     q('mm-login-names').value='';
   }
   q('mm-login-roster-class').onchange=clearLoginRoster;
   function renderLoginRoster(result,cls){
     q('mm-login-roster-result').hidden=!result.code;
     q('mm-teacher-class-code').textContent=result.code||'';
-    q('mm-issue-codes').disabled=!result.members.some(m=>m.status==='Needs code');
+    q('mm-teacher-code-input').value=result.code||'';
     const list=q('mm-login-roster-list');list.replaceChildren();
     for(const member of result.members){
       const li=el('li','','mm-row');
-      const identity=el('span',member.alias+' · '+member.status);
-      const issue=button(member.status==='Needs code'?'Get setup code':'Replace setup code',()=>{
-        if(member.status!=='Needs code'&&!confirm('Issue a new setup code for '+member.alias+'? This replaces any earlier setup code.'))return;
-        busy(issue,()=>issueCodes(cls,member.id));
-      });
-      issue.setAttribute('aria-label',issue.textContent+' for '+member.alias);
-      li.append(identity,issue);list.append(li);
+      li.append(el('span',member.alias+' · '+member.status));
+      if(member.status==='Password set'){
+        const reset=button('Reset password',()=>{
+          if(!confirm('Reset the password for '+member.alias+'? They can choose a new one from the class list.'))return;
+          busy(reset,async()=>{
+            const {data,error}=await api.auth.getSession();
+            if(error||!data.session?.access_token)throw new Error('Sign in again as a teacher to reset passwords.');
+            await classLogin({action:'reset',classId:cls,member:member.id},data.session.access_token);
+            if(state?.role==='teacher'&&loginClass()===cls)await readLoginRoster(cls);
+            notice('Password reset. '+member.alias+' can now choose a new password.');
+          });
+        });
+        reset.setAttribute('aria-label','Reset password for '+member.alias);li.append(reset);
+      }
+      list.append(li);
     }
   }
-  async function readLoginRoster(cls,names=null){
-    const result=await rpc('mm_class_login_manage',{p_class:cls,p_names:names});
+  async function readLoginRoster(cls,names=null,code=null){
+    const result=await rpc('mm_class_login_manage',{p_class:cls,p_names:names,p_code:code});
     if(state?.role==='teacher'&&loginClass()===cls)renderLoginRoster(result,cls);
     return result;
-  }
-  async function issueCodes(cls,id=null){
-    const issued=await rpc('mm_class_login_issue',{p_class:cls,p_member:id});
-    if(state?.role!=='teacher'||loginClass()!==cls)return;
-    if(!issued.length){notice('No students need a setup code right now.');return;}
-    q('mm-issued-codes').value=issued.map(entry=>entry.alias+' — '+entry.code).join('\n');
-    q('mm-issued-label').hidden=false;
-    notice(issued.length+' setup '+(issued.length===1?'code generated.':'codes generated.'));
-    try{await readLoginRoster(cls);}catch{notice('Codes were generated. Copy them before reloading the class.');}
   }
   q('mm-load-login-roster').onclick=()=>busy(q('mm-load-login-roster'),async()=>{
     const cls=loginClass();
     if(!cls)throw new Error('Choose a class first.');
     const result=await readLoginRoster(cls);
-    if(!result.code&&loginClass()===cls)notice('Class login is not set up yet. Save the roster to enable it.');
+    if(!result.code&&loginClass()===cls)notice('Class login is not set up yet. Choose a class code and save the roster.');
   });
   q('mm-login-roster-form').onsubmit=e=>{
     e.preventDefault();
     const cls=loginClass();
     busy(e.submitter,async()=>{
       const names=q('mm-login-names').value.split(/\r?\n/).map(name=>name.trim()).filter(Boolean);
-      await readLoginRoster(cls,names);
+      await readLoginRoster(cls,names,q('mm-teacher-code-input').value.trim());
       if(loginClass()===cls){q('mm-login-names').value='';notice('Class login roster saved.');}
     });
   };
-  q('mm-issue-codes').onclick=()=>{
-    const control=q('mm-issue-codes');
-    busy(control,()=>issueCodes(loginClass())).finally(()=>{
-      if(q('mm-login-roster-result').hidden)return;
-      control.disabled=![...q('mm-login-roster-list').children].some(node=>node.firstElementChild.textContent.endsWith(' · Needs code'));
-    });
-  };
-  let activeRoom='', setupMode=false, roomRequest=0;
+  let activeRoom='', setupMode=false, roomRequest=0, loginMembers=new Map();
   const classMemoryKey='algebra-town-remembered-class';
   q('mm-remember-class').onchange=()=>{
     if(!q('mm-remember-class').checked)try{localStorage.removeItem(classMemoryKey);}catch{}
@@ -492,64 +483,92 @@
   };
   function setSetupMode(enabled){
     setupMode=enabled;
-    q('mm-setup-label').hidden=!enabled;q('mm-setup-help').hidden=!enabled;
-    q('mm-setup-code').required=enabled;q('mm-setup-code').value='';
+    q('mm-setup-help').hidden=!enabled;
     q('mm-password').value='';q('mm-password').autocomplete=enabled?'new-password':'current-password';
     q('mm-password-label').textContent=enabled?'Choose a password':'Password';
     q('mm-password-submit').textContent=enabled?'Set password and sign in':'Sign in';
-    q('mm-toggle-setup').textContent=enabled?'I already have a password':'First time or reset password';
   }
-  async function classLogin(data){
+  function updateLoginMember(){
+    const member=loginMembers.get(q('mm-login-member').value);
+    q('mm-password-fields').hidden=!member;
+    setSetupMode(Boolean(member?.needsSetup));
+  }
+  q('mm-login-member').onchange=updateLoginMember;
+  function showLoginStep(next,animate){
+    const first=q('mm-class-code-form'), second=q('mm-password-form');
+    first.hidden=next;second.hidden=!next;
+    q('mm-login-step').textContent=next?'Step 2 of 2 · Name and password':'Step 1 of 2 · Class code';
+    if(animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      (next?second:first).animate(
+        [{transform:'translateX('+(next?22:-22)+'px)',opacity:.2},{transform:'translateX(0)',opacity:1}],
+        {duration:240,easing:'ease-out'});
+    }
+  }
+  async function classLogin(data,accessToken){
+    const headers={'Content-Type':'application/json',apikey:config.publishableKey};
+    if(accessToken)headers.Authorization='Bearer '+accessToken;
     const response=await fetch(config.url.replace(/\/+$/,'')+'/functions/v1/algebra-town-login',{
-      method:'POST',headers:{'Content-Type':'application/json',apikey:config.publishableKey},body:JSON.stringify(data)
+      method:'POST',headers,body:JSON.stringify(data)
     });
     let result;
     try{result=await response.json();}catch{throw new Error('Class login is unavailable. Ask your teacher or use Google.');}
     if(!response.ok){
-      if(result.passwordSaved)setSetupMode(false);
-      throw new Error(result.error||result.message||'Class login is unavailable. Ask your teacher or use Google.');
+      const error=new Error(result.error||result.message||'Class login is unavailable. Ask your teacher or use Google.');
+      error.reloadClass=result.reloadClass||result.passwordSaved;
+      throw error;
     }
     return result;
   }
   q('mm-class-code').oninput=()=>{
-    ++roomRequest;activeRoom='';q('mm-password-form').hidden=true;
-    q('mm-login-member').replaceChildren();q('mm-login-class-name').textContent='';setSetupMode(false);
+    ++roomRequest;activeRoom='';loginMembers.clear();
+    q('mm-login-member').replaceChildren();q('mm-login-class-name').textContent='';updateLoginMember();
   };
-  async function findClass(code,focus=true){
+  q('mm-change-class').onclick=()=>{
+    notice();++roomRequest;activeRoom='';loginMembers.clear();
+    q('mm-login-member').replaceChildren();updateLoginMember();showLoginStep(false,true);
+    q('mm-class-code').focus();
+  };
+  async function findClass(code,focus=true,selected=''){
     const request=++roomRequest;
     const result=await classLogin({action:'names',room:code});
     if(request!==roomRequest)return;
     const select=q('mm-login-member');select.replaceChildren(new Option('Select your name',''));
+    loginMembers=new Map(result.members.map(member=>[member.id,member]));
     for(const member of result.members)select.add(new Option(member.alias,member.id));
     if(!result.members.length){notice('There are no names on this class list yet.',true);return;}
+    select.value=loginMembers.has(selected)?selected:'';
     activeRoom=code;
     if(q('mm-remember-class').checked)try{localStorage.setItem(classMemoryKey,code);}catch{}
     q('mm-login-class-name').textContent=result.className;
-    setSetupMode(false);q('mm-password-form').hidden=false;
+    updateLoginMember();
+    showLoginStep(true,focus);
     if(focus)select.focus();
   }
   q('mm-class-code-form').onsubmit=e=>{
     e.preventDefault();
     busy(e.submitter,()=>findClass(q('mm-class-code').value.trim()));
   };
-  q('mm-toggle-setup').onclick=()=>{
-    setSetupMode(!setupMode);
-    q(setupMode?'mm-setup-code':'mm-password').focus();
-  };
   q('mm-password-form').onsubmit=e=>{
     e.preventDefault();
     busy(e.submitter,async()=>{
-      if(!activeRoom)return;
-      const result=await classLogin({
-        action:setupMode?'setup':'login',room:activeRoom,member:q('mm-login-member').value,
-        password:q('mm-password').value,setup:setupMode?q('mm-setup-code').value:undefined
-      });
+      const room=activeRoom, member=q('mm-login-member').value, request=roomRequest;
+      if(!room||!member)return;
+      let result;
+      try{
+        result=await classLogin({action:setupMode?'setup':'login',room,member,password:q('mm-password').value});
+      }catch(error){
+        if(error.reloadClass&&request===roomRequest)await findClass(room,false,member).catch(()=>{});
+        throw error;
+      }
+      if(request!==roomRequest)return;
       setSetupMode(false);
       const {data,error}=await api.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});
       if(error)throw error;
       user=data.session?.user||data.user;
       if(!user)throw new Error('Could not open your session. Try signing in again.');
-      q('mm-login-member').value='';
+      const signedInMember=loginMembers.get(member);
+      if(signedInMember)signedInMember.needsSetup=false;
+      q('mm-login-member').value='';updateLoginMember();
       await loadState();
     });
   };
@@ -566,7 +585,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();view('login');q('mm-roster').value='';clearLoginRoster();setSetupMode(false);
+    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
