@@ -26,8 +26,7 @@
     ['costume-tree','costume','Christmas tree',30,[54,662,255,420]],
     ['costume-vampire','costume','Vampire',30,[342,715,271,369]],
     ['costume-iron','costume','Iron Man',40,[646,713,236,371]],
-    ['costume-snowman','costume','Snowman',30,[937,674,251,410]],
-    ['plant','decor','Desk plant',5,'🌱'],['lamp','decor','Reading lamp',10,'💡'],['sign','decor','Cabin sign',15,'🪧']
+    ['costume-snowman','costume','Snowman',30,[937,674,251,410]]
   ].map(([id,slot,name,price,detail])=>({id,slot,name,price,detail}));
   const byId=Object.fromEntries(catalog.map(item=>[item.id,item]));
   const hats={
@@ -75,16 +74,10 @@
       '<path stroke="#a78052" opacity=".8" d="M'+x+' '+(y-4)+'V'+floor+' M'+(x-8)+' '+(y+2)+'V'+floor+' M'+(x+8)+' '+(y+2)+'V'+floor+'"/>';
     return svg(data.box,sheet('house',1774,887)+door,'mm-house mm-sheet-art');
   }
-  function plot({level=1,outfit={},items=[]}={}){
+  function plot({level=1,outfit={}}={}){
     const node=document.createElement('div');
     node.className='mm-plot-art';
     node.append(avatar(outfit),house(level));
-    const decor=items.filter(id=>byId[id]?.slot==='decor');
-    if(decor.length){
-      const strip=document.createElement('span');strip.className='mm-plot-decor';
-      strip.textContent=decor.map(id=>byId[id].detail).join(' ');strip.setAttribute('aria-label',decor.map(id=>byId[id].name).join(', '));
-      node.append(strip);
-    }
     return node;
   }
   window.AlgebraTownArt={houses,catalog,byId,avatar,house,plot};

@@ -108,29 +108,20 @@
       (target&&!target.disabled&&!target.hidden?target:q(area==='home'?'mm-house-name':'mm-outfit-title')).focus({preventScroll:true});
     }
   }
-  const ladder=q('mm-house-ladder');
-  art.houses.forEach((entry,i)=>{
-    const li=el('li'), illustration=art.house(i+1);illustration.classList.add('mm-ladder-art');
-    li.append(illustration,el('strong',entry.name),el('small',i===0?'Free starter home':entry.price+' coins'));
-    ladder.append(li);
-  });
   function renderHome(){
-    q('mm-home-scene').replaceChildren(art.plot({...town,items:state.owned}));
+    q('mm-home-scene').replaceChildren(art.plot(town));
     const current=art.houses[town.level-1],next=art.houses[town.level];
-    q('mm-house-name').textContent=current.name;q('mm-house-level').textContent='Level '+town.level+' of '+art.houses.length;
-    [...ladder.children].forEach((node,i)=>{
-      if(i+1===town.level)node.setAttribute('aria-current','step');else node.removeAttribute('aria-current');
-    });
+    q('mm-house-name').textContent=current.name;q('mm-house-level').textContent='Level '+town.level;
     const upgrade=q('mm-upgrade-house'), note=q('mm-upgrade-note');
     upgrade.hidden=!next;
     if(next){
       const missing=Math.max(0,next.price-state.balance);
-      upgrade.textContent='Upgrade to '+next.name+' · '+next.price+' coins';
+      upgrade.textContent='Upgrade house · '+next.price+' coins';
       upgrade.disabled=!townReady||townPending||missing>0;
-      note.textContent=!townReady?'Loading your home…':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'House upgrades are permanent.';
+      note.textContent=!townReady?'Loading your home…':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
       const level=town.level+1;
       upgrade.onclick=()=>{
-        if(!window.confirm('Upgrade to '+next.name+' for '+next.price+' coins?'))return;
+        if(!window.confirm('Spend '+next.price+' coins to reveal your next house?'))return;
         townAction(async()=>{
           const wallet=await rpc('mm_town_upgrade',{p_next:level});
           return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,message:next.name+' is ready!'};
@@ -138,7 +129,7 @@
       };
     }else note.textContent='You’ve reached the final house upgrade!';
   }
-  const sectionNames={tee:'Plain tees',pants:'Simple pants',hat:'Hats',costume:'Costumes',decor:'Home decorations'};
+  const sectionNames={tee:'Plain tees',pants:'Simple pants',hat:'Hats',costume:'Costumes'};
   function outfitWith(item){
     const outfit={...town.outfit,[item.slot]:item.id};
     if(item.slot!=='costume')delete outfit.costume;
@@ -181,10 +172,10 @@
       const grid=el('div','','mm-shop-grid');
       products.filter(p=>p.slot===slot).forEach(p=>{
         const card=el('article','','mm-shop-item'),visual=el('div','','mm-product-art');
-        if(slot==='decor')visual.append(el('span',p.detail));else visual.append(art.avatar({[slot]:p.id}));
+        visual.append(art.avatar({[slot]:p.id}));
         const owned=state.owned.includes(p.id),worn=town.outfit[slot]===p.id&&(slot==='costume'||!town.outfit.costume);
         const tools=el('div','','mm-shop-actions');
-        if(slot!=='decor'){
+        {
           const tryOn=button('Try on',()=>{
             previewItem=p.id;renderFittingRoom();
             const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -200,8 +191,7 @@
           },'shop','mm-equip-'+p.id));
           buy.disabled=townPending||!townReady||state.balance<p.price;
           buy.setAttribute('aria-label','Buy '+p.name+' for '+p.price+' coins');tools.append(buy);
-        }else if(slot==='decor'){tools.append(el('span','At home','mm-owned'));}
-        else{
+        }else{
           const equip=button(worn?'Wearing':'Wear',()=>townAction(async()=>{
             const outfit=await rpc('mm_town_equip',{p_slot:slot,p_item:p.id});
             previewItem=null;return {outfit,message:'Now wearing '+p.name+'.'};
@@ -228,7 +218,8 @@
       {alias:'Mia',level:2,outfit:{hat:'hat-flat',tee:'tee-yellow'},items:[]},
       {alias:'Ari',level:3,outfit:{costume:'costume-princess'},items:[]},
       {alias:'Sam',level:4,outfit:{costume:'costume-snowman'},items:[]},
-      {alias:'Pi Pilot',level:8,outfit:{costume:'costume-iron'},items:['lamp']}
+      {alias:'Pi Pilot',level:8,outfit:{costume:'costume-iron'}},
+      {alias:'Quinn',level:2,outfit:{hat:'hat-beanie'}}
     ];
     if(name==='mm_town_equip'){
       const {p_slot:slot,p_item:item}=args;
@@ -392,15 +383,17 @@
     const myRun=++run;
     view('play');builder.hidden=false;
     builder.missionBuilder.play(mission,async (i,answer)=>{
-      if(mission.solved.includes(i))return 'Already saved. Keep practising!';
+      if(mission.solved.includes(i))return {message:'Already saved. Keep practising!'};
       const result=await rpc('mm_solve_answer',{p_mission:mission.id,p_index:i,p_answer:answer});
       mission.solved.push(i);mission.complete=result.complete;
-      if(myRun!==run)return '';
-      return result.complete?(result.awarded?'Mission complete! You earned '+result.awarded+' coins.':'Mission complete.'):'Question saved.';
+      if(myRun!==run)return {message:''};
+      if(Number.isFinite(result.balance))state.balance=result.balance;
+      if(Number.isFinite(result.score))state.score=result.score;
+      return result.complete?{message:'All answers saved. Complete the mission to celebrate!',completion:{coins:result.awarded||0}}:{message:'Question saved.'};
     },async ()=>{
       ++run;
       builder.missionBuilder.exit();
-      selectDestination('missions');view('student');renderStudent();
+      selectDestination('home');view('student');renderStudent();
       try{state=await rpc('mm_state');if(q('mm-view-student').hidden===false)renderStudent();}
       catch(e){notice(e.message,true);}
     });

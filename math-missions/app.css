@@ -126,23 +126,25 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 .mm-plot-art .mm-avatar{width:70%;max-width:150px;height:auto;max-height:214px;display:block;z-index:1;margin-bottom:3%}
 .mm-plot-art .mm-house{width:100%;max-height:290px;height:auto;display:block}
 .mm-sheet-art{mix-blend-mode:darken;overflow:hidden}
-.mm-plot-decor{position:absolute;right:6%;bottom:5%;z-index:2;background:#fff8e8;border-radius:50px;padding:3px 7px;font-size:clamp(.67rem,2vw,.95rem)}
 .mm-home-caption{margin:15px 0 12px}
 #missions-app .mm-home-caption h3{margin:0;font-size:1.45rem}
 #missions-app .mm-home-caption p{margin:4px 0 9px}
-.mm-house-ladder{border-top:1px solid var(--rule);padding-top:13px}
-.mm-house-ladder summary{cursor:pointer;color:var(--accent);font-weight:700}
-#mm-house-ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,119px),1fr));gap:9px;padding:0;margin:12px 0 0;list-style:none}
-#mm-house-ladder li{min-width:0;border:1px solid var(--rule);border-radius:12px;padding:7px;display:grid;justify-items:center;background:var(--paper)}
-#mm-house-ladder li[aria-current]{background:var(--panel);border-color:var(--accent)}
-.mm-ladder-art{display:block;width:100%;height:73px;background:#fef4e2;border-radius:8px;mix-blend-mode:normal}
 #mm-town-neighbourhood>p{text-align:center}
-.mm-street{list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:660px;margin:12px auto 0;padding:0}
-.mm-plot-card{min-width:0;border:1px solid var(--rule);border-radius:17px;overflow:hidden;background:var(--paper)}
-.mm-plot-caption{padding:8px 13px;overflow-wrap:anywhere}
-.mm-street .mm-plot-art{padding:6px 12%;border-radius:0}
-.mm-street .mm-plot-art .mm-house{max-height:210px}
-.mm-street .mm-plot-art .mm-avatar{max-height:153px}
+#missions-app .mm-dashboard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.18fr);align-items:start;gap:14px}
+#missions-app .mm-dashboard .mm-card{margin:0}
+#missions-app .mm-dashboard #mm-missions{margin-top:13px}
+@media(max-width:650px){
+  #missions-app .mm-dashboard{grid-template-columns:minmax(0,1fr)}
+}
+.mm-street{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px auto 0;padding:0}
+.mm-plot-card{min-width:0;border:1px solid var(--rule);border-radius:13px;overflow:hidden;background:var(--paper);display:grid;grid-template-rows:1fr auto}
+.mm-plot-caption{padding:6px 7px;overflow-wrap:anywhere;font-size:.86rem;line-height:1.25}
+.mm-street .mm-plot-art{grid-row:1;padding:4px;min-height:0;height:clamp(70px,12vw,110px);border-radius:0}
+.mm-street .mm-plot-art .mm-house{max-height:100%;height:100%}
+.mm-street .mm-plot-art .mm-avatar{max-height:73%;width:96%}
+@media(max-width:740px){.mm-street{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:560px){.mm-street{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:350px){.mm-street{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .mm-wardrobe-preview{display:grid;grid-template-columns:minmax(85px,1fr) minmax(0,1.55fr);align-items:center;gap:12px;padding:12px;border:1px solid var(--rule);border-radius:18px;background:var(--panel)}
 #mm-own-avatar{display:grid;place-items:center;min-height:142px;border-radius:14px;background:#fef4e2}
 #mm-own-avatar svg{display:block;width:87%;height:clamp(125px,23vw,210px)}
@@ -154,11 +156,9 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 .mm-shop-item{min-width:0;display:grid;align-content:start;gap:5px;padding:9px;border:1px solid var(--rule);border-radius:14px;background:var(--paper)}
 .mm-product-art{display:grid;place-items:center;height:110px;border-radius:10px;background:#fef4e2}
 .mm-product-art svg{width:100%;max-width:110px;height:100px}
-.mm-product-art span{font-size:2.5rem}
 .mm-shop-actions{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
 #missions-app .mm-shop-actions button,#missions-app #mm-outfit-tools button{padding:4px 7px;font-size:.83rem;min-height:38px}
 #missions-app .mm-shop-actions button:last-child:not(:disabled){background:var(--panel)}
-#missions-app .mm-owned{color:var(--accent);font-size:.84rem}
 @media(max-width:520px){
   #missions-app .mm-header nav{gap:6px;font-size:.83rem}
   #missions-app .mm-header nav button{padding:5px 7px;min-height:40px}
@@ -169,3 +169,17 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
   .mm-product-art svg{height:91px}
   #missions-app .mm-shop-actions button,#missions-app #mm-outfit-tools button{min-height:44px}
 }
+
+#dmn-mission-wireframe .mm-mission-finish{text-align:center}
+#dmn-mission-wireframe .mm-mission-finish button{font-size:1rem;padding:12px 21px}
+#dmn-mission-wireframe .mm-victory{width:min(92%,380px);border:1px solid var(--line);border-radius:21px;background:var(--panel);color:var(--ink);padding:18px 23px 24px;text-align:center}
+#dmn-mission-wireframe .mm-victory::backdrop{background:#16251cb8}
+#dmn-mission-wireframe .mm-victory h2{margin:2px 0 8px;font:800 1.7rem/1.15 system-ui,sans-serif}
+#dmn-mission-wireframe .mm-victory p{margin:0 0 15px}
+#dmn-mission-wireframe .mm-victory-art{margin:0 auto;width:min(100%,235px);background:#fff2cd;border-radius:23px}
+.mm-victory-art svg{display:block;width:100%;height:auto}
+.mm-victory[open] .mm-victory-horn{transform-origin:90px 72px;animation:town-horn .75s cubic-bezier(.22,.75,.25,1.14) both}
+.mm-victory[open] .mm-victory-burst{transform-origin:161px 65px;animation:town-burst .62s .27s ease-out both}
+@keyframes town-horn{0%{opacity:0;transform:translateX(-23px) scale(.72) rotate(-17deg)}65%{opacity:1;transform:rotate(6deg) scale(1.04)}100%{transform:none}}
+@keyframes town-burst{0%{opacity:0;transform:scale(.36)}75%{opacity:1;transform:scale(1.11)}100%{transform:none}}
+@media(prefers-reduced-motion:reduce){.mm-victory[open] .mm-victory-horn,.mm-victory[open] .mm-victory-burst{animation:none}}

@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Algebra Town | DMN Math Resources</title>
-<link rel="stylesheet" href="app.css?v=illustrated-town">
+<link rel="stylesheet" href="app.css?v=home-missions">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div><small>DMN MATH RESOURCES</small><h1>Algebra Town</h1></div>
@@ -64,14 +64,14 @@
       </div>
     </div>
     <nav class="mm-row mm-destinations" aria-label="Town destinations">
-      <button type="button" data-town-destination="home" aria-controls="mm-town-home" aria-pressed="true">My Home</button>
-      <button type="button" data-town-destination="missions" aria-controls="mm-town-missions" aria-pressed="false">Mission Hall</button>
+      <button type="button" data-town-destination="home" aria-controls="mm-town-dashboard" aria-pressed="true">Home &amp; Missions</button>
       <button type="button" data-town-destination="neighbourhood" aria-controls="mm-town-neighbourhood" aria-pressed="false">Neighbourhood</button>
       <button type="button" data-town-destination="cabin" aria-controls="mm-town-cabin" aria-pressed="false">Cabin &amp; Shop</button>
       <button type="button" data-town-destination="leaderboard" aria-controls="mm-town-leaderboard" aria-pressed="false">Class Rankings</button>
       <button type="button" id="mm-demo-back" hidden>Back to teacher demo</button>
     </nav>
-    <section class="mm-card mm-home-card" data-town-panel="home" id="mm-town-home">
+    <div class="mm-dashboard" data-town-panel="home" id="mm-town-dashboard">
+    <section class="mm-card mm-home-card" id="mm-town-home">
       <h2 class="mm-ribbon">My Home</h2>
       <div id="mm-home-scene" class="mm-home-scene"></div>
       <div class="mm-home-caption">
@@ -80,9 +80,9 @@
         <button type="button" class="mm-primary" id="mm-upgrade-house"></button>
         <p id="mm-upgrade-note" class="mm-muted" role="status"></p>
       </div>
-      <details class="mm-house-ladder"><summary>See all 10 house levels</summary><ol id="mm-house-ladder"></ol></details>
     </section>
-    <section class="mm-card" data-town-panel="missions" id="mm-town-missions" hidden><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
+    <section class="mm-card" id="mm-town-missions"><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
+    </div>
     <section class="mm-card" data-town-panel="leaderboard" id="mm-town-leaderboard" hidden><h2>Class leaderboard</h2><ul id="mm-leaderboard"></ul></section>
     <section class="mm-card" data-town-panel="neighbourhood" id="mm-town-neighbourhood" hidden>
       <h2 class="mm-ribbon">Neighbourhood</h2>
@@ -103,7 +103,7 @@
         </div>
       </div>
       <nav class="mm-shop-jumps" aria-label="Shop categories">
-        <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a><a href="#mm-shop-decor">Decorations</a>
+        <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a>
       </nav>
       <div id="mm-shop"></div>
     </section>
@@ -241,7 +241,31 @@ main{display:block;max-width:none;margin:0;padding:0}
 <dialog id="help"><h2>One equation. Two equal sides.</h2><p>Our goal is to get <b>x on its own</b>, with a number on the other side.</p><ol><li>Choose <b>+, −, × or ÷</b> and enter a value, then press <b>Apply</b> on either side.</li><li>Changing just one side breaks the balance. Apply the <b>same operation with the same value</b> to the other side.</li><li>In <b>Calculate for me</b>, each side simplifies automatically. In <b>I’ll write the working</b>, enter a complete next equation in each numbered step and press Check.</li><li>Repeat until you reach <b>x = a number</b> (or a number = x).</li></ol><p><b>Input tips:</b> Type 3x, -2, 1/2 or (x+1)/3. You can add or subtract x terms and x^2. Use sqrt(x+4) for a square root. With variable denominators, multiply by the common denominator and keep its excluded values. For two answers, type ±3 or 3, -3.</p><p style="margin-top:12px"><b>Difficulty:</b> Level 1 has x on one side; Level 2 adds brackets or more steps; Level 3 has x on both sides. Non-fractional Level 4 adds squared expressions. Fractional Level 4 adds linear denominators without a standalone added constant; these equations reduce to linear equations. In “I’ll write the working” for either equation type, or Fractional Level 4, enter a complete equation in each numbered working row and select Check. You can simplify or clear denominators in any valid order. Use the square symbol after a term: x becomes x², and (x+2) becomes (x+2)². The square symbol does not insert brackets. Select Edit to revise a checked step; later steps will be cleared. For squared equations, keep both roots. After squaring, check answers in the original equation.</p><button class="secondary" id="close-help">Got it</button></dialog>
 <dialog id="custom"><h2>Try your own equation</h2><p>Enter an equation with one or two rational real solutions. Try (x+3)^2 = 16, sqrt(x+4) = 5, or 6/(x+1) = 2.</p><input id="custom-equation" aria-label="Custom equation" placeholder="2x - 5 = 5" autocomplete="off" spellcheck="false"><p id="custom-error" role="alert"></p><div style="display:flex;gap:10px"><button class="primary" id="start-custom">Start equation</button><button class="secondary" id="close-custom" style="margin:0">Cancel</button></div></dialog>
 </template>
+      <div class="mm-mission-finish"><button type="button" class="main cursor-interaction" data-finish-mission hidden>Complete mission</button></div>
     </section>
+    <dialog class="mm-victory" data-victory aria-labelledby="mm-victory-heading" aria-describedby="mm-victory-reward">
+      <div class="mm-victory-art" aria-hidden="true">
+        <svg viewBox="0 0 240 150" fill="none">
+          <g class="mm-victory-burst" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="#44806a" d="M157 19l4-10m36 35 12-5m-17 64 11 6m-47 14 3 11"/>
+            <path fill="#6fa383" stroke="#355d4a" d="M191 7l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z"/>
+            <path fill="#f6c569" stroke="#815b36" d="M212 64l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z"/>
+            <path fill="#f6c569" stroke="#815b36" d="M187 119l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>
+          </g>
+          <g class="mm-victory-horn" stroke="#564028" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <path fill="#e2aa4d" d="M27 76h65c25 0 48-22 69-39v64c-21-16-44-31-69-31H27z"/>
+            <path fill="#facb66" d="M28 58h63c25 0 49-14 70-31v65c-21-17-45-28-70-28H28z"/>
+            <path fill="#ffdf86" d="M91 64v18H66v9c0 9 7 16 16 16h23c9 0 16-7 16-16V73l12 5v14c0 17-12 28-28 28H82c-16 0-28-12-28-28V65z"/>
+            <path fill="#f8d780" d="M24 54h15v15H24z"/>
+            <ellipse cx="162" cy="60" rx="13" ry="33" fill="#ffe6a4"/>
+            <ellipse cx="165" cy="60" rx="6" ry="21" fill="#a36d38" stroke="none"/>
+          </g>
+        </svg>
+      </div>
+      <h2 id="mm-victory-heading">Mission complete!</h2>
+      <p id="mm-victory-reward" data-victory-reward></p>
+      <button type="button" class="main cursor-interaction" data-victory-close autofocus>Back to Home &amp; Missions</button>
+    </dialog>
     <section class="body group" data-view="assign" hidden>
       <div class="row between"><h3>3. Review assignment</h3><button type="button" class="cursor-interaction" data-edit>Back to setup</button></div>
       <p data-summary></p>
@@ -611,7 +635,20 @@ mount.setMissionBusy=(busy,last)=>{
   const number = n => String(n).replace('-', '−');
   let rows=[], index=0, lastMix='', storageKey='', publish=null, playing=null, saveAnswer=null, leave=null, saving=false, playToken=0;
   const lab=root.querySelector('[data-equation-lab]');
-  let editing=-1;
+  let editing=-1, finished=null;
+  const victory=pick('victory'), finishButton=pick('finish-mission');
+  finishButton.onclick=()=>{
+    if(!playing||!finished||victory.open)return;
+    const coins=finished.coins;
+    pick('victory-reward').textContent=coins?'You earned '+coins+' '+(coins===1?'coin':'coins')+'!':'You solved every question.';
+    victory.showModal();
+  };
+  pick('victory-close').onclick=()=>victory.close();
+  victory.addEventListener('close',()=>{
+    if(!finished||!playing)return;
+    finished=null;
+    leave();
+  });
   function editEquation(i){
     editing=i;
     pick('question-heading').textContent='Edit question '+(i+1);
@@ -738,13 +775,19 @@ mount.setMissionBusy=(busy,last)=>{
     pick('back').disabled=true;
     pick('play-status').textContent='Saving your answer…';
     try {
-      const message=await saveAnswer(i,answer);
-      if(token===playToken)pick('play-status').textContent=message;
+      const result=await saveAnswer(i,answer);
+      if(token===playToken){
+        pick('play-status').textContent=result.message;
+        if(result.completion){
+          finished=result.completion;finishButton.hidden=false;
+          finishButton.focus();
+        }
+      }
     }catch(error){
       if(token===playToken){
         pick('play-status').textContent='Couldn’t save: '+error.message;
         if(error.message==='Mission unavailable.'){
-          pick('play-status').textContent='This mission is no longer available. Go back to Mission Hall for your current missions.';
+          pick('play-status').textContent='This mission is no longer available. Go back to Home & Missions for your current missions.';
         }else{
           pick('retry').hidden=false;
           pick('retry').onclick=()=>submitAnswer(i,answer,token,total);
@@ -850,16 +893,17 @@ mount.setMissionBusy=(busy,last)=>{
     },
     publishError(message){pick('publish-message').textContent=message;},
     play(m,onSolve,onBack){
-      playing=m;saveAnswer=onSolve;leave=onBack;
+      playing=m;saveAnswer=onSolve;leave=onBack;finished=null;finishButton.hidden=true;
       index=m.questions.findIndex((_,i)=>!m.solved.includes(i));
       if(index<0)index=0;
       root.querySelector('header').hidden=true;
       root.querySelector('footer').hidden=true;
-      pick('back').textContent='Back to my missions';
+      pick('back').textContent='Back to Home & Missions';
       show('preview');preview();
     },
     exit(){
-      ++playToken;playing=null;saving=false;pick('back').disabled=false;
+      ++playToken;playing=null;finished=null;finishButton.hidden=true;saving=false;pick('back').disabled=false;
+      if(victory.open)victory.close();
       root.querySelector('header').hidden=false;
       root.querySelector('footer').hidden=false;
       pick('back').textContent='Back to setup';show('setup');
@@ -871,6 +915,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js?v=illustrated-town"></script>
-<script src="app.js?v=illustrated-town"></script>
+<script src="town-art.js?v=home-missions"></script>
+<script src="app.js?v=home-missions"></script>
 </body></html>
