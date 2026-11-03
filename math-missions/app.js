@@ -299,6 +299,9 @@
   });
   function renderTeacher(){
     const cls=q('mm-roster-class');fillClasses(cls,cls.value);
+    const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
+    fillClasses(loginClass,oldClass);
+    if(loginClass.value!==oldClass)clearLoginRoster();
     builder.missionBuilder.teacher(state.classes, async (draft,publishButton)=>{
       publishButton.disabled=true;
       try {
@@ -421,6 +424,135 @@
       notice(added+' students added. Students can now sign in with Google.');
     });
   };
+  const loginClass=()=>q('mm-login-roster-class').value;
+  function clearLoginRoster(){
+    q('mm-login-roster-result').hidden=true;
+    q('mm-issued-codes').value='';
+    q('mm-issued-label').hidden=true;
+    q('mm-login-names').value='';
+  }
+  q('mm-login-roster-class').onchange=clearLoginRoster;
+  function renderLoginRoster(result,cls){
+    q('mm-login-roster-result').hidden=!result.code;
+    q('mm-teacher-class-code').textContent=result.code||'';
+    q('mm-issue-codes').disabled=!result.members.some(m=>m.status==='Needs code');
+    const list=q('mm-login-roster-list');list.replaceChildren();
+    for(const member of result.members){
+      const li=el('li','','mm-row');
+      const identity=el('span',member.alias+' · '+member.status);
+      const issue=button(member.status==='Needs code'?'Get setup code':'Replace setup code',()=>{
+        if(member.status!=='Needs code'&&!confirm('Issue a new setup code for '+member.alias+'? This replaces any earlier setup code.'))return;
+        busy(issue,()=>issueCodes(cls,member.id));
+      });
+      issue.setAttribute('aria-label',issue.textContent+' for '+member.alias);
+      li.append(identity,issue);list.append(li);
+    }
+  }
+  async function readLoginRoster(cls,names=null){
+    const result=await rpc('mm_class_login_manage',{p_class:cls,p_names:names});
+    if(state?.role==='teacher'&&loginClass()===cls)renderLoginRoster(result,cls);
+    return result;
+  }
+  async function issueCodes(cls,id=null){
+    const issued=await rpc('mm_class_login_issue',{p_class:cls,p_member:id});
+    if(state?.role!=='teacher'||loginClass()!==cls)return;
+    if(!issued.length){notice('No students need a setup code right now.');return;}
+    q('mm-issued-codes').value=issued.map(entry=>entry.alias+' — '+entry.code).join('\n');
+    q('mm-issued-label').hidden=false;
+    notice(issued.length+' setup '+(issued.length===1?'code generated.':'codes generated.'));
+    try{await readLoginRoster(cls);}catch{notice('Codes were generated. Copy them before reloading the class.');}
+  }
+  q('mm-load-login-roster').onclick=()=>busy(q('mm-load-login-roster'),async()=>{
+    const cls=loginClass();
+    if(!cls)throw new Error('Choose a class first.');
+    const result=await readLoginRoster(cls);
+    if(!result.code&&loginClass()===cls)notice('Class login is not set up yet. Save the roster to enable it.');
+  });
+  q('mm-login-roster-form').onsubmit=e=>{
+    e.preventDefault();
+    const cls=loginClass();
+    busy(e.submitter,async()=>{
+      const names=q('mm-login-names').value.split(/\r?\n/).map(name=>name.trim()).filter(Boolean);
+      await readLoginRoster(cls,names);
+      if(loginClass()===cls){q('mm-login-names').value='';notice('Class login roster saved.');}
+    });
+  };
+  q('mm-issue-codes').onclick=()=>{
+    const control=q('mm-issue-codes');
+    busy(control,()=>issueCodes(loginClass())).finally(()=>{
+      if(q('mm-login-roster-result').hidden)return;
+      control.disabled=![...q('mm-login-roster-list').children].some(node=>node.firstElementChild.textContent.endsWith(' · Needs code'));
+    });
+  };
+  let activeRoom='', setupMode=false, roomRequest=0;
+  const classMemoryKey='algebra-town-remembered-class';
+  q('mm-remember-class').onchange=()=>{
+    if(!q('mm-remember-class').checked)try{localStorage.removeItem(classMemoryKey);}catch{}
+    else if(activeRoom)try{localStorage.setItem(classMemoryKey,activeRoom);}catch{}
+  };
+  function setSetupMode(enabled){
+    setupMode=enabled;
+    q('mm-setup-label').hidden=!enabled;q('mm-setup-help').hidden=!enabled;
+    q('mm-setup-code').required=enabled;q('mm-setup-code').value='';
+    q('mm-password').value='';q('mm-password').autocomplete=enabled?'new-password':'current-password';
+    q('mm-password-label').textContent=enabled?'Choose a password':'Password';
+    q('mm-password-submit').textContent=enabled?'Set password and sign in':'Sign in';
+    q('mm-toggle-setup').textContent=enabled?'I already have a password':'First time or reset password';
+  }
+  async function classLogin(data){
+    const response=await fetch(config.url.replace(/\/+$/,'')+'/functions/v1/algebra-town-login',{
+      method:'POST',headers:{'Content-Type':'application/json',apikey:config.publishableKey},body:JSON.stringify(data)
+    });
+    let result;
+    try{result=await response.json();}catch{throw new Error('Class login is unavailable. Ask your teacher or use Google.');}
+    if(!response.ok){
+      if(result.passwordSaved)setSetupMode(false);
+      throw new Error(result.error||result.message||'Class login is unavailable. Ask your teacher or use Google.');
+    }
+    return result;
+  }
+  q('mm-class-code').oninput=()=>{
+    ++roomRequest;activeRoom='';q('mm-password-form').hidden=true;
+    q('mm-login-member').replaceChildren();q('mm-login-class-name').textContent='';setSetupMode(false);
+  };
+  async function findClass(code,focus=true){
+    const request=++roomRequest;
+    const result=await classLogin({action:'names',room:code});
+    if(request!==roomRequest)return;
+    const select=q('mm-login-member');select.replaceChildren(new Option('Select your name',''));
+    for(const member of result.members)select.add(new Option(member.alias,member.id));
+    if(!result.members.length){notice('There are no names on this class list yet.',true);return;}
+    activeRoom=code;
+    if(q('mm-remember-class').checked)try{localStorage.setItem(classMemoryKey,code);}catch{}
+    q('mm-login-class-name').textContent=result.className;
+    setSetupMode(false);q('mm-password-form').hidden=false;
+    if(focus)select.focus();
+  }
+  q('mm-class-code-form').onsubmit=e=>{
+    e.preventDefault();
+    busy(e.submitter,()=>findClass(q('mm-class-code').value.trim()));
+  };
+  q('mm-toggle-setup').onclick=()=>{
+    setSetupMode(!setupMode);
+    q(setupMode?'mm-setup-code':'mm-password').focus();
+  };
+  q('mm-password-form').onsubmit=e=>{
+    e.preventDefault();
+    busy(e.submitter,async()=>{
+      if(!activeRoom)return;
+      const result=await classLogin({
+        action:setupMode?'setup':'login',room:activeRoom,member:q('mm-login-member').value,
+        password:q('mm-password').value,setup:setupMode?q('mm-setup-code').value:undefined
+      });
+      setSetupMode(false);
+      const {data,error}=await api.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});
+      if(error)throw error;
+      user=data.session?.user||data.user;
+      if(!user)throw new Error('Could not open your session. Try signing in again.');
+      q('mm-login-member').value='';
+      await loadState();
+    });
+  };
   async function loadState(){
     let next=await rpc('mm_state');
     if(next.role==='join' && await rpc('mm_enrol'))next=await rpc('mm_state');
@@ -434,7 +566,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();view('login');q('mm-roster').value='';
+    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();view('login');q('mm-roster').value='';clearLoginRoster();setSetupMode(false);
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
@@ -443,7 +575,7 @@
     }
     view('login');
     if(!window.supabase||!/^https:\/\//.test(config.url)||!config.publishableKey||config.publishableKey.startsWith('sb_secret_')){
-      notice('Check the Supabase URL and publishable key in config.js.',true);q('mm-login').disabled=true;return;
+      notice('Check the Supabase URL and publishable key in config.js.',true);q('mm-login').disabled=true;q('mm-class-code-form').querySelector('button').disabled=true;return;
     }
     api=window.supabase.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce'}});
     try {
@@ -452,6 +584,14 @@
       user=data.session?.user||null;
       if(user){q('mm-logout').hidden=false;await loadState();}
       else if(new URLSearchParams(location.search).has('error'))notice('Google sign-in did not complete. Try again or check with your teacher.',true);
+      else{
+        let remembered=null;
+        try{remembered=localStorage.getItem(classMemoryKey);}catch{}
+        if(remembered&&!q('mm-class-code').value){
+          q('mm-class-code').value=remembered;q('mm-remember-class').checked=true;
+          await findClass(remembered,false);
+        }
+      }
     }catch(error){notice(error.message,true);}
   })();
 })();

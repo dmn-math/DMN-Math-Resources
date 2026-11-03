@@ -183,3 +183,12 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 @keyframes town-horn{0%{opacity:0;transform:translateX(-23px) scale(.72) rotate(-17deg)}65%{opacity:1;transform:rotate(6deg) scale(1.04)}100%{transform:none}}
 @keyframes town-burst{0%{opacity:0;transform:scale(.36)}75%{opacity:1;transform:scale(1.11)}100%{transform:none}}
 @media(prefers-reduced-motion:reduce){.mm-victory[open] .mm-victory-horn,.mm-victory[open] .mm-victory-burst{animation:none}}
+#missions-app .mm-sign-in{max-width:560px;margin-inline:auto}
+#missions-app .mm-sign-in .mm-form{gap:12px}
+#missions-app #mm-password-form,#missions-app .mm-google-sign-in{border-top:1px solid var(--rule);padding-top:14px;margin-top:16px}
+#mm-login-class-name{font-weight:750;color:var(--accent)}
+#missions-app .mm-login-roster-list{list-style:none;margin:12px 0;padding:0;max-height:330px;overflow:auto}
+#missions-app .mm-login-roster-list li{justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule)}
+#mm-teacher-class-code,#mm-issued-codes{font-family:ui-monospace,monospace}
+#missions-app .mm-remember-class{display:flex;align-items:center;gap:7px}
+#missions-app .mm-remember-class input{width:auto;margin:0;accent-color:var(--accent)}
