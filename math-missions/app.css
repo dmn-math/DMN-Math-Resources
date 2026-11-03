@@ -212,3 +212,9 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #dmn-mission-wireframe [data-expansion-example]{margin-top:6px}
 #missions-app #dmn-mission-wireframe input[type=checkbox]{width:auto}
 #missions-app .mm-guest [aria-pressed="true"]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+
+/* Algebra Town wordmark */
+#missions-app .mm-brand{min-width:0}
+#missions-app .mm-brand-wordmark{display:block;width:clamp(180px,56vw,259px);max-width:100%;height:auto}
+#missions-app .mm-brand small{font-size:.66rem;font-weight:750;letter-spacing:.11em;padding-left:.55em}
+#missions-app .mm-brand h1{margin-bottom:0}
