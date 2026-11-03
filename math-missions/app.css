@@ -232,3 +232,20 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #dmn-mission-wireframe [data-expansion-feedback]:empty{display:none}
 #dmn-mission-wireframe [data-expansion-feedback]:not(:empty){border-radius:8px;background:var(--wash);padding:8px 10px;font-weight:650}
 #dmn-mission-wireframe [data-expansion-feedback][data-state=error]{background:light-dark(#fff0ed,#432b30);color:var(--error)}
+
+#missions-app .mm-overview-nav{margin:14px 0}
+#missions-app .mm-overview-nav [aria-pressed="true"]{background:var(--accent);color:var(--on)}
+#missions-app .mm-overview-grid{list-style:none;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#missions-app .mm-overview-grid .mm-plot-card{min-width:0}
+#missions-app .mm-overview-grid .mm-plot-card button{width:100%;font-size:.78rem;margin-top:5px}
+#missions-app .mm-overview-table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:auto}
+#missions-app .mm-overview-table th,#missions-app .mm-overview-table td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+#missions-app .mm-overview-table th{font-size:.8rem}
+#missions-app #mm-award-dialog{width:min(94%,400px);border:1px solid var(--line);border-radius:16px;background:var(--paper);color:var(--ink)}
+#missions-app #mm-award-dialog::backdrop{background:#16251cb8}
+#missions-app #mm-award-status:empty{display:none}
+#dmn-mission-wireframe .mm-fraction-symbol,#dmn-mission-wireframe .mm-fraction-fields{display:inline-grid;text-align:center;vertical-align:middle;margin-right:4px}
+#dmn-mission-wireframe .mm-fraction-symbol span:first-child,#dmn-mission-wireframe .mm-fraction-fields input:first-child{border-bottom:1px solid currentColor}
+#dmn-mission-wireframe .mm-fraction-fields{width:10rem;max-width:100%;gap:3px}
+@media(max-width:720px){#missions-app .mm-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:480px){#missions-app .mm-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

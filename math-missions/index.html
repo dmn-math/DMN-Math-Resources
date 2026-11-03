@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=expansion-steps-1">
+<link rel="stylesheet" href="app.css?v=class-overview-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -59,6 +59,7 @@
     <nav class="mm-teacher-nav mm-row" aria-label="Teacher dashboard">
       <button type="button" id="mm-manage-classes" aria-controls="mm-teacher-classes" aria-pressed="true">Classes &amp; student login</button>
       <button type="button" id="mm-create-missions" aria-controls="mm-teacher-missions" aria-pressed="false">Create missions</button>
+      <button type="button" id="mm-open-overview" aria-controls="mm-teacher-overview" aria-pressed="false">Class overview</button>
     </nav>
     <section id="mm-teacher-classes" aria-label="Classes and student login">
       <div class="mm-grid">
@@ -108,6 +109,47 @@
         <div data-mm-topic-editor></div>
       </details>
       <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
+    </section>
+    <section class="mm-card" id="mm-teacher-overview" aria-labelledby="mm-overview-title" hidden>
+      <h2 id="mm-overview-title">Class overview</h2>
+      <div class="mm-row">
+        <label>Overview class<select id="mm-overview-class"></select></label>
+        <button type="button" id="mm-overview-refresh">Refresh overview</button>
+      </div>
+      <p id="mm-overview-status" role="status"></p>
+      <div id="mm-overview-results" hidden>
+        <nav aria-label="Class overview views" class="mm-overview-nav">
+          <button type="button" data-overview-tab="street" aria-controls="mm-overview-street" aria-pressed="true">Neighbourhood</button>
+          <button type="button" data-overview-tab="ranks" aria-controls="mm-overview-ranks" aria-pressed="false">Leaderboard</button>
+          <button type="button" data-overview-tab="progress" aria-controls="mm-overview-progress" aria-pressed="false">Mission progress</button>
+        </nav>
+        <section data-overview-panel="street" id="mm-overview-street" aria-label="Class neighbourhood">
+          <label>Find a student<input type="search" id="mm-overview-search"></label>
+          <p class="mm-muted" id="mm-overview-street-empty" hidden></p>
+          <ul class="mm-overview-grid" id="mm-overview-plots"></ul>
+          <details id="mm-overview-awards"><summary>Recent coin awards</summary><ul id="mm-overview-award-history"></ul></details>
+        </section>
+        <section data-overview-panel="ranks" id="mm-overview-ranks" aria-label="Class leaderboard" hidden>
+          <p class="mm-muted">Lifetime coins earned, including teacher awards. Spending does not reduce rank.</p>
+          <label>Sort leaderboard<select id="mm-overview-sort"><option value="score">By rank</option><option value="name">By name</option></select></label>
+          <table class="mm-overview-table"><thead><tr><th scope="col">Rank</th><th scope="col">Student</th><th scope="col">Coins earned</th></tr></thead><tbody id="mm-overview-ranking"></tbody></table>
+        </section>
+        <section data-overview-panel="progress" id="mm-overview-progress" aria-label="Class mission progress" hidden>
+          <label>View progress for<select id="mm-overview-mission"></select></label>
+          <p id="mm-overview-progress-status" role="status"></p>
+          <table class="mm-overview-table" id="mm-overview-progress-table" hidden><thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Solved</th></tr></thead><tbody id="mm-overview-progress-rows"></tbody></table>
+        </section>
+      </div>
+      <dialog id="mm-award-dialog" aria-labelledby="mm-award-title">
+        <form id="mm-award-form" class="mm-form">
+          <h3 id="mm-award-title">Award coins</h3>
+          <p>These coins are spendable and count toward lifetime rank.</p>
+          <label>Coins to award<input name="coins" type="number" min="1" max="100" step="1" value="5" required></label>
+          <label>Reason for award<input name="reason" maxlength="120" placeholder="e.g. Showed clear working" required></label>
+          <p id="mm-award-status" role="status"></p>
+          <div class="mm-row"><button type="submit" class="mm-primary">Confirm award</button><button type="button" id="mm-award-cancel">Cancel</button></div>
+        </form>
+      </dialog>
     </section>
   </section>
   <section data-mm-view="student" id="mm-view-student" hidden>
@@ -288,7 +330,19 @@
           <p>Enter one line at a time. We’ll check that it has the same value as the original expression for every x.</p>
           <form class="group" data-expansion-form>
             <label class="field"><span data-expansion-step-label>Step 1</span><input data-expansion-answer maxlength="160" required autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="mm-expansion-notation"></label>
-            <small id="mm-expansion-notation">Use x^2 or x² for a square. You can use * or × for multiplication.</small>
+            <div class="row" aria-label="Math symbols" role="group">
+              <button type="button" data-expansion-fraction aria-controls="mm-expansion-fraction-fields" aria-expanded="false"><span class="mm-fraction-symbol" aria-hidden="true"><span>a</span><span>b</span></span> Fraction</button>
+              <button type="button" data-expansion-square aria-label="Insert square, power of 2">x² <span aria-hidden="true">Square</span></button>
+            </div>
+            <div id="mm-expansion-fraction-fields" data-expansion-fraction-fields class="row" hidden>
+              <div class="mm-fraction-fields">
+                <input data-expansion-numerator aria-label="Expansion numerator" placeholder="Numerator" inputmode="text" maxlength="8">
+                <input data-expansion-denominator aria-label="Expansion denominator" placeholder="Denominator" inputmode="text" maxlength="8">
+              </div>
+              <button type="button" data-expansion-fraction-add>Insert fraction</button>
+              <button type="button" data-expansion-fraction-cancel>Cancel fraction</button>
+            </div>
+            <small id="mm-expansion-notation">Use the Fraction and x² buttons, or type / and ^2. You can use * or × for multiplication.</small>
             <div class="row"><button type="submit" class="main" data-expansion-check>Check step 1</button><button type="button" data-expansion-cancel hidden>Cancel edit</button></div>
           </form>
         </div>
@@ -459,7 +513,7 @@ function findMathToken(id,tokens=mathTree,ancestors=[]){for(let i=0;i<tokens.len
 function mathLeaves(tokens=mathTree){return tokens.flatMap(t=>t.kind==='text'?[t]:[...mathLeaves(t.numerator),...mathLeaves(t.denominator)])}
 function insertMathFractionAt(id,start,end){let loc=findMathToken(id);if(!loc||loc.token.kind!=='text')return null;let value=loc.token.value,selected=value.slice(start,end),fraction=newMathFraction([newMathText(selected)],[newMathText('')]);loc.list.splice(loc.index,1,newMathText(value.slice(0,start)),fraction,newMathText(value.slice(end)));return selected?fraction.denominator[0].id:fraction.numerator[0].id}
 function removeMathFraction(id){let loc=findMathToken(id);if(!loc||loc.token.kind!=='fraction')return null;let before=loc.list[loc.index-1],after=loc.list[loc.index+1],left=before?.kind==='text'?before.value:'',right=after?.kind==='text'?after.value:'',merged=newMathText(left+right),start=loc.index-(before?.kind==='text'?1:0),count=1+(before?.kind==='text'?1:0)+(after?.kind==='text'?1:0);loc.list.splice(start,count,merged);return {id:merged.id,caret:left.length}}
-function mathCellWidth(t,only=false){return only&&!t.value?'100%':Math.min(40,Math.max(2,t.value.length+1))+'ch'}
+function mathCellWidth(t,only=false){return only?'100%':Math.min(40,Math.max(2,t.value.length+1))+'ch'}
 function mathEditorHTML(tokens,context='',counter={fraction:0,text:0}){
   let part=0,only=tokens.length===1&&tokens[0].kind==='text';
   return tokens.map(t=>{
@@ -487,6 +541,12 @@ function handleMathKey(event,id){
 }
 function renderMathTree(focusId,caret){
   let editor=$('free-input');if(!editor)return;editor.innerHTML=mathEditorHTML(mathTree);
+  editor.onclick=e=>{
+    if(e.target.tagName==='INPUT')return;
+    const slot=e.target.closest('.math-slot'),cell=slot?.querySelector('[data-math-token]');
+    if(cell)focusMathCell(cell.dataset.mathToken);
+    else focusMathEditor();
+  };
   lab.querySelectorAll('[data-math-token]').forEach(input=>{
     let id=input.dataset.mathToken;input.addEventListener('focus',()=>activeMathId=id);
     input.addEventListener('input',()=>{let loc=findMathToken(id);if(!loc)return;loc.token.value=input.value;activeMathId=id;input.style.width=mathCellWidth(loc.token,input.classList.contains('single-math-cell'));syncMathDraft()});
@@ -577,6 +637,7 @@ function checkFreeWorking(){
     feedback('error','Check this step.',e.message);
     $('free-row-error').textContent=e.message;$('free-row-error').classList.remove('hidden');
     $('free-input').setAttribute('aria-invalid','true');
+    focusMathEditor();
   }
 }
 function editFreeStep(index){
@@ -756,50 +817,70 @@ mount.setMissionBusy=(busy,last)=>{
   // Parse integer polynomials, without evaluating the input as JavaScript.
   function checkExpansionLine(input){
     const raw=cleanExpression(input).replace(/^=\s*/,'').replace(/[×·⋅]/g,'*');
-    const notation='Use integers, x, brackets, +, −, ×, and x^2. Enter just one expression.';
+    const notation='Use numbers, x, brackets, +, −, ×, fractions and x². Enter just one expression.';
     const compact=raw.replace(/\s/g,'');
-    const tokens=compact.match(/[0-9]+|[x()+*^-]/g)||[];
+    const tokens=compact.match(/[0-9]+|[x()+*\/^-]/g)||[];
     if(!compact||raw.length>160||/\d\s+\d/.test(raw)||tokens.join('')!==compact)throw Error(notation);
     let cursor=0;
     const at=()=>tokens[cursor];
     const take=expected=>at()===expected&&(cursor++,true);
     const isNumber=token=>/^\d+$/.test(token||'');
     const zero=()=>[0n,0n,0n];
+    function gcd(a,b){
+      if(a<0n)a=-a;
+      while(b!==0n)[a,b]=[b,a%b];
+      return a<0n?-a:a;
+    }
+    function poly(terms,den=1n){
+      const divisor=terms.reduce(gcd,den)*(den<0n?-1n:1n);
+      const reduced={terms:terms.map(n=>n/divisor),den:den/divisor},limit=10n**18n;
+      if(reduced.den>limit||reduced.terms.some(n=>n>limit||n< -limit))throw Error('The numbers in this line are too large. Check your working.');
+      return reduced;
+    }
     function multiply(a,b){
       const out=zero();
       for(let i=0;i<3;i++)for(let j=0;j<3;j++){
-        if(a[i]===0n||b[j]===0n)continue;
+        if(a.terms[i]===0n||b.terms[j]===0n)continue;
         if(i+j>2)throw Error('This line has powers higher than x². Check what you multiplied.');
-        out[i+j]+=a[i]*b[j];
+        out[i+j]+=a.terms[i]*b.terms[j];
       }
-      return out;
+      return poly(out,a.den*b.den);
     }
     function sum(){
       let out=product();
       while(at()==='+'||at()==='-'){
         const sign=tokens[cursor++]==='+'?1n:-1n;
         const right=product();
-        out=out.map((n,i)=>n+sign*right[i]);
+        out=poly(out.terms.map((n,i)=>n*right.den+sign*right.terms[i]*out.den),out.den*right.den);
       }
       return out;
     }
     function product(){
       let out=factor();
-      while(take('*')||at()==='('||at()==='x')out=multiply(out,factor());
-      return out;
+      while(true){
+        if(take('/')){
+          const bottom=factor();
+          if(bottom.terms[1]||bottom.terms[2]||!bottom.terms[0])throw Error('Use a non-zero number as the denominator.');
+          out=poly(out.terms.map(n=>n*bottom.den),out.den*bottom.terms[0]);
+        }else if(take('*')||at()==='('||at()==='x')out=multiply(out,factor());
+        else return out;
+      }
     }
     function factor(){
-      if(take('-'))return factor().map(n=>-n);
+      if(take('-')){
+        const next=factor();
+        return poly(next.terms.map(n=>-n),next.den);
+      }
       if(take('+'))return factor();
       let value;
       if(take('(')){
         value=sum();
         if(!take(')'))throw Error('Check that every opening bracket has a closing bracket.');
-      }else if(take('x'))value=[0n,1n,0n];
-      else if(isNumber(at())&&at().length<=7)value=[BigInt(tokens[cursor++]),0n,0n];
+      }else if(take('x'))value=poly([0n,1n,0n]);
+      else if(isNumber(at())&&at().length<=7)value=poly([BigInt(tokens[cursor++]),0n,0n]);
       else throw Error(notation);
       if(take('^')){
-        if(!take('2'))throw Error('Use x^2 or x² for a square.');
+        if(!take('2'))throw Error('This lab uses squares. Use the x² button for a power of 2.');
         value=multiply(value,value);
       }
       return value;
@@ -815,7 +896,7 @@ mount.setMissionBusy=(busy,last)=>{
       degrees.add(degree);
       return true;
     });
-    return {compact,answer:coeffs.reverse().join(','),simplified};
+    return {compact,answer:coeffs.den===1n?coeffs.terms.reverse().join(','):null,simplified};
   }
   const family=()=>pick('family').value;
   const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets'};
@@ -999,6 +1080,49 @@ mount.setMissionBusy=(busy,last)=>{
       feedback.textContent=text;
       feedback.dataset.state=kind;
     };
+    const fraction=pick('expansion-fraction-fields'), fractionButton=pick('expansion-fraction');
+    const numerator=pick('expansion-numerator'),denominator=pick('expansion-denominator');
+    function closeFraction(){
+      fraction.hidden=true;fractionButton.setAttribute('aria-expanded','false');
+      numerator.value='';denominator.value='';
+    }
+    closeFraction();
+    function insertNotation(value){
+      const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+      if(input.value.length-end+start+value.length>input.maxLength){
+        statusText('This line is too long. Try splitting your working into two steps.','error');
+        return false;
+      }
+      input.setRangeText(value,start,end,'end');
+      statusText('');input.focus();
+      return true;
+    }
+    pick('expansion-square').onclick=()=>{
+      const end=input.selectionEnd??input.value.length;
+      if(!/[0-9x)\]]$/i.test(input.value.slice(0,end).trimEnd())){
+        statusText('Write a term or bracket first, then place the cursor after it and choose x².','error');
+        input.focus();return;
+      }
+      input.setSelectionRange(end,end);
+      insertNotation('²');
+    };
+    fractionButton.onclick=()=>{
+      if(!fraction.hidden){closeFraction();input.focus();return;}
+      fraction.hidden=false;fractionButton.setAttribute('aria-expanded','true');numerator.focus();
+    };
+    pick('expansion-fraction-cancel').onclick=()=>{closeFraction();input.focus();};
+    const insertFraction=()=>{
+      const top=numerator.value.trim(),bottom=denominator.value.trim();
+      if(!/^[+-]?\d{1,7}$/.test(top)||!/^[+-]?\d{1,7}$/.test(bottom)||Number(bottom)===0){
+        statusText('Enter whole numbers for the numerator and denominator. The denominator cannot be zero.','error');
+        return;
+      }
+      if(insertNotation('('+top+'/'+bottom+')'))closeFraction();
+    };
+    pick('expansion-fraction-add').onclick=insertFraction;
+    [numerator,denominator].forEach(field=>field.onkeydown=e=>{
+      if(e.key==='Enter'){e.preventDefault();field===numerator?denominator.focus():insertFraction();}
+    });
     function renderSteps(){
       history.replaceChildren();
       work.steps.forEach(({compact,text},n)=>{
@@ -1031,7 +1155,7 @@ mount.setMissionBusy=(busy,last)=>{
       check.textContent='Check step '+step;
       pick('expansion-cancel').hidden=editingStep===null;
     }
-    const clearEditor=()=>{input.value='';editingStep=null;updateControls();};
+    const clearEditor=()=>{input.value='';editingStep=null;closeFraction();updateControls();};
     clearEditor();renderSteps();
     input.disabled=false;
     statusText(work.done?'Correct! '+polynomial(expected):'');
@@ -1041,6 +1165,7 @@ mount.setMissionBusy=(busy,last)=>{
     pick('expansion-form').onsubmit=async e=>{
       e.preventDefault();
       if(saving||work.done)return;
+      if(!fraction.hidden){statusText('Insert or cancel the fraction before checking this step.','error');return;}
       try {
         const line=checkExpansionLine(input.value);
         if(line.answer!==expected)throw Error('This line isn’t equivalent to the original expression. Check your signs and multiplication.');
@@ -1056,7 +1181,8 @@ mount.setMissionBusy=(busy,last)=>{
           else if(!nextButton.disabled)nextButton.focus();
           else feedback.focus();
         }else{
-          statusText('Correct step. '+(line.compact.includes('(')?'Keep expanding the brackets.':'Collect the like terms to finish.'),'correct');
+          const stillBracketed=line.compact.replace(/\([+-]?\d+\/[+-]?\d+\)/g,'').includes('(');
+          statusText('Correct step. '+(stillBracketed?'Keep expanding the brackets.':line.compact.includes('/')?'Simplify the fractions and collect like terms to finish.':'Collect the like terms to finish.'),'correct');
           input.focus();
         }
       }catch(error){
@@ -1229,5 +1355,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=class-login-2"></script>
-<script src="app.js?v=expansion-1"></script>
+<script src="app.js?v=class-overview-1"></script>
 </body></html>

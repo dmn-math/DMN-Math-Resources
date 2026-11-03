@@ -295,11 +295,149 @@
     const key='mm-draft:'+user.id+(topic==='expand'?':expand':'');
     builder.missionBuilder.draftKey(key,topic==='expand'?'expand':'whole');
   }
-  function teacherSection(missions){
-    q('mm-teacher-classes').hidden=missions;
-    q('mm-teacher-missions').hidden=!missions;
-    q('mm-manage-classes').setAttribute('aria-pressed',String(!missions));
-    q('mm-create-missions').setAttribute('aria-pressed',String(missions));
+  const overviewClass=q('mm-overview-class');
+  const awardDialog=q('mm-award-dialog'),awardForm=q('mm-award-form');
+  let overviewData=null,overviewRequest=0,awardTarget=null,awardPending=false;
+  const awardRequests=new Map();
+  const nameOrder=(a,b)=>a.alias.localeCompare(b.alias);
+  function selectOverviewTab(tab){
+    page.querySelectorAll('[data-overview-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.overviewTab===tab)));
+    page.querySelectorAll('[data-overview-panel]').forEach(p=>p.hidden=p.dataset.overviewPanel!==tab);
+  }
+  page.querySelectorAll('[data-overview-tab]').forEach(b=>b.onclick=()=>selectOverviewTab(b.dataset.overviewTab));
+  async function loadOverview(){
+    const request=++overviewRequest,classId=overviewClass.value;
+    const status=q('mm-overview-status'),results=q('mm-overview-results');
+    overviewData=null;results.hidden=true;
+    status.textContent=classId?'Loading the class overview…':'Choose a class to see its neighbourhood, leaderboard and mission progress.';
+    if(!classId)return false;
+    try {
+      const data=await rpc('mm_teacher_class_overview',{p_class:classId});
+      if(request!==overviewRequest||state?.role!=='teacher')return false;
+      overviewData=data;
+      status.textContent=data.residents.length===1?'1 student on the roster.':data.residents.length+' students on the roster.';
+      results.hidden=false;renderOverview();
+      return true;
+    }catch(error){
+      if(request===overviewRequest&&state?.role==='teacher')status.textContent='Could not load the overview: '+error.message;
+      return false;
+    }
+  }
+  function renderOverview(){
+    renderOverviewStreet();renderOverviewRanks();
+    const selector=q('mm-overview-mission'), old=selector.value;
+    selector.replaceChildren(...overviewData.missions.map(m=>new Option(m.title+(m.scheduled?' (scheduled)':''),m.id)));
+    if(overviewData.missions.some(m=>m.id===old))selector.value=old;
+    renderOverviewProgress();
+    const history=q('mm-overview-award-history');
+    history.replaceChildren(...overviewData.awards.map(a=>el('li',
+      a.alias+' · +'+a.coins+' coins · '+a.reason+' · '+releaseFormat.format(new Date(a.date)))));
+    if(!history.children.length)history.append(el('li','No teacher awards yet.'));
+  }
+  function renderOverviewStreet(){
+    if(!overviewData)return;
+    const list=q('mm-overview-plots'), empty=q('mm-overview-street-empty');
+    const search=q('mm-overview-search').value.trim().toLocaleLowerCase();
+    const matches=overviewData.residents.filter(s=>s.alias.toLocaleLowerCase().includes(search));
+    empty.hidden=Boolean(matches.length);
+    empty.textContent=search?'No matching students.':'Add students to this class to see the neighbourhood.';
+    list.replaceChildren(...matches.map(s=>{
+      const tile=el('li','','mm-plot-card');
+      const caption=el('div','','mm-plot-caption');
+      caption.append(el('strong',s.alias));
+      if(s.id){
+        const level=art.houses[s.level-1]?s.level:1;
+        caption.append(el('small',art.houses[level-1].name+' · Level '+level));
+        const award=button('Award coins',()=>openAward(s));
+        award.setAttribute('aria-label','Award coins to '+s.alias);
+        tile.append(caption,art.plot(s),award);
+      }else{
+        caption.append(el('small','Hasn’t signed in yet'));
+        tile.append(caption);
+      }
+      return tile;
+    }));
+  }
+  function row(...values){
+    const tr=el('tr');
+    tr.append(...values.map(v=>el('td',String(v))));
+    return tr;
+  }
+  function renderOverviewRanks(){
+    if(!overviewData)return;
+    const sorted=overviewData.residents.filter(s=>s.id).sort((a,b)=>b.score-a.score||nameOrder(a,b));
+    const ranks=sorted.map((s,i)=>({...s,rank:i&&sorted[i-1].score===s.score?null:i+1}));
+    ranks.forEach((s,i)=>{if(s.rank===null)s.rank=ranks[i-1].rank;});
+    if(q('mm-overview-sort').value==='name')ranks.sort(nameOrder);
+    const inactive=overviewData.residents.filter(s=>!s.id);
+    q('mm-overview-ranking').replaceChildren(...ranks.map(s=>row(s.rank,s.alias,s.score)),
+      ...inactive.map(s=>row('—',s.alias,'Hasn’t signed in yet')));
+  }
+  function renderOverviewProgress(){
+    if(!overviewData)return;
+    const select=q('mm-overview-mission');
+    const mission=overviewData.missions.find(m=>m.id===select.value);
+    const table=q('mm-overview-progress-table'),status=q('mm-overview-progress-status');
+    select.disabled=!mission;table.hidden=!mission;
+    if(!mission){status.textContent='No missions have been created for this class yet.';return;}
+    let completed=0;
+    const rows=overviewData.residents.map(s=>{
+      const solved=s.solved[mission.id]||0;
+      const complete=solved>=mission.total;
+      if(complete)completed++;
+      return row(s.alias,!s.id?'Hasn’t signed in yet':complete?'Completed':solved?'In progress':'Not started',solved+' / '+mission.total);
+    });
+    q('mm-overview-progress-rows').replaceChildren(...rows);
+    status.textContent=(mission.scheduled?'Scheduled · ':'')+completed+' of '+rows.length+' completed';
+  }
+  function openAward(student){
+    awardTarget={student,classId:overviewClass.value};
+    awardForm.reset();q('mm-award-status').textContent='';
+    q('mm-award-title').textContent='Award coins to '+student.alias;
+    awardDialog.showModal();
+    awardForm.elements.coins.focus();
+  }
+  q('mm-award-cancel').onclick=()=>{if(!awardPending)awardDialog.close();};
+  awardDialog.addEventListener('cancel',e=>{if(awardPending)e.preventDefault();});
+  awardForm.onsubmit=async e=>{
+    e.preventDefault();
+    if(awardPending||!awardTarget||state?.role!=='teacher')return;
+    const {student,classId}=awardTarget;
+    const reason=awardForm.elements.reason.value.trim(),coins=Number(awardForm.elements.coins.value);
+    const status=q('mm-award-status');
+    if(!reason){status.textContent='Enter a short reason for the award.';return;}
+    const requestKey=JSON.stringify([user.id,classId,student.id,coins,reason]);
+    const requestId=awardRequests.get(requestKey)||crypto.randomUUID();
+    awardRequests.set(requestKey,requestId);
+    awardPending=true;
+    const controls=Array.from(awardForm.elements);
+    controls.forEach(c=>c.disabled=true);
+    status.textContent='Awarding coins…';
+    try{
+      await rpc('mm_teacher_award_coins',{p_class:classId,p_student:student.id,p_coins:coins,p_reason:reason,p_request:requestId});
+      awardRequests.delete(requestKey);
+      if(state?.role!=='teacher')return;
+      awardDialog.close();
+      q('mm-overview-refresh').focus();
+      const refreshed=await loadOverview();
+      if(refreshed)q('mm-overview-status').textContent=coins+' '+(coins===1?'coin':'coins')+' awarded to '+student.alias+'.';
+    }catch(error){
+      if(awardDialog.open)status.textContent='Could not confirm the award: '+error.message+' You can retry.';
+    }finally{
+      awardPending=false;controls.forEach(c=>c.disabled=false);
+    }
+  };
+  overviewClass.onchange=()=>{q('mm-overview-search').value='';loadOverview();};
+  q('mm-overview-refresh').onclick=loadOverview;
+  q('mm-overview-search').oninput=renderOverviewStreet;
+  q('mm-overview-sort').onchange=renderOverviewRanks;
+  q('mm-overview-mission').onchange=renderOverviewProgress;
+  function teacherSection(section){
+    const sections={classes:['mm-teacher-classes','mm-manage-classes'],missions:['mm-teacher-missions','mm-create-missions'],overview:['mm-teacher-overview','mm-open-overview']};
+    for(const [key,[panel,control]] of Object.entries(sections)){
+      q(panel).hidden=key!==section;
+      q(control).setAttribute('aria-pressed',String(key===section));
+    }
   }
   function openTopic(topic){
     if(publishing)return;
@@ -311,8 +449,9 @@
     configureBuilder();
     builder.hidden=false;
   }
-  q('mm-manage-classes').onclick=()=>teacherSection(false);
-  q('mm-create-missions').onclick=()=>teacherSection(true);
+  q('mm-manage-classes').onclick=()=>teacherSection('classes');
+  q('mm-create-missions').onclick=()=>teacherSection('missions');
+  q('mm-open-overview').onclick=()=>{teacherSection('overview');loadOverview();};
   Object.entries(editorTopics).forEach(([topic,details])=>{
     details.querySelector('summary').onclick=e=>{e.preventDefault();openTopic(details.open?null:topic);};
   });
@@ -355,6 +494,7 @@
     });
   }
   function renderTeacher(){
+    fillClasses(overviewClass,overviewClass.value);
     const cls=q('mm-roster-class');fillClasses(cls,cls.value);
     const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
     fillClasses(loginClass,oldClass);
@@ -375,7 +515,7 @@
       if(m.questions?.length)actions.append(button('Duplicate',()=>{
         if(publishing)return;
         const topic=m.questions.some(question=>question.type.startsWith('expand-'))?'expand':'solve';
-        teacherSection(true);openTopic(topic);builder.missionBuilder.duplicate(m);
+        teacherSection('missions');openTopic(topic);builder.missionBuilder.duplicate(m);
       }));
       const remove=button('Delete',()=>{
         if(!window.confirm('Delete “'+m.title+'” for '+m.class+'? It will be removed from Mission Hall. Students keep coins already earned.'))return;
@@ -627,7 +767,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection(false);view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;++overviewRequest;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
