@@ -5,6 +5,8 @@
   const builder = document.getElementById('dmn-mission-wireframe');
   const config = window.MATH_MISSIONS_CONFIG || {};
   let api, state, user, run = 0, demoActive = false;
+  let look={home:'clay',character:'sprout'}, streetRequest=0, overview=false;
+  const art=window.AlgebraTownArt;
   const demo = {
     role:'student', alias:'Town Explorer', class:'Sample class', balance:5, score:5, owned:[],
     missions:[{id:'demo-equations',title:'Solve equations without fractions',coins:10,hints:true,solved:[],complete:false,
@@ -34,13 +36,112 @@
     page.querySelectorAll('[data-town-destination]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.townDestination===selected)));
     page.querySelectorAll('[data-town-panel]').forEach(panel=>panel.hidden=panel.dataset.townPanel!==selected);
   }
-  page.querySelectorAll('[data-town-destination]').forEach(b=>b.onclick=()=>selectDestination(b.dataset.townDestination));
+  page.querySelectorAll('[data-town-destination]').forEach(b=>b.onclick=()=>{
+    const selected=b.dataset.townDestination;
+    selectDestination(selected);
+    if(selected==='neighbourhood'||selected==='cabin')loadStreet(selected);
+  });
+  const street=q('mm-street');
+  function updateStreetControls(){
+    const limit=Math.max(0,street.scrollWidth-street.clientWidth);
+    q('mm-street-controls').hidden=overview||limit<2;
+    q('mm-street-prev').disabled=street.scrollLeft<2;
+    q('mm-street-next').disabled=street.scrollLeft>=limit-2;
+  }
+  function streetMode(grid){
+    overview=grid;
+    street.classList.toggle('mm-overview',grid);
+    q('mm-street-view').setAttribute('aria-pressed',String(!grid));
+    q('mm-overview-view').setAttribute('aria-pressed',String(grid));
+    street.scrollLeft=0;
+    updateStreetControls();
+  }
+  q('mm-street-view').onclick=()=>streetMode(false);
+  q('mm-overview-view').onclick=()=>streetMode(true);
+  q('mm-street-prev').onclick=()=>moveStreet(-1);
+  q('mm-street-next').onclick=()=>moveStreet(1);
+  function moveStreet(direction){
+    const first=street.firstElementChild;
+    if(first)street.scrollBy({left:direction*(first.getBoundingClientRect().width+12),
+      behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  }
+  street.addEventListener('scroll',updateStreetControls,{passive:true});
+  if(window.ResizeObserver)new ResizeObserver(updateStreetControls).observe(street);
+  function renderStreet(residents){
+    street.replaceChildren();
+    residents.forEach(resident=>{
+      const li=el('li','','mm-plot-card');
+      const label=el('strong',resident.alias);
+      const profile=el('small',(art.homes[resident.home]?.label||'Terracotta')+' roof · '+(art.characters[resident.character]?.label||'Sprout'));
+      const caption=el('div','','mm-plot-caption');
+      caption.append(label,profile);
+      if(resident.you)caption.prepend(el('span','MY CABIN','mm-plot-tag'));
+      li.append(art.plot(resident),caption);
+      street.append(li);
+    });
+    updateStreetControls();
+  }
+  const roofSelect=q('mm-home-style'),characterSelect=q('mm-character-style');
+  Object.entries(art.homes).forEach(([key,entry])=>roofSelect.add(new Option(entry.label,key)));
+  Object.entries(art.characters).forEach(([key,entry])=>characterSelect.add(new Option(entry.label,key)));
+  function ownPlot(){
+    q('mm-own-plot').replaceChildren(art.plot({home:roofSelect.value,character:characterSelect.value,items:state?.owned}));
+  }
+  roofSelect.onchange=characterSelect.onchange=ownPlot;
+  function syncLook(){
+    roofSelect.value=look.home;
+    characterSelect.value=look.character;
+    ownPlot();
+  }
+  async function loadStreet(destination){
+    const request=++streetRequest;
+    if(destination==='neighbourhood'){
+      renderStreet([]);
+      q('mm-street-status').textContent='Opening Class Street…';
+    }else q('mm-save-look').disabled=true;
+    try{
+      const residents=await rpc('mm_neighbourhood');
+      if(request!==streetRequest)return;
+      const me=residents.find(r=>r.you);
+      if(me)look={home:me.home,character:me.character};
+      if(destination==='cabin'){
+        syncLook();
+        q('mm-save-look').disabled=false;
+      }else{
+        renderStreet(residents);
+        const count=residents.filter(r=>!r.you).length;
+        q('mm-street-status').textContent=count ? count+' '+(count===1?'classmate':'classmates')+' on your street.' : 'You’re the first resident. Classmates will appear after their first sign-in.';
+      }
+    }catch(error){
+      if(request!==streetRequest)return;
+      const message=error.message||'Could not load the neighbourhood.';
+      if(destination==='neighbourhood')q('mm-street-status').textContent=message;
+      else notice(message,true);
+    }
+  }
+  q('mm-look-form').onsubmit=e=>{
+    e.preventDefault();
+    busy(e.submitter,async()=>{
+      const chosen={home:roofSelect.value,character:characterSelect.value};
+      await rpc('mm_save_look',{p_home:chosen.home,p_character:chosen.character});
+      look=chosen;
+      notice('Your new look is saved.');
+    });
+  };
   function demoRpc(name,args){
     const m=demo.missions[0];
     if(name==='mm_state'){
       demo.leaderboard=[{alias:'Map Maker',score:20},{alias:'Trail Scout',score:8},{alias:demo.alias,score:demo.score,you:true}].sort((a,b)=>b.score-a.score);
       return structuredClone(demo);
     }
+    if(name==='mm_neighbourhood')return [
+      {alias:demo.alias,you:true,home:demo.home||'clay',character:demo.character||'sprout',items:demo.owned},
+      {alias:'Map Maker',home:'mint',character:'fox',items:['plant','sign']},
+      {alias:'Trail Scout',home:'dusk',character:'robot',items:['lamp']},
+      {alias:'Equation Ace',home:'clay',character:'fox',items:['plant']},
+      {alias:'Pi Pilot',home:'mint',character:'sprout',items:['lamp','sign']}
+    ];
+    if(name==='mm_save_look'){demo.home=args.p_home;demo.character=args.p_character;return null;}
     if(name==='mm_solve'&&args.p_mission===m.id&&demoAnswers[args.p_index]===args.p_answer){
       if(!m.solved.includes(args.p_index))m.solved.push(args.p_index);
       const awarded=!m.complete&&m.solved.length===m.questions.length?m.coins:0;
@@ -60,7 +161,7 @@
     applyState(demoRpc('mm_state'));
   };
   q('mm-demo-back').onclick=()=>{
-    ++run;demoActive=false;state=null;notice();view('demo');
+    ++run;++streetRequest;demoActive=false;state=null;renderStreet([]);notice();view('demo');
   };
   function el(tag, str, className) {
     const node = document.createElement(tag);
@@ -154,6 +255,7 @@
       shop.append(row);
     });
     if(!cabin.childElementCount)cabin.append(el('small','Your cabin is ready to decorate.'));
+    ownPlot();
   }
   async function play(mission){
     const myRun=++run;
@@ -208,7 +310,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;user=null;state=null;builder.missionBuilder.exit();view('login');q('mm-roster').value='';
+    ++run;++streetRequest;user=null;state=null;renderStreet([]);look={home:'clay',character:'sprout'};selectDestination('missions');builder.missionBuilder.exit();view('login');q('mm-roster').value='';
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){

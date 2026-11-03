@@ -75,3 +75,28 @@ body{max-width:990px;min-height:100vh;margin:0 auto;padding:24px;background-colo
   #missions-app .mm-hero{padding:14px}#missions-app button{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){#missions-app button{transform:none!important}}
+
+:root{
+  --plot-sky:#c4e1de;--plot-sun:#f4ca79;--plot-cloud:#f8f5da;--plot-hill:#99c4ab;
+  --plot-lawn:#7fb795;--plot-path:#e6cd9d;--plot-grass:#509571;--plot-window:#83aeb1
+}
+:root[data-town-theme=night]{
+  --plot-sky:#273f58;--plot-sun:#f0e3a5;--plot-cloud:#536a7c;--plot-hill:#466a77;
+  --plot-lawn:#49776b;--plot-path:#8d795e;--plot-grass:#375b51;--plot-window:#efc779
+}
+.mm-street-head{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+#missions-app .mm-street-head [aria-pressed=true]{background:var(--accent);color:var(--on)}
+.mm-street{list-style:none;display:flex;gap:12px;margin:12px 0;padding:0 0 10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
+.mm-plot-card{flex:0 0 clamp(216px,34%,272px);scroll-snap-align:start;background:var(--paper);border:2px solid var(--line);min-width:0}
+.mm-street.mm-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));overflow:visible;scroll-snap-type:none}
+.mm-plot-art{width:100%;height:auto;display:block}
+.mm-plot-caption{border-top:2px solid var(--line);padding:8px 10px;overflow-wrap:anywhere}
+.mm-plot-tag{display:block;color:var(--accent);font:700 .68rem/1.2 var(--mono);letter-spacing:.08em;margin-bottom:4px}
+.mm-cabin-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
+#mm-own-plot{border:2px solid var(--line)}
+@media(max-width:560px){.mm-cabin-layout{grid-template-columns:1fr}}
+@media(max-width:560px){
+  .mm-street.mm-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .mm-overview .mm-plot-caption{padding:6px 8px}
+  .mm-overview .mm-plot-caption small{line-height:1.3;margin-top:3px}
+}

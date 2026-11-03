@@ -70,13 +70,41 @@
     </div>
     <nav class="mm-row mm-destinations" aria-label="Town destinations">
       <button type="button" data-town-destination="missions" aria-controls="mm-town-missions" aria-pressed="true">Mission Hall</button>
+      <button type="button" data-town-destination="neighbourhood" aria-controls="mm-town-neighbourhood" aria-pressed="false">Neighbourhood</button>
       <button type="button" data-town-destination="leaderboard" aria-controls="mm-town-leaderboard" aria-pressed="false">Class Rankings</button>
       <button type="button" data-town-destination="cabin" aria-controls="mm-town-cabin" aria-pressed="false">Cabin &amp; Shop</button>
       <button type="button" id="mm-demo-back" hidden>Back to teacher demo</button>
     </nav>
     <section class="mm-card" data-town-panel="missions" id="mm-town-missions"><h2>My missions</h2><div id="mm-missions"></div></section>
     <section class="mm-card" data-town-panel="leaderboard" id="mm-town-leaderboard" hidden><h2>Class leaderboard</h2><ul id="mm-leaderboard"></ul></section>
-    <section class="mm-card" data-town-panel="cabin" id="mm-town-cabin" hidden><h2>My cabin</h2><div id="mm-cabin" class="mm-row"></div><h3>Decorations</h3><div id="mm-shop"></div></section>
+    <section class="mm-card" data-town-panel="neighbourhood" id="mm-town-neighbourhood" hidden>
+      <div class="mm-street-head">
+        <div><p class="mm-kicker">CLASS STREET</p><h2>Neighbourhood</h2><p>See your classmates’ cabins and characters.</p></div>
+        <div class="mm-row" role="group" aria-label="Neighbourhood view">
+          <button id="mm-street-view" type="button" aria-pressed="true">Street view</button>
+          <button id="mm-overview-view" type="button" aria-pressed="false">Overview</button>
+        </div>
+      </div>
+      <p id="mm-street-status" role="status" class="mm-muted"></p>
+      <ul class="mm-street" id="mm-street" aria-label="Classmate cabins" tabindex="0"></ul>
+      <div id="mm-street-controls" class="mm-row" hidden>
+        <button id="mm-street-prev" type="button">Previous</button>
+        <button id="mm-street-next" type="button">Next</button>
+      </div>
+    </section>
+    <section class="mm-card" data-town-panel="cabin" id="mm-town-cabin" hidden>
+      <h2>My cabin</h2>
+      <div class="mm-cabin-layout">
+        <div id="mm-own-plot"></div>
+        <form id="mm-look-form" class="mm-form">
+          <label>Roof colour<select id="mm-home-style"></select></label>
+          <label>Character<select id="mm-character-style"></select></label>
+          <button class="mm-primary" id="mm-save-look" type="submit">Save look</button>
+          <small>Your roof, character and decorations appear on Class Street.</small>
+        </form>
+      </div>
+      <h3>Decorations</h3><div id="mm-cabin" class="mm-row"></div><div id="mm-shop"></div>
+    </section>
   </section>
 </div>
 <div id="dmn-mission-wireframe" hidden>
@@ -681,5 +709,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
+<script src="town-art.js"></script>
 <script src="app.js"></script>
 </body></html>
