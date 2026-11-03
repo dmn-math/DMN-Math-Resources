@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Algebra Town | DMN Math Resources</title>
-<link rel="stylesheet" href="app.css?v=class-login-2">
+<link rel="stylesheet" href="app.css?v=expansion-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div><small>DMN MATH RESOURCES</small><h1>Algebra Town</h1></div>
@@ -39,7 +39,9 @@
     <div class="mm-google-sign-in"><button id="mm-login" type="button">Teacher login</button></div>
   </section>
   <section data-mm-view="demo" class="mm-card mm-guest" hidden>
-    <h2>Teacher demo</h2><p>Create a task and try the Equation Lab preview. Add your Supabase settings to enable sign-in, class assignments and saved student progress.</p>
+    <h2>Teacher demo</h2><p>Create a task and try the student preview. Add your Supabase settings to enable sign-in, class assignments and saved student progress.</p>
+    <button id="mm-demo-solve" type="button" aria-pressed="true">Solving Equations</button>
+    <button id="mm-demo-expand" type="button" aria-pressed="false">Simplifying Linear Expressions</button>
     <button id="mm-demo-student" type="button" class="mm-primary">Preview student town</button>
   </section>
   <section data-mm-view="join" class="mm-card" hidden>
@@ -48,43 +50,59 @@
     <button id="mm-check-roster" type="button">Check again</button>
   </section>
   <section data-mm-view="teacher" hidden>
-    <div class="mm-grid">
-      <section class="mm-card">
-        <h2>Classes</h2>
-        <form id="mm-class-form" class="mm-row">
-          <label>Class name<input id="mm-class-name" placeholder="e.g. 3B G2" required maxlength="50"></label>
-          <button type="submit">Create class</button>
-        </form>
-      </section>
-      <section class="mm-card">
-        <h2>Add your class list</h2>
-        <form id="mm-roster-form" class="mm-form">
-          <label>Class<select id="mm-roster-class" required></select></label>
-          <label>School email and nickname, one student per line<textarea id="mm-roster" rows="4" required maxlength="30000" autocomplete="off" placeholder="student@school.example, IslandExplorer"></textarea></label>
-          <small>Paste two columns from a spreadsheet, or separate email and nickname with a comma.</small>
-          <button type="submit">Add students</button>
-        </form>
-      </section>
-    </div>
-    <section class="mm-card">
-      <h2>Class login without Google</h2>
-      <form id="mm-login-roster-form" class="mm-form">
-        <label>Class<select id="mm-login-roster-class" required></select></label>
-        <label>Class code<input id="mm-teacher-code-input" required maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
-        <small>Choose 6–24 letters or numbers. Avoid a code that is easy to guess, such as the class name alone.</small>
-        <label>Student names or nicknames, one per line<textarea id="mm-login-names" rows="4" maxlength="4000" autocomplete="off" placeholder="IslandExplorer"></textarea></label>
-        <small>Saving also imports names from this class’s existing roster. Use the same names for students who already have progress.</small>
-        <div class="mm-row">
-          <button type="button" id="mm-load-login-roster">Load class login</button>
-          <button type="submit">Save class login roster</button>
-        </div>
-      </form>
-      <div id="mm-login-roster-result" hidden>
-        <p>Class code: <strong id="mm-teacher-class-code"></strong></p>
-        <ul id="mm-login-roster-list" class="mm-login-roster-list"></ul>
+    <nav class="mm-teacher-nav mm-row" aria-label="Teacher dashboard">
+      <button type="button" id="mm-manage-classes" aria-controls="mm-teacher-classes" aria-pressed="true">Classes &amp; student login</button>
+      <button type="button" id="mm-create-missions" aria-controls="mm-teacher-missions" aria-pressed="false">Create missions</button>
+    </nav>
+    <section id="mm-teacher-classes" aria-label="Classes and student login">
+      <div class="mm-grid">
+        <section class="mm-card">
+          <h2>Classes</h2>
+          <form id="mm-class-form" class="mm-row">
+            <label>Class name<input id="mm-class-name" placeholder="e.g. 3B G2" required maxlength="50"></label>
+            <button type="submit">Create class</button>
+          </form>
+        </section>
+        <section class="mm-card">
+          <h2>Add your class list</h2>
+          <form id="mm-roster-form" class="mm-form">
+            <label>Class<select id="mm-roster-class" required></select></label>
+            <label>School email and nickname, one student per line<textarea id="mm-roster" rows="4" required maxlength="30000" autocomplete="off" placeholder="student@school.example, IslandExplorer"></textarea></label>
+            <small>Paste two columns from a spreadsheet, or separate email and nickname with a comma.</small>
+            <button type="submit">Add students</button>
+          </form>
+        </section>
       </div>
+      <section class="mm-card">
+        <h2>Class login without Google</h2>
+        <form id="mm-login-roster-form" class="mm-form">
+          <label>Class<select id="mm-login-roster-class" required></select></label>
+          <label>Class code<input id="mm-teacher-code-input" required maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+          <small>Choose 6–24 letters or numbers. Avoid a code that is easy to guess, such as the class name alone.</small>
+          <label>Student names or nicknames, one per line<textarea id="mm-login-names" rows="4" maxlength="4000" autocomplete="off" placeholder="IslandExplorer"></textarea></label>
+          <small>Saving also imports names from this class’s existing roster. Use the same names for students who already have progress.</small>
+          <div class="mm-row">
+            <button type="button" id="mm-load-login-roster">Load class login</button>
+            <button type="submit">Save class login roster</button>
+          </div>
+        </form>
+        <div id="mm-login-roster-result" hidden>
+          <p>Class code: <strong id="mm-teacher-class-code"></strong></p>
+          <ul id="mm-login-roster-list" class="mm-login-roster-list"></ul>
+        </div>
+      </section>
     </section>
-    <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
+    <section id="mm-teacher-missions" aria-label="Create missions" hidden>
+      <details class="mm-card mm-teacher-topic" id="mm-topic-expand">
+        <summary><strong>Simplifying Linear Expressions</strong><small>Expand single brackets, products of two brackets and squared brackets.</small></summary>
+        <div data-mm-topic-editor></div>
+      </details>
+      <details class="mm-card mm-teacher-topic" id="mm-topic-solve">
+        <summary><strong>Solving Equations</strong><small>Set non-fractional and fractional questions using Equation Lab.</small></summary>
+        <div data-mm-topic-editor></div>
+      </details>
+      <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
+    </section>
   </section>
   <section data-mm-view="student" id="mm-view-student" hidden>
     <div class="mm-town-banner">
@@ -148,6 +166,7 @@
     </section>
   </section>
 </div>
+<div id="mm-builder-park"></div>
 <div id="dmn-mission-wireframe" hidden>
   <style>
     #dmn-mission-wireframe{color-scheme:light dark;--page:light-dark(#f5f6f0,#20251f);--panel:light-dark(#fffefb,#252b24);--ink:light-dark(#1b2a4a,#e6ecf6);--soft:light-dark(#4a5570,#b5c2d5);--line:light-dark(#d5ddd6,#526055);--accent:light-dark(#26584b,#a9dfcb);--wash:light-dark(#e6efe9,#293e35);--on:light-dark(#fffefb,#152d25);--error:light-dark(#9c2222,#ffaaaa);padding:12px;font:400 14px/1.45 system-ui,sans-serif;color:var(--ink)}
@@ -197,7 +216,7 @@
       <div class="cols">
         <section class="group" aria-label="Task settings">
           <h3>1. Set up the task</h3>
-          <label class="field">Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option></select></label>
+          <label class="field" data-equation-family>Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option><option value="expand" hidden>Bracket expansion</option></select></label>
           <label class="field">Task title<input data-title value="Solve equations without fractions" maxlength="100"></label>
           <label class="field">Assign to class<input data-class value="3B G2" maxlength="50"></label>
           <div class="pair">
@@ -217,12 +236,18 @@
             <label class="choice"><input type="checkbox" value="fraction-both" checked> Fractions on both sides</label>
             <label class="choice"><input type="checkbox" value="fraction-denominator" checked> Unknown in a linear denominator</label>
           </fieldset>
+          <fieldset data-types-expand hidden><legend>Bracket forms to generate</legend>
+            <label class="choice"><input type="checkbox" value="expand-single" checked> Single bracket: a(ax ± b)</label>
+            <label class="choice"><input type="checkbox" value="expand-double" checked> Two brackets: (ax ± b)(cx ± d)</label>
+            <label class="choice"><input type="checkbox" value="expand-square" checked> Squared bracket: (ax + b)²</label>
+            <small>All coefficients are integers. Products and squares can give quadratic expressions.</small>
+          </fieldset>
           <label class="choice"><input data-hints type="checkbox" checked> Offer hints</label>
           <div class="row"><button type="button" class="cursor-interaction" data-generate>Generate questions</button><small data-settings-message role="status"></small></div>
         </section>
         <section class="group" aria-label="Question review">
           <div class="row between"><h3>2. Review questions</h3><small data-total></small></div>
-          <p class="mm-question-help">Edit an equation to type your own. Equation Lab calculates the answer for you.</p>
+          <p class="mm-question-help" data-review-help>Edit an equation to type your own. Equation Lab calculates the answer for you.</p>
           <ol class="questions" data-list></ol>
           <button type="button" class="cursor-interaction" data-preview>Preview as student</button>
         </section>
@@ -231,11 +256,11 @@
     <dialog data-question-editor aria-labelledby="mm-edit-equation-title">
       <form data-question-form>
         <h3 id="mm-edit-equation-title" data-question-heading>Edit equation</h3>
-        <label class="field">Equation<input data-question-input maxlength="100" required aria-describedby="mm-edit-equation-help mm-edit-equation-error"></label>
+        <label class="field"><span data-question-label>Equation</span><input data-question-input maxlength="100" required aria-describedby="mm-edit-equation-help mm-edit-equation-error"></label>
         <p id="mm-edit-equation-help" data-question-help></p>
-        <div class="mm-author-preview"><small>Equation preview</small><div class="question-text" data-question-live></div></div>
+        <div class="mm-author-preview"><small data-question-preview-label>Equation preview</small><div class="question-text" data-question-live></div></div>
         <p id="mm-edit-equation-error" class="error" data-question-error role="alert"></p>
-        <div class="row"><button type="submit" class="main">Save equation</button><button type="button" data-question-cancel>Cancel</button></div>
+        <div class="row"><button type="submit" class="main" data-question-save>Save equation</button><button type="button" data-question-cancel>Cancel</button></div>
       </form>
     </dialog>
     <section class="body group" data-view="preview" hidden>
@@ -244,6 +269,18 @@
       <p data-play-status role="status" aria-live="polite"></p>
       <button type="button" class="cursor-interaction" data-retry hidden>Retry saving</button>
       <button type="button" class="cursor-interaction" data-prev>Previous question</button>
+      <section data-expansion-practice class="highlight group" hidden aria-label="Bracket expansion practice">
+        <h3 data-expansion-count></h3>
+        <p>Expand the brackets and collect like terms.</p>
+        <p class="question-text mm-expand-expression" data-expansion-expression></p>
+        <details data-expansion-hint><summary>Show a worked example</summary><p data-expansion-example></p></details>
+        <form class="group" data-expansion-form>
+          <label class="field">Your simplified expression<input data-expansion-answer maxlength="100" required autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. 6x^2 + 5x - 4"></label>
+          <small>Use x^2 or x² for x squared. You can enter the terms in any order.</small>
+          <div class="row"><button type="submit" class="main" data-expansion-check>Check answer</button><button type="button" data-expansion-next>Next question</button></div>
+        </form>
+        <p class="feedback" data-expansion-feedback role="status"></p>
+      </section>
       <div data-equation-lab></div><template data-equation-lab-template><style>
 :host{--ink:#263b37;--muted:#73817c;--green:#236b52;--pale:#edf5ed;--line:#dfe6df;--paper:#fff;--bg:#f6f7f2;--purple:#735aaa;--orange:#a86622}*{box-sizing:border-box}:host{display:block;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad95db;outline-offset:3px}header{height:83px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 5%;gap:15px}.brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:750;letter-spacing:-.7px}.brand-icon{display:grid;place-items:center;background:var(--green);color:#fff;border-radius:13px;width:42px;height:42px;font-family:Georgia;font-size:28px}.brand span:last-child{color:var(--green)}.header-right{display:flex;align-items:center;gap:20px}.tag{background:var(--pale);color:var(--green);font-size:11px;font-weight:750;letter-spacing:1.2px;padding:8px 11px;border-radius:6px}.textbtn{background:none;border:0;color:var(--muted);padding:8px}.intro{max-width:1240px;margin:35px auto 25px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:800;color:var(--green);margin-bottom:9px}h1{font-size:32px;line-height:1.2;letter-spacing:-1.2px;margin:0 0 9px}p{line-height:1.6;margin:0;color:var(--muted)}.intro-note{font-family:Georgia,serif;font-style:italic;max-width:195px;font-size:17px;color:#7d8b78;transform:rotate(-3deg)}main{max-width:1240px;padding:0 32px 40px;margin:auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.card{background:var(--paper);border:1px solid var(--line);border-radius:17px}.settings{padding:23px 19px;height:fit-content}.section-title{font-size:11px;font-weight:750;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:16px}.setting-label{font-size:12px;font-weight:700;margin:19px 0 9px;display:block}.type-tabs{display:flex;background:#f2f4ef;border-radius:9px;padding:4px;gap:3px}.type-tabs button{background:transparent;border:0;border-radius:6px;font-size:12px;padding:9px 5px;flex:1;color:var(--muted)}.type-tabs button.active{background:white;color:var(--green);box-shadow:0 1px 5px #263b3712;font-weight:700}.levels{display:flex;gap:7px}.levels button{flex:1;border:1px solid var(--line);background:white;border-radius:9px;padding:10px 3px;font-size:12px;color:var(--muted)}.levels button.active{background:var(--green);border-color:var(--green);color:white}.difficulty-note{font-size:11px;min-height:36px;margin:10px 0 17px}.divider{height:1px;background:var(--line);margin:20px 0}.mode{width:100%;display:flex;text-align:left;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 10px;background:white;color:var(--ink);margin:8px 0}.mode.active{border-color:#89ac96;background:#f2f8f0}.radio{border:1.5px solid #c5cec3;width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:2px}.mode.active .radio{border:4px solid var(--green)}.mode strong{font-size:12px;display:block;margin-bottom:4px}.mode small{font-size:10px;line-height:1.5;display:block;color:var(--muted)}.rule-card{padding:16px;border-radius:10px;background:#f4f0fa;margin-top:21px}.rule-card strong{color:var(--purple);font-size:12px}.rule-card p{font-size:11px;color:#807091;margin-top:7px}.workspace{min-width:0}.exercise-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;gap:10px}.exercise-label{font-size:12px;font-weight:650}.exercise-label span{color:var(--muted);font-weight:400;margin-left:8px}.pill{font-size:10px;border:1px solid var(--line);padding:6px 10px;border-radius:20px;background:white;color:var(--muted)}.lab{overflow:hidden}.lab-top{display:flex;justify-content:space-between;align-items:center;padding:20px 25px 0}.lab-top small{font-size:10px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.status{font-size:11px;color:var(--green);background:var(--pale);padding:7px 10px;border-radius:20px;display:flex;align-items:center;gap:6px}.dot{width:6px;height:6px;background:currentColor;border-radius:50%}.status.warn{background:#fff0df;color:var(--orange)}.equation-area{padding:18px 25px 0}.equation{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);align-items:center;min-height:100px;gap:12px}.math{font-family:Cambria,"Times New Roman",serif;font-size:42px;line-height:1.6;letter-spacing:-.5px;text-align:center;overflow-wrap:anywhere}.math var{font-style:italic}.equal{font-family:Georgia,serif;font-size:33px;color:#98a79a;text-align:center}.frac{display:inline-flex;vertical-align:middle;flex-direction:column;align-items:center;font-size:.78em;line-height:1.15;margin:0 .08em}.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .12em .08em}.frac>span:last-child{padding:.08em .12em 0}.operation-fraction{font-size:1em;line-height:1.3}.balance-art{display:block;width:100%;height:48px;margin:0 auto 1px;overflow:visible}.balance-beam{transform-origin:350px 13px;transition:transform .3s}.balance-art.warn .balance-beam{transform:rotate(4deg)}.side-labels{display:grid;grid-template-columns:1fr 45px 1fr;gap:12px;text-align:center;font-size:9px;letter-spacing:1.3px;font-weight:700;color:#96a294;margin-bottom:12px}.controls{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);gap:12px;padding:0 25px 24px}.control-panel{background:#f6f8f3;border:1px solid #e7ece2;padding:13px;border-radius:12px}.operator-row{display:flex;gap:5px}.op{flex:1;border:1px solid #dce4d8;border-radius:6px;padding:6px 2px;background:#fff;color:#6f7d6b;font-size:21px;line-height:1.1}.op.selected{border-color:var(--green);background:#e4eee1;color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}.value-row{display:flex;gap:7px;margin-top:9px}.value-row input{width:0;min-width:0;flex:1;border:1px solid #dce4d8;border-radius:7px;background:white;padding:10px;color:var(--ink)}.apply{border:0;background:var(--green);color:white;border-radius:7px;padding:9px 14px;font-size:11px;font-weight:650}.side-done{font-size:11px;color:var(--green);margin-top:8px;min-height:16px}.controls-middle{display:flex;align-items:center;justify-content:center;color:#b3bdb0;font-size:20px}.feedback{padding:16px 23px;background:#edf5ed;border-top:1px solid #dce9da;display:flex;gap:11px;align-items:flex-start;min-height:72px}.feedback.warn{background:#fff5e8;border-color:#f0dfc6}.feedback.error{background:#fff0ed;border-color:#f0d7cf}.feedback.success{background:#e4f4e9}.feedback-icon{border:1px solid currentColor;border-radius:50%;width:19px;height:19px;flex-shrink:0;display:grid;place-items:center;color:var(--green);font-weight:700;font-size:11px;margin-top:1px}.feedback.warn .feedback-icon{color:var(--orange)}.feedback.error .feedback-icon{color:#b74b32}.feedback strong{display:block;font-size:12px;margin-bottom:4px}.feedback p{font-size:11px;color:#6b7c67;line-height:1.6}.feedback.warn p{color:#92774c}.feedback.error p{color:#a46353}.actions{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px}.secondary{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 13px;font-size:11px;color:#53674f}.actions-left{display:flex;gap:7px}.primary{border:0;background:var(--green);color:#fff;border-radius:8px;padding:11px 18px;font-size:11px;font-weight:700}.history{padding:21px 23px}.history-header{display:flex;align-items:center;justify-content:space-between}.history-header h2{font-size:13px;margin:0}.history-header small{font-size:10px;color:var(--muted)}.history-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #edf0e9}.history-row:last-child{border:0;padding-bottom:0}.step-number{width:24px;height:24px;border-radius:50%;background:#f0f4ed;color:#84907d;display:grid;place-items:center;font-size:10px}.history-math{font-family:Cambria,Georgia,serif;font-size:22px;overflow-wrap:anywhere}.history-note{font-size:10px;color:#7c8d74;text-align:right;max-width:150px}.footnote{margin:17px 0 0;font-size:10px;color:#96a18f;text-align:center}.manual{padding:0 25px 23px}.manual-inner{background:#f4f0fa;border:1px solid #e5dcf0;border-radius:10px;padding:16px}.manual-title{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px}.manual p{font-size:11px;color:#8a799f;margin-bottom:11px}.working-inputs{display:grid;grid-template-columns:1fr 25px 1fr;align-items:center;gap:10px}.working-inputs input{width:100%;padding:11px;border:1px solid #d5c6e6;border-radius:7px;background:white;color:var(--ink)}.check{margin-top:10px;background:var(--purple);color:white;border:0;border-radius:7px;padding:10px 15px;font-size:11px}.hint{background:#fff8e9;border:1px solid #ecdfc5;border-radius:9px;padding:13px 16px;font-size:12px;line-height:1.6;margin-bottom:14px;color:#92703e}.hidden{display:none!important}dialog{max-width:590px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:17px;color:var(--ink);padding:28px;box-shadow:0 20px 100px #17332733}dialog::backdrop{background:#20382e66}dialog h2{font-size:23px;letter-spacing:-.6px;margin:0 0 16px}dialog p,dialog li{font-size:13px;line-height:1.8}dialog li{margin:8px 0;color:var(--muted)}dialog .secondary{margin-top:16px}#custom input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;margin:16px 0}#custom-error{color:#b74b32;font-size:12px}footer{max-width:1176px;margin:0 auto 25px;border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;font-size:10px;color:#96a18f}.mobile-settings{display:none}@media(min-width:1450px){.intro{margin-top:48px}main{gap:30px}.equation-area{padding-top:30px;padding-bottom:8px}.math{font-size:48px}}@media(max-width:850px){header{padding:0 24px}.intro-note{display:none}.intro,main{padding-left:22px;padding-right:22px}main{grid-template-columns:220px minmax(0,1fr);gap:16px}.settings{padding:20px 14px}.controls{padding-left:16px;padding-right:16px;gap:5px;grid-template-columns:1fr 20px 1fr}.control-panel{padding:9px}.math{font-size:34px}.value-row{flex-wrap:wrap}.value-row input{flex-basis:100%;width:100%}.apply{width:100%}.header-right{gap:8px}footer{margin-left:22px;margin-right:22px}}@media(max-width:650px){header{height:70px;padding:0 18px}.brand{font-size:20px}.tag{display:none}.header-right .textbtn{font-size:12px}.intro{margin:25px auto 20px;padding:0 18px}h1{font-size:28px}.intro p{font-size:12px}main{display:block;padding:0 14px 28px}.settings{margin-bottom:18px;padding:16px}.settings>.section-title{margin-bottom:12px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setting-label{margin-top:3px}.difficulty-note{min-height:0;margin-bottom:0}.settings .divider{margin:15px 0}.mode-wrap{display:flex;gap:8px}.mode{margin:0;flex:1;padding:10px 7px}.mode small{font-size:9px}.mode strong{font-size:10px}.rule-card{display:none}.lab-top{padding:16px 16px 0}.equation-area{padding:12px 12px 0}.math{font-size:34px}.equation{gap:5px;grid-template-columns:1fr 30px 1fr}.side-labels{grid-template-columns:1fr 30px 1fr}.controls{padding:0 12px 18px;grid-template-columns:1fr 20px 1fr}.controls-middle{font-size:15px}.op{font-size:21px}.actions{flex-wrap:wrap}.actions-left{gap:4px}.secondary{padding:10px;font-size:10px}.primary{padding:11px 12px}.history{padding:18px}.history-note{font-size:9px;max-width:95px}.history-math{font-size:20px}.manual{padding:0 12px 18px}.working-inputs{gap:5px}.working-inputs input{padding:10px 7px}.feedback{padding:14px 16px}footer{margin:0 18px 20px}.exercise-label span{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -660,13 +697,73 @@ mount.setMissionBusy=(busy,last)=>{
   const types = [...root.querySelectorAll('fieldset input')];
   const names = {one:'One step',two:'Two steps',both:'Unknown on both sides',brackets:'Brackets',
     'fraction-one':'Fraction and whole number','fraction-numerator':'Bracketed numerator',
-    'fraction-both':'Fractions on both sides','fraction-denominator':'Unknown in denominator'};
+    'fraction-both':'Fractions on both sides','fraction-denominator':'Unknown in denominator',
+    'expand-single':'Single bracket','expand-double':'Two brackets','expand-square':'Squared bracket'};
+  const expansionExamples={
+    'expand-single':'Multiply each term inside by the number outside: 3(3x − 2) = 9x − 6.',
+    'expand-double':'Multiply each term in the first bracket by each term in the second: (2x + 3)(x − 4) = 2x² − 8x + 3x − 12 = 2x² − 5x − 12.',
+    'expand-square':'Write the square as two identical brackets: (2x + 3)² = (2x + 3)(2x + 3) = 4x² + 6x + 6x + 9 = 4x² + 12x + 9.'
+  };
+  const cleanExpression=text=>text.trim().replaceAll('−','-').replaceAll('²','^2').toLowerCase();
+  function expansionQuestion(text){
+    const normalized=cleanExpression(text);
+    const error='Use integer coefficients in a single bracket, two brackets or a square, e.g. 3(3x-2), (2x+3)(x-4) or (2x+3)^2.';
+    if(normalized.length>100||/\d\s+\d/.test(normalized))throw Error(error);
+    const eq=normalized.replace(/\s/g,'');
+    const term=String.raw`([+-]?(?:[1-9][0-9]{0,2})?)x([+-][0-9]{1,3})`;
+    const bracket=String.raw`\(${term}\)`;
+    const single=eq.match(new RegExp(String.raw`^([+-]?[1-9][0-9]{0,2})${bracket}$`));
+    const double=eq.match(new RegExp('^'+bracket+bracket+'$'));
+    const square=eq.match(new RegExp('^'+bracket+String.raw`\^2$`));
+    const coefficient=(value)=>value===''||value==='+'?1:value==='-'?-1:Number(value);
+    if(single){
+      const k=Number(single[1]);
+      return {eq,type:'expand-single',x:[0,k*coefficient(single[2]),k*Number(single[3])].join(',')};
+    }
+    if(double||square){
+      const [,aa,bb,cc=aa,dd=bb]=double||square;
+      const [a,b,c,d]=[coefficient(aa),Number(bb),coefficient(cc),Number(dd)];
+      return {eq,type:double?'expand-double':'expand-square',x:[a*c,a*d+b*c,b*d].join(',')};
+    }
+    throw Error(error);
+  }
+  const displayExpansion=eq=>eq.replaceAll('^2','²').replaceAll('+',' + ').replaceAll('-',' − ').trim();
+  function polynomial(tuple){
+    return tuple.split(',').map(Number).map((n,i)=>{
+      if(!n)return '';
+      return (n<0?' − ':' + ')+(i<2&&Math.abs(n)===1?'':Math.abs(n))+['x²','x',''][i];
+    }).join('').trim().replace(/^\+ /,'').replace(/^− /,'−')||'0';
+  }
+  function expansionAnswer(text){
+    const raw=cleanExpression(text);
+    if(/\d\s+\d/.test(raw))throw Error('Enter one integer coefficient for each term.');
+    const value=raw.replace(/\s/g,'');
+    const terms=value.match(/[+-]?[^+-]+/g)||[];
+    const result=[0,0,0],seen=new Set();
+    if(!terms.length||terms.join('')!==value)throw Error('Enter an expanded expression, such as 6x^2 + 5x - 4.');
+    for(const term of terms){
+      const match=term.match(/^([+-]?)(?:(\d{1,7})\*?)?x(\^2)?$/);
+      if(!match&&!/^[+-]?\d{1,7}$/.test(term))throw Error('Remove the brackets and enter your simplified expression using x and x^2.');
+      const degree=match?(match[3]?0:1):2;
+      if(seen.has(degree))throw Error('Collect like terms so each power of x appears only once.');
+      seen.add(degree);
+      result[degree]=match?(match[1]==='-'?-1:1)*Number(match[2]||1):Number(term);
+    }
+    return result.join(',');
+  }
   const family=()=>pick('family').value;
-  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations'};
+  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets'};
   function setFamily(kind){
     pick('family').value=kind;
     pick('types-whole').hidden=kind!=='whole';
     pick('types-fraction').hidden=kind!=='fraction';
+    pick('types-expand').hidden=kind!=='expand';
+    pick('equation-family').hidden=kind==='expand';
+    pick('review-help').textContent=kind==='expand'?'Edit a question to enter your own expression. The simplified answer appears below it.':'Edit an equation to type your own. Equation Lab calculates the answer for you.';
+    const label=kind==='expand'?'Expression':'Equation';
+    pick('question-label').textContent=label;
+    pick('question-preview-label').textContent=label+' preview';
+    pick('question-save').textContent='Save '+label.toLowerCase();
   }
   const activeTypes=()=>[...pick('types-'+family()).querySelectorAll('input')];
   const rand = (a,b) => a + Math.floor(Math.random() * (b-a+1));
@@ -674,6 +771,9 @@ mount.setMissionBusy=(busy,last)=>{
   const number = n => String(n).replace('-', '−');
   let rows=[], index=0, lastMix='', storageKey='', publish=null, playing=null, saveAnswer=null, leave=null, saving=false, playToken=0;
   const lab=root.querySelector('[data-equation-lab]');
+  const topicDrafts=new Map();
+  let draftFamily='whole';
+  const questionFromInput=()=>family()==='expand'?expansionQuestion(pick('question-input').value):lab.validateMissionEquation(pick('question-input').value,family());
   let editing=-1, finished=null;
   const victory=pick('victory'), finishButton=pick('finish-mission');
   finishButton.onclick=()=>{
@@ -693,7 +793,9 @@ mount.setMissionBusy=(busy,last)=>{
     pick('question-heading').textContent='Edit question '+(i+1);
     pick('question-input').value=rows[i].eq;
     pick('question-error').textContent='';
-    pick('question-help').textContent=family()==='fraction'?
+    pick('question-help').textContent=family()==='expand'?
+      'Use x and integer coefficients, e.g. 3(3x - 2), (2x + 3)(x - 4) or (2x + 3)^2.':
+      family()==='fraction'?
       'Use / for fractions and brackets to group terms, e.g. (x + 1)/3 = 2 or 4/(x - 1) = 2.':
       'Use x, whole numbers and brackets, e.g. 5x - 4 = 2x + 11. The answer must be an integer.';
     updateEquationPreview();
@@ -703,9 +805,10 @@ mount.setMissionBusy=(busy,last)=>{
   function updateEquationPreview(){
     const output=pick('question-live');
     try{
-      const q=lab.validateMissionEquation(pick('question-input').value,family());
-      output.innerHTML=lab.formatMissionEquation(q.eq);
-    }catch{output.textContent='Enter a valid equation to see it here.';}
+      const q=questionFromInput();
+      if(family()==='expand')output.textContent=displayExpansion(q.eq);
+      else output.innerHTML=lab.formatMissionEquation(q.eq);
+    }catch{output.textContent='Enter a valid '+(family()==='expand'?'expression':'equation')+' to see it here.';}
   }
   pick('question-input').oninput=()=>{
     pick('question-error').textContent='';
@@ -715,9 +818,9 @@ mount.setMissionBusy=(busy,last)=>{
   pick('question-form').onsubmit=e=>{
     e.preventDefault();
     try {
-      const question=lab.validateMissionEquation(pick('question-input').value,family());
+      const question=questionFromInput();
       if(rows.some((r,i)=>i!==editing&&r.eq.replace(/\s/g,'').replaceAll('−','-')===question.eq.replace(/\s/g,'')))
-        throw Error('This equation is already in the mission.');
+        throw Error('This question is already in the mission.');
       rows[editing]=question;
       pick('question-editor').close();
       review();status('Draft · Question '+(editing+1)+' updated');
@@ -729,6 +832,9 @@ mount.setMissionBusy=(busy,last)=>{
   };
   function make(type) {
     const x = rand(-8,12), a = rand(2,6), b = rand(1,9) * (Math.random() < .5 ? -1 : 1), c = rand(2,6);
+    if(type==='expand-single')return expansionQuestion(a+'('+a+'x'+constant(b)+')');
+    if(type==='expand-double')return expansionQuestion('('+a+'x'+constant(b)+')('+c+'x'+constant(rand(1,9)*(Math.random()<.5?-1:1))+')');
+    if(type==='expand-square')return expansionQuestion('('+a+'x'+constant(Math.abs(b))+')^2');
     if(type.startsWith('fraction-')){
       const d=rand(2,7), e=d+rand(1,3);
       let equation;
@@ -759,8 +865,8 @@ mount.setMissionBusy=(busy,last)=>{
       const q = document.createElement('span'), meta = document.createElement('small');
       q.className='question-text';
       if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatMissionEquation(r.eq);
-      else q.textContent=(i+1)+'.  '+r.eq;
-      meta.textContent=names[r.type]+' · x = '+number(r.x);
+      else q.textContent=(i+1)+'.  '+(r.type.startsWith('expand-')?displayExpansion(r.eq):r.eq);
+      meta.textContent=names[r.type]+' · '+(r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
       data.append(q,meta);
       const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
       btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
@@ -774,7 +880,7 @@ mount.setMissionBusy=(busy,last)=>{
   function message(s,error=false){const msg=pick('settings-message');msg.textContent=s;msg.classList.toggle('error',error);}
   function generate(){
     const pool=chosen();
-    if(!pool.length){message('Select at least one equation type.',true);return;}
+    if(!pool.length){message('Select at least one question type.',true);return;}
     rows=[];
     for(let i=0;i<Number(pick('count').value);i++) rows.push(unique(pool[i%pool.length]));
     rows.sort((a,b)=>Object.keys(names).indexOf(a.type)-Object.keys(names).indexOf(b.type));
@@ -800,16 +906,49 @@ mount.setMissionBusy=(busy,last)=>{
     pick('play-status').textContent=playing?.solved.includes(index)?'Solved previously. You can practise again.':'';
     pick('retry').hidden=true;
     const token=++playToken, i=index;
-    lab.openMissionEquation(
-      questions[index].eq, index+1, questions.length, playing?.hints??pick('hints').checked,
-      ()=>{if(!saving&&index<questions.length-1){index++;preview();}},
-      playing ? answer=>submitAnswer(i,answer,token,questions.length) : null);
+    const question=questions[i], expand=Boolean(expansionExamples[question.type]);
+    const hints=playing?.hints??pick('hints').checked;
+    const next=()=>{if(!saving&&index<questions.length-1){index++;preview();}};
+    lab.hidden=expand;
+    pick('expansion-practice').hidden=!expand;
+    if(!expand){
+      lab.openMissionEquation(question.eq,i+1,questions.length,hints,next,
+        playing ? answer=>submitAnswer(i,answer,token,questions.length) : null);
+      return;
+    }
+    pick('expansion-count').textContent='Question '+(i+1)+' of '+questions.length;
+    pick('expansion-expression').textContent=displayExpansion(question.eq);
+    pick('expansion-hint').hidden=!hints;
+    pick('expansion-hint').open=false;
+    pick('expansion-example').textContent=expansionExamples[question.type];
+    const input=pick('expansion-answer'), check=pick('expansion-check'), feedback=pick('expansion-feedback');
+    input.value='';input.disabled=false;check.disabled=false;
+    feedback.textContent='';feedback.classList.remove('error');
+    pick('expansion-next').disabled=i===questions.length-1;
+    pick('expansion-next').onclick=next;
+    pick('expansion-form').onsubmit=async e=>{
+      e.preventDefault();
+      if(saving||check.disabled)return;
+      try {
+        const answer=expansionAnswer(input.value);
+        const expected=expansionQuestion(question.eq).x;
+        if(answer!==expected)throw Error('Try again. Check each multiplication and collect like terms.');
+        feedback.classList.remove('error');
+        feedback.textContent='Correct! '+polynomial(answer);
+        check.disabled=true;
+        if(playing)await submitAnswer(i,answer,token,questions.length,true);
+      }catch(error){
+        feedback.classList.add('error');
+        feedback.textContent=error.message;
+      }
+    };
   }
-  async function submitAnswer(i,answer,token,total){
+  async function submitAnswer(i,answer,token,total,expand=false){
     if(saving||token!==playToken)return;
     saving=true;
     pick('retry').hidden=true;
-    lab.setMissionBusy(true,i===total-1);
+    if(expand){pick('expansion-answer').disabled=true;pick('expansion-next').disabled=true;}
+    else lab.setMissionBusy(true,i===total-1);
     pick('prev').disabled=true;
     pick('back').disabled=true;
     pick('play-status').textContent='Saving your answer…';
@@ -829,7 +968,7 @@ mount.setMissionBusy=(busy,last)=>{
           pick('play-status').textContent='This mission is no longer available. Go back to Home & Missions for your current missions.';
         }else{
           pick('retry').hidden=false;
-          pick('retry').onclick=()=>submitAnswer(i,answer,token,total);
+          pick('retry').onclick=()=>submitAnswer(i,answer,token,total,expand);
         }
       }
     }finally{
@@ -837,7 +976,8 @@ mount.setMissionBusy=(busy,last)=>{
         saving=false;
         pick('prev').disabled=i===0;
         pick('back').disabled=false;
-        lab.setMissionBusy(false,i===total-1);
+        if(expand){pick('expansion-answer').disabled=false;pick('expansion-next').disabled=i===total-1;}
+        else lab.setMissionBusy(false,i===total-1);
       }
     }
   }
@@ -853,9 +993,13 @@ mount.setMissionBusy=(busy,last)=>{
   pick('prev').onclick=()=>{if(index>0){index--;preview();}};
   pick('back').onclick=()=>playing?leave():show('setup');
   pick('edit').onclick=()=>show('setup');
+  function draftSettings(){
+    return {title:pick('title').value,className:pick('class').value,coins:pick('coins').value,
+      hints:pick('hints').checked,family:family(),selected:chosen(),questions:rows,release:pick('release').value};
+  }
   function draft(){
-    return {title:pick('title').value.trim(),className:pick('class').value,coins:Number(pick('coins').value),
-      hints:pick('hints').checked,family:family(),selected:chosen(),questions:rows,release:pick('release').value,releaseAt:releaseInstant()?.toISOString()||null};
+    const d=draftSettings();
+    return {...d,title:d.title.trim(),coins:Number(d.coins),releaseAt:releaseInstant()?.toISOString()||null};
   }
   pick('save').onclick=()=>{
     if(!ready())return;
@@ -877,10 +1021,15 @@ mount.setMissionBusy=(busy,last)=>{
   };
   pick('publish').onclick=()=>{if(publish&&ready())publish(draft(),pick('publish'));};
   root.missionBuilder={
-    draftKey(key){
+    draftKey(key,initialFamily='whole'){
       if(storageKey===key)return;
-      storageKey=key;
-      setFamily('whole');pick('title').value=defaultTitle.whole;
+      if(storageKey){
+        const snapshot={...draftSettings(),lastMix,count:pick('count').value};
+        topicDrafts.set(storageKey,snapshot);
+      }
+      storageKey=key;draftFamily=initialFamily;
+      show('setup');this.savedClass=null;
+      setFamily(initialFamily);pick('title').value=defaultTitle[initialFamily];
       pick('coins').value='10';
       pick('release').value='';
       pick('hints').checked=true;
@@ -888,16 +1037,16 @@ mount.setMissionBusy=(busy,last)=>{
       types.forEach(el=>el.checked=true);
       generate();
       try {
-        const d=JSON.parse(localStorage.getItem(key));
+        const d=topicDrafts.get(key)||JSON.parse(localStorage.getItem(key));
         if(!d||!(d.questions?.length>=1&&d.questions.length<=10)||!Array.isArray(d.selected))return;
         pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;pick('release').value=d.release||'';
-        pick('count').value=d.questions.length;
-        setFamily(d.family==='fraction'?'fraction':'whole');
+        pick('count').value=d.count||d.questions.length;
+        setFamily(initialFamily==='expand'?'expand':d.family==='fraction'?'fraction':'whole');
         activeTypes().forEach(el=>el.checked=d.selected.includes(el.value));
-        rows=d.questions;lastMix=mix();review();
+        rows=d.questions;lastMix=d.lastMix??mix();review();
         this.savedClass=d.className;
         if(pick('class').tagName==='INPUT')pick('class').value=d.className;
-        status('Saved draft');
+        status(topicDrafts.has(key)?'Draft · In progress':'Saved draft');
       }catch{}
     },
     teacher(classes,onPublish){
@@ -919,14 +1068,14 @@ mount.setMissionBusy=(busy,last)=>{
       pick('class').value=m.classId;
       pick('coins').value=m.coins;pick('hints').checked=m.hints;pick('release').value='';
       pick('count').value=m.questions.length;
-      setFamily(m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
+      setFamily(m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
       activeTypes().forEach(el=>el.checked=m.questions.some(r=>r.type===el.value));
       rows=m.questions.map(r=>({...r}));lastMix=mix();review();message('');
       status('Draft · Copied mission');show('setup');pick('title').focus();
     },
     published(scheduled){
       try{localStorage.removeItem(storageKey);}catch{}
-      const key=storageKey;storageKey='';this.draftKey(key);
+      const key=storageKey;topicDrafts.delete(key);storageKey='';this.draftKey(key,draftFamily);
       status(scheduled?'Mission scheduled':'Mission published');
       show('setup');
     },
@@ -955,5 +1104,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=class-login-2"></script>
-<script src="app.js?v=class-login-2"></script>
+<script src="app.js?v=expansion-1"></script>
 </body></html>

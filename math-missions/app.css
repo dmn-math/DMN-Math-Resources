@@ -197,3 +197,18 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 .mm-login-slides{overflow:clip;padding:4px}
 #missions-app #mm-password-form{margin-top:0;border-top:0;padding-top:0}
 #missions-app #mm-password-fields{width:100%}
+
+/* Teacher dashboard and expansion practice */
+#missions-app .mm-teacher-nav{margin-bottom:16px}
+#missions-app .mm-teacher-nav [aria-pressed="true"]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+#missions-app .mm-teacher-topic>summary{cursor:pointer;padding:4px 0}
+#missions-app .mm-teacher-topic>summary strong{font-size:1.15rem}
+#missions-app .mm-teacher-topic>summary small{display:block;margin:4px 0 0 1.1rem;color:var(--soft)}
+#missions-app .mm-teacher-topic[open]>summary{margin-bottom:8px}
+#missions-app .mm-teacher-topic [data-mm-topic-editor]>#dmn-mission-wireframe{padding:0}
+#dmn-mission-wireframe .mm-expand-expression{font-size:clamp(1.35rem,5vw,2.4rem)}
+#dmn-mission-wireframe [data-expansion-form]{max-width:32rem}
+#dmn-mission-wireframe [data-expansion-hint] summary{cursor:pointer}
+#dmn-mission-wireframe [data-expansion-example]{margin-top:6px}
+#missions-app #dmn-mission-wireframe input[type=checkbox]{width:auto}
+#missions-app .mm-guest [aria-pressed="true"]{background:var(--accent);color:var(--on);border-color:var(--accent)}

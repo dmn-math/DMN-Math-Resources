@@ -283,12 +283,46 @@
     catch(error){ notice(error.message || 'Please try again.',true); }
     finally { control.disabled=false; }
   }
+  const editorTopics={expand:q('mm-topic-expand'),solve:q('mm-topic-solve')};
+  let teacherTopic=null, publishing=false;
   function view(role){
     page.querySelectorAll('[data-mm-view]').forEach(node=>node.hidden=node.dataset.mmView!==role);
-    builder.hidden=role!=='teacher'&&role!=='demo';
+    if(role!=='teacher')q('mm-builder-park').append(builder);
+    builder.hidden=role==='teacher'?!teacherTopic:role!=='demo'&&role!=='play';
     q('mm-logout').hidden=!user;
   }
-  const setDraftKey=()=>builder.missionBuilder.draftKey('mm-draft:'+user.id);
+  function setDraftKey(topic){
+    const key='mm-draft:'+user.id+(topic==='expand'?':expand':'');
+    builder.missionBuilder.draftKey(key,topic==='expand'?'expand':'whole');
+  }
+  function teacherSection(missions){
+    q('mm-teacher-classes').hidden=missions;
+    q('mm-teacher-missions').hidden=!missions;
+    q('mm-manage-classes').setAttribute('aria-pressed',String(!missions));
+    q('mm-create-missions').setAttribute('aria-pressed',String(missions));
+  }
+  function openTopic(topic){
+    if(publishing)return;
+    teacherTopic=topic;
+    for(const [key,details] of Object.entries(editorTopics))details.open=key===topic;
+    if(!topic){builder.hidden=true;return;}
+    editorTopics[topic].querySelector('[data-mm-topic-editor]').append(builder);
+    setDraftKey(topic);
+    configureBuilder();
+    builder.hidden=false;
+  }
+  q('mm-manage-classes').onclick=()=>teacherSection(false);
+  q('mm-create-missions').onclick=()=>teacherSection(true);
+  Object.entries(editorTopics).forEach(([topic,details])=>{
+    details.querySelector('summary').onclick=e=>{e.preventDefault();openTopic(details.open?null:topic);};
+  });
+  function demoTopic(topic){
+    q('mm-demo-solve').setAttribute('aria-pressed',String(topic==='solve'));
+    q('mm-demo-expand').setAttribute('aria-pressed',String(topic==='expand'));
+    builder.missionBuilder.draftKey(topic==='expand'?'mm-demo-draft:expand':'mm-demo-draft',topic==='expand'?'expand':'whole');
+  }
+  q('mm-demo-solve').onclick=()=>demoTopic('solve');
+  q('mm-demo-expand').onclick=()=>demoTopic('expand');
   function fillClasses(control,preferred){
     control.replaceChildren(new Option('Select a class',''));
     state.classes.forEach(c=>control.add(new Option(c.label,c.id)));
@@ -297,13 +331,10 @@
   const releaseFormat=new Intl.DateTimeFormat('en-SG',{
     dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Singapore'
   });
-  function renderTeacher(){
-    const cls=q('mm-roster-class');fillClasses(cls,cls.value);
-    const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
-    fillClasses(loginClass,oldClass);
-    if(loginClass.value!==oldClass)clearLoginRoster();
+  function configureBuilder(){
     builder.missionBuilder.teacher(state.classes, async (draft,publishButton)=>{
-      publishButton.disabled=true;
+      if(publishing)return;
+      publishing=true;publishButton.disabled=true;
       try {
         await rpc('mm_schedule_mission',{
           p_class:draft.className,p_title:draft.title,p_coins:draft.coins,p_hints:draft.hints,
@@ -312,7 +343,7 @@
       } catch(error){
         builder.missionBuilder.publishError(error.message);
         return;
-      } finally { publishButton.disabled=false; }
+      } finally { publishButton.disabled=false;publishing=false; }
       builder.missionBuilder.published(Boolean(draft.releaseAt));
       notice(draft.releaseAt?'Mission scheduled for '+releaseFormat.format(new Date(draft.releaseAt))+' (Singapore time).':'Mission published.');
       try{
@@ -322,6 +353,13 @@
         notice('Mission saved. Refresh the page to update your mission list.');
       }
     });
+  }
+  function renderTeacher(){
+    const cls=q('mm-roster-class');fillClasses(cls,cls.value);
+    const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
+    fillClasses(loginClass,oldClass);
+    if(loginClass.value!==oldClass)clearLoginRoster();
+    if(teacherTopic)configureBuilder();
     const list=q('mm-published');
     list.replaceChildren();
     if(!state.missions.length){list.append(el('p','No class missions yet.','mm-muted'));return;}
@@ -334,7 +372,11 @@
       }
       row.append(details);
       const actions=el('div','','mm-row mm-mission-actions');
-      if(m.questions?.length)actions.append(button('Duplicate',()=>builder.missionBuilder.duplicate(m)));
+      if(m.questions?.length)actions.append(button('Duplicate',()=>{
+        if(publishing)return;
+        const topic=m.questions.some(question=>question.type.startsWith('expand-'))?'expand':'solve';
+        teacherSection(true);openTopic(topic);builder.missionBuilder.duplicate(m);
+      }));
       const remove=button('Delete',()=>{
         if(!window.confirm('Delete “'+m.title+'” for '+m.class+'? It will be removed from Mission Hall. Students keep coins already earned.'))return;
         busy(remove,async()=>{
@@ -403,7 +445,7 @@
   }
   function applyState(next){
     state=next;view(state.role);
-    if(state.role==='teacher'){setDraftKey();renderTeacher();}
+    if(state.role==='teacher')renderTeacher();
     if(state.role==='student'){selectDestination('home');renderStudent();loadTown();}
   }
   q('mm-class-form').onsubmit=e=>{
@@ -585,11 +627,11 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection(false);view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
-      view('demo');builder.missionBuilder.draftKey('mm-demo-draft');
+      view('demo');demoTopic('solve');
       return;
     }
     view('login');
