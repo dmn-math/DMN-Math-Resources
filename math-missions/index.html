@@ -394,13 +394,63 @@ main{display:block;max-width:none;margin:0;padding:0}
 #simp-remember[hidden]{display:none}
 .simp-workline .simp-mini-frac{width:var(--factor-ch,8ch);max-width:32ch}
 .simp-main .working-math .frac{max-width:100%;text-align:center}
-@media(max-width:650px){
-  .simp-workline{min-width:0;grid-template-columns:46px minmax(0,1fr) auto;gap:8px}
-  .simp-workline .simp-left{grid-column:2;overflow-wrap:anywhere}
-  .simp-workline .simp-equal{grid-column:1}
-  .simp-workline .simp-right{grid-column:2}
-  .simp-workline .free-check,.simp-workline .free-edit{grid-column:3;grid-row:2}
-  .simp-right .checked-label{position:static}
+/* The mission already hides the standalone settings sidebar. Fill that space. */
+.simp-main{container:simp-mission / inline-size;width:100%;max-width:none;padding:0 0 12px}
+.simp-layout{display:block;min-width:0}
+.simp-intro{align-items:flex-start;flex-wrap:wrap;gap:8px 14px;margin:4px 0 12px}
+.simp-intro>div{min-width:0;flex:1 1 16rem}
+.simp-intro .eyebrow{font-size:9px;letter-spacing:.1em;margin-bottom:5px}
+.simp-intro h1{font-size:clamp(16px,3.25cqi,22px);letter-spacing:-.035em;margin:0 0 4px}
+.simp-intro p{font-size:12px;line-height:1.45}
+.simp-intro .primary{padding:8px 11px;font-size:11px;min-height:36px}
+.simp-card{width:100%;min-width:0;padding:clamp(10px,2cqi,18px)}
+.simp-card .section-title{font-size:10px;letter-spacing:.09em;margin-bottom:6px}
+.simp-question{font-size:clamp(18px,3.4cqi,24px);margin:6px 0}
+.simp-domain{font-size:11px;margin-bottom:12px}
+.simp-card h2{font-size:clamp(13px,2.25cqi,15px);line-height:1.45;margin:9px 0}
+.simp-choice{margin:8px 0 4px}
+.simp-choice button{padding:7px 18px;font-size:12px}
+#simp-steps{min-width:0;overflow:visible}
+.simp-workline{
+  display:grid;grid-template-columns:3rem minmax(0,.85fr) 1rem minmax(0,1.3fr) auto;
+  grid-template-areas:"step left equals right action";min-width:0;
+  align-items:center;gap:6px 8px;padding:9px 0
+}
+.simp-workline .free-step{grid-area:step;font-size:11px}
+.simp-workline .simp-left{grid-area:left;min-width:0;overflow-wrap:anywhere}
+.simp-workline .simp-equal{grid-area:equals;font-size:17px}
+.simp-workline .simp-right{grid-area:right;min-width:0;overflow-wrap:anywhere}
+.simp-workline .free-check,.simp-workline .free-edit{
+  grid-area:action;align-self:center;justify-self:end;padding:7px 8px;font-size:11px
+}
+.simp-workline .simp-left,.simp-workline .simp-right>.working-math,.simp-workline .simp-term{
+  font-size:clamp(14px,2.65cqi,18px);line-height:1.35
+}
+.simp-workline .simp-multipliers{padding:7px;gap:5px 8px;min-width:0}
+.simp-workline .simp-term{min-width:0;max-width:100%;flex-wrap:wrap;gap:3px}
+.simp-workline .simp-term>span{min-width:0;max-width:100%}
+.simp-workline .simp-mini-frac{width:var(--factor-ch,7ch);min-width:0;max-width:min(16ch,100%)}
+.simp-mini-frac input{min-width:0;font-size:16px;padding:3px 4px}
+.simp-workline .simp-mini-frac span{font-size:14px;padding:2px 3px}
+.simp-workline .simp-op{font-size:15px}
+.simp-workline .structured-math-editor{min-width:0;min-height:46px;font-size:16px;padding:6px;line-height:1.4}
+.simp-workline .editing-fraction{max-width:100%;min-width:0}
+.simp-workline .editing-fraction>.math-slot{min-width:0}
+.simp-workline .simp-tools{margin-top:5px;flex-wrap:wrap}
+.simp-tools button{padding:4px 8px;font-size:14px}
+.simp-right .checked-label{position:static;display:block;margin-top:2px}
+@container simp-mission (max-width:650px){
+  .simp-workline{
+    grid-template-columns:2.65rem minmax(0,1fr) auto;
+    grid-template-areas:"step left left" "equals right action"
+  }
+}
+@container simp-mission (max-width:350px){
+  .simp-intro>div{flex-basis:100%}
+  .simp-workline{grid-template-areas:"step left left" "equals right right" ". action action"}
+}
+@media (pointer:coarse){
+  .simp-choice button,.simp-intro .primary,.simp-workline .free-check,.simp-workline .free-edit,.simp-tools button{min-height:40px}
 }
 </style>
 <header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
