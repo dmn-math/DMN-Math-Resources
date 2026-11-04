@@ -225,10 +225,12 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #dmn-mission-wireframe .mm-expansion-original{padding:12px;text-align:center;border-radius:12px;background:var(--wash)}
 #dmn-mission-wireframe .mm-expansion-working{padding:14px;border-radius:12px;background:light-dark(#f4f0fa,#39334a)}
 #dmn-mission-wireframe .mm-expansion-working label{font-weight:650}
-#dmn-mission-wireframe .mm-expansion-history{border-top:1px solid var(--line);padding-top:12px}
-#dmn-mission-wireframe .mm-expansion-history ol{margin:8px 0;padding-left:1.45rem}
-#dmn-mission-wireframe .mm-expansion-history li{padding:5px 0;border-bottom:1px solid var(--line)}
-#dmn-mission-wireframe .mm-expansion-history li .question-text{display:inline;margin-right:10px}
+#dmn-mission-wireframe .mm-expansion-steps{list-style:none;margin:0;padding:0}
+#dmn-mission-wireframe .mm-expansion-steps li{display:grid;grid-template-columns:4.5rem minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+#dmn-mission-wireframe .mm-expansion-step-label{font-weight:650;font-size:.84rem}
+#dmn-mission-wireframe .mm-expansion-step-label small{display:block;color:var(--accent)}
+#dmn-mission-wireframe .mm-expansion-steps .question-text{min-width:0}
+#dmn-mission-wireframe .mm-expansion-steps button{justify-self:end}
 #dmn-mission-wireframe [data-expansion-feedback]:empty{display:none}
 #dmn-mission-wireframe [data-expansion-feedback]:not(:empty){border-radius:8px;background:var(--wash);padding:8px 10px;font-weight:650}
 #dmn-mission-wireframe [data-expansion-feedback][data-state=error]{background:light-dark(#fff0ed,#432b30);color:var(--error)}

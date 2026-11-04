@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=class-overview-1">
+<link rel="stylesheet" href="app.css?v=inline-working-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -325,9 +325,10 @@
           <p class="question-text mm-expand-expression" data-expansion-expression></p>
         </div>
         <details data-expansion-hint><summary>Show a worked example</summary><p data-expansion-example></p></details>
-        <div class="mm-expansion-working group" data-expansion-working>
+        <div class="mm-expansion-working group">
           <h3>I’ll write the working</h3>
           <p>Enter one line at a time. We’ll check that it has the same value as the original expression for every x.</p>
+          <ol class="mm-expansion-steps" data-expansion-steps aria-label="Checked steps" hidden></ol>
           <form class="group" data-expansion-form>
             <label class="field"><span data-expansion-step-label>Step 1</span><input data-expansion-answer maxlength="160" required autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="mm-expansion-notation"></label>
             <div class="row" aria-label="Math symbols" role="group">
@@ -347,11 +348,6 @@
           </form>
         </div>
         <p class="feedback" data-expansion-feedback role="status" tabindex="-1"></p>
-        <section class="mm-expansion-history" aria-label="Working history">
-          <h3>Working history</h3>
-          <p data-expansion-empty>Checked steps will appear here.</p>
-          <ol data-expansion-history></ol>
-        </section>
         <div class="row"><button type="button" data-expansion-next>Next question</button></div>
       </section>
       <div data-equation-lab></div><template data-equation-lab-template><style>
@@ -1071,7 +1067,7 @@ mount.setMissionBusy=(busy,last)=>{
     pick('expansion-hint').open=false;
     pick('expansion-example').textContent=expansionExamples[question.type];
     const input=pick('expansion-answer'),check=pick('expansion-check'),feedback=pick('expansion-feedback');
-    const history=pick('expansion-history'), nextButton=pick('expansion-next');
+    const steps=pick('expansion-steps'), form=pick('expansion-form'), nextButton=pick('expansion-next');
     const work=expansionWork.get(i)||{steps:[],done:false};
     expansionWork.set(i,work);
     let editingStep=null;
@@ -1124,33 +1120,41 @@ mount.setMissionBusy=(busy,last)=>{
       if(e.key==='Enter'){e.preventDefault();field===numerator?denominator.focus():insertFraction();}
     });
     function renderSteps(){
-      history.replaceChildren();
-      work.steps.forEach(({compact,text},n)=>{
+      steps.replaceChildren();
+      const checked=editingStep===null?work.steps:work.steps.slice(0,editingStep);
+      steps.hidden=!checked.length;
+      checked.forEach(({compact,text},n)=>{
         const li=document.createElement('li');
+        const label=document.createElement('span');
+        label.className='mm-expansion-step-label';
+        label.textContent='Step '+(n+1);
+        const mark=document.createElement('small');
+        mark.textContent='✓ Checked';
+        label.append(mark);
         const line=document.createElement('span');
         line.className='question-text';
         line.textContent='= '+displayExpansion(text);
-        li.append(line);
-        if(!work.done){
+        li.append(label,line);
+        if(!work.done&&editingStep===null){
           const edit=document.createElement('button');
           edit.type='button';edit.textContent='Edit';
           edit.setAttribute('aria-label','Edit expansion step '+(n+1));
           edit.onclick=()=>{
             editingStep=n;
             input.value=compact;
+            closeFraction();
             statusText('Editing step '+(n+1)+'. Checking it replaces this line and clears the lines after it.');
-            updateControls();
+            renderSteps();updateControls();
             input.focus();input.select();
           };
           li.append(edit);
         }
-        history.append(li);
+        steps.append(li);
       });
-      pick('expansion-empty').hidden=work.steps.length>0;
     }
     function updateControls(){
       const step=(editingStep??work.steps.length)+1;
-      pick('expansion-working').hidden=work.done;
+      form.hidden=work.done;
       pick('expansion-step-label').textContent='Step '+step;
       check.textContent='Check step '+step;
       pick('expansion-cancel').hidden=editingStep===null;
@@ -1161,8 +1165,8 @@ mount.setMissionBusy=(busy,last)=>{
     statusText(work.done?'Correct! '+polynomial(expected):'');
     nextButton.disabled=i===questions.length-1;
     nextButton.onclick=next;
-    pick('expansion-cancel').onclick=()=>{clearEditor();statusText('');input.focus();};
-    pick('expansion-form').onsubmit=async e=>{
+    pick('expansion-cancel').onclick=()=>{clearEditor();renderSteps();statusText('');input.focus();};
+    form.onsubmit=async e=>{
       e.preventDefault();
       if(saving||work.done)return;
       if(!fraction.hidden){statusText('Insert or cancel the fraction before checking this step.','error');return;}
@@ -1174,7 +1178,7 @@ mount.setMissionBusy=(busy,last)=>{
           throw Error('This repeats the previous line. Try multiplying out a bracket or collecting like terms.');
         work.steps.splice(n,work.steps.length-n,{compact:line.compact,text:line.compact.replaceAll('*','×')});
         work.done=line.simplified;
-        renderSteps();clearEditor();
+        clearEditor();renderSteps();
         if(work.done){
           statusText('Correct! '+polynomial(line.answer),'correct');
           if(playing)await submitAnswer(i,line.answer,token,questions.length,true);
