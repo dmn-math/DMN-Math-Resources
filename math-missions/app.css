@@ -251,3 +251,7 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #dmn-mission-wireframe .mm-fraction-fields{width:10rem;max-width:100%;gap:3px}
 @media(max-width:720px){#missions-app .mm-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:480px){#missions-app .mm-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+#dmn-mission-wireframe [data-fraction-restrictions]{text-align:center;font-size:.9rem}
+#dmn-mission-wireframe .mm-expansion-lab .frac{max-width:100%;text-align:center}
+#dmn-mission-wireframe .mm-expansion-lab .frac>span{min-width:0;overflow-wrap:anywhere}

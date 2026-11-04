@@ -283,7 +283,7 @@
     catch(error){ notice(error.message || 'Please try again.',true); }
     finally { control.disabled=false; }
   }
-  const editorTopics={expand:q('mm-topic-expand'),solve:q('mm-topic-solve')};
+  const editorTopics={expand:q('mm-topic-expand'),rational:q('mm-topic-rational'),solve:q('mm-topic-solve')};
   let teacherTopic=null, publishing=false;
   function view(role){
     page.querySelectorAll('[data-mm-view]').forEach(node=>node.hidden=node.dataset.mmView!==role);
@@ -292,8 +292,8 @@
     q('mm-logout').hidden=!user;
   }
   function setDraftKey(topic){
-    const key='mm-draft:'+user.id+(topic==='expand'?':expand':'');
-    builder.missionBuilder.draftKey(key,topic==='expand'?'expand':'whole');
+    const key='mm-draft:'+user.id+(topic==='solve'?'':':'+topic);
+    builder.missionBuilder.draftKey(key,topic==='solve'?'whole':topic);
   }
   const overviewClass=q('mm-overview-class');
   const awardDialog=q('mm-award-dialog'),awardForm=q('mm-award-form');
@@ -458,10 +458,12 @@
   function demoTopic(topic){
     q('mm-demo-solve').setAttribute('aria-pressed',String(topic==='solve'));
     q('mm-demo-expand').setAttribute('aria-pressed',String(topic==='expand'));
-    builder.missionBuilder.draftKey(topic==='expand'?'mm-demo-draft:expand':'mm-demo-draft',topic==='expand'?'expand':'whole');
+    q('mm-demo-rational').setAttribute('aria-pressed',String(topic==='rational'));
+    builder.missionBuilder.draftKey('mm-demo-draft'+(topic==='solve'?'':':'+topic),topic==='solve'?'whole':topic);
   }
   q('mm-demo-solve').onclick=()=>demoTopic('solve');
   q('mm-demo-expand').onclick=()=>demoTopic('expand');
+  q('mm-demo-rational').onclick=()=>demoTopic('rational');
   function fillClasses(control,preferred){
     control.replaceChildren(new Option('Select a class',''));
     state.classes.forEach(c=>control.add(new Option(c.label,c.id)));
@@ -514,7 +516,7 @@
       const actions=el('div','','mm-row mm-mission-actions');
       if(m.questions?.length)actions.append(button('Duplicate',()=>{
         if(publishing)return;
-        const topic=m.questions.some(question=>question.type.startsWith('expand-'))?'expand':'solve';
+        const topic=m.questions.some(question=>question.type?.startsWith('rational-'))?'rational':m.questions.some(question=>question.type?.startsWith('expand-'))?'expand':'solve';
         teacherSection('missions');openTopic(topic);builder.missionBuilder.duplicate(m);
       }));
       const remove=button('Delete',()=>{
@@ -544,7 +546,8 @@
     renderWallet();
     const missions=q('mm-missions');missions.replaceChildren();
     if(!state.missions.length)missions.append(el('p','Your teacher hasn’t published any missions yet.','mm-muted'));
-    state.missions.forEach(m=>{
+    const topicOrder=m=>m.questions[0]?.type?.startsWith('expand-')?0:m.questions[0]?.type?.startsWith('rational-')?1:2;
+    [...state.missions].sort((a,b)=>topicOrder(a)-topicOrder(b)).forEach(m=>{
       const row=el('div','','mm-row mm-mission');
       const name=el('div');name.append(el('strong',m.title),el('small',m.solved.length+' / '+m.questions.length+' solved · '+m.coins+' coins'+(m.complete?' · Completed':'')));
       const progress=el('progress','','mm-meter');

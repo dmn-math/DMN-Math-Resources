@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=inline-working-1">
+<link rel="stylesheet" href="app.css?v=fractional-expression-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -48,6 +48,7 @@
     <h2>Teacher demo</h2><p>Create a task and try the student preview. Add your Supabase settings to enable sign-in, class assignments and saved student progress.</p>
     <button id="mm-demo-solve" type="button" aria-pressed="true">Solving Equations</button>
     <button id="mm-demo-expand" type="button" aria-pressed="false">Simplifying Linear Expressions</button>
+    <button id="mm-demo-rational" type="button" aria-pressed="false">Simplifying Fractional Expression</button>
     <button id="mm-demo-student" type="button" class="mm-primary">Preview student town</button>
   </section>
   <section data-mm-view="join" class="mm-card" hidden>
@@ -102,6 +103,10 @@
     <section id="mm-teacher-missions" aria-label="Create missions" hidden>
       <details class="mm-card mm-teacher-topic" id="mm-topic-expand">
         <summary><strong>Simplifying Linear Expressions</strong><small>Expand single brackets, products of two brackets and squared brackets.</small></summary>
+        <div data-mm-topic-editor></div>
+      </details>
+      <details class="mm-card mm-teacher-topic" id="mm-topic-rational">
+        <summary><strong>Simplifying Fractional Expression</strong><small>Factorise denominators, combine algebraic fractions and simplify.</small></summary>
         <div data-mm-topic-editor></div>
       </details>
       <details class="mm-card mm-teacher-topic" id="mm-topic-solve">
@@ -264,7 +269,7 @@
       <div class="cols">
         <section class="group" aria-label="Task settings">
           <h3>1. Set up the task</h3>
-          <label class="field" data-equation-family>Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option><option value="expand" hidden>Bracket expansion</option></select></label>
+          <label class="field" data-equation-family>Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option><option value="expand" hidden>Bracket expansion</option><option value="rational" hidden>Fractional expression</option></select></label>
           <label class="field">Task title<input data-title value="Solve equations without fractions" maxlength="100"></label>
           <label class="field">Assign to class<input data-class value="3B G2" maxlength="50"></label>
           <div class="pair">
@@ -289,6 +294,13 @@
             <label class="choice"><input type="checkbox" value="expand-double" checked> Two brackets: (ax ± b)(cx ± d)</label>
             <label class="choice"><input type="checkbox" value="expand-square" checked> Squared bracket: (ax + b)²</label>
             <small>All coefficients are integers. Products and squares can give quadratic expressions.</small>
+          </fieldset>
+          <fieldset data-types-rational hidden><legend>Levels to include</legend>
+            <label class="choice"><input type="checkbox" value="rational-1" checked> Level 1 · Denominators in x</label>
+            <label class="choice"><input type="checkbox" value="rational-2" checked> Level 2 · Different linear denominators</label>
+            <label class="choice"><input type="checkbox" value="rational-3" checked> Level 3 · One linear denominator is a multiple of the other</label>
+            <label class="choice"><input type="checkbox" value="rational-4" checked> Level 4 · Difference of two squares</label>
+            <label class="choice"><input type="checkbox" value="rational-5" checked> Level 5 · Factorable quadratic denominator</label>
           </fieldset>
           <label class="choice"><input data-hints type="checkbox" checked> Offer hints</label>
           <div class="row"><button type="button" class="cursor-interaction" data-generate>Generate questions</button><small data-settings-message role="status"></small></div>
@@ -318,16 +330,17 @@
       <button type="button" class="cursor-interaction" data-retry hidden>Retry saving</button>
       <button type="button" class="cursor-interaction" data-prev>Previous question</button>
       <section data-expansion-practice class="mm-expansion-lab group" hidden aria-label="Bracket expansion practice">
-        <div class="row between"><h3>Expansion Lab</h3><small data-expansion-count></small></div>
-        <p>Expand the brackets and collect like terms.</p>
+        <div class="row between"><h3 data-expansion-heading>Expansion Lab</h3><small data-expansion-count></small></div>
+        <p data-expansion-instruction>Expand the brackets and collect like terms.</p>
         <div class="mm-expansion-original">
           <small>Original expression</small>
           <p class="question-text mm-expand-expression" data-expansion-expression></p>
         </div>
-        <details data-expansion-hint><summary>Show a worked example</summary><p data-expansion-example></p></details>
+        <p class="highlight" data-fraction-restrictions hidden></p>
+        <details data-expansion-hint><summary data-expansion-hint-label>Show a worked example</summary><p data-expansion-example></p></details>
         <div class="mm-expansion-working group">
           <h3>I’ll write the working</h3>
-          <p>Enter one line at a time. We’ll check that it has the same value as the original expression for every x.</p>
+          <p>Enter one line at a time. We’ll check that each line is equivalent to the original expression.</p>
           <ol class="mm-expansion-steps" data-expansion-steps aria-label="Checked steps" hidden></ol>
           <form class="group" data-expansion-form>
             <label class="field"><span data-expansion-step-label>Step 1</span><input data-expansion-answer maxlength="160" required autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="mm-expansion-notation"></label>
@@ -337,8 +350,8 @@
             </div>
             <div id="mm-expansion-fraction-fields" data-expansion-fraction-fields class="row" hidden>
               <div class="mm-fraction-fields">
-                <input data-expansion-numerator aria-label="Expansion numerator" placeholder="Numerator" inputmode="text" maxlength="8">
-                <input data-expansion-denominator aria-label="Expansion denominator" placeholder="Denominator" inputmode="text" maxlength="8">
+                <input data-expansion-numerator aria-label="Expansion numerator" placeholder="Numerator" inputmode="text" maxlength="60">
+                <input data-expansion-denominator aria-label="Expansion denominator" placeholder="Denominator" inputmode="text" maxlength="60">
               </div>
               <button type="button" data-expansion-fraction-add>Insert fraction</button>
               <button type="button" data-expansion-fraction-cancel>Cancel fraction</button>
@@ -707,6 +720,99 @@ mount.formatMissionEquation=(source)=>{
   const [left,right]=source.split('=');
   return math(left)+' <span class="working-equals">=</span> '+math(right);
 };
+mount.formatMissionExpression=math;
+const fractionSource=/^([1-9]\d{0,2})\/\(([x0-9+^-]+)\)([+-])([1-9]\d{0,2})\/\(([x0-9+^-]+)\)$/;
+function fractionDegree(node){
+  if(node.kind==='neg')return fractionDegree(node.left);
+  if(node.kind==='number'&&/^\d{1,6}$/.test(node.text))return 0;
+  if(node.kind==='x')return 1;
+  if(node.kind==='square'&&node.left.kind==='x')return 2;
+  if(['implicit','*'].includes(node.kind)&&fractionDegree(node.left)===0&&['x','square'].includes(node.right.kind))return fractionDegree(node.right);
+  return null;
+}
+const fractionUngroup=node=>node.kind==='group'?fractionUngroup(node.left):node;
+function collectedPolynomial(node){
+  const degrees=new Set();
+  function visit(n){
+    if(['+','-'].includes(n.kind))return visit(n.left)&&visit(n.right);
+    const degree=fractionDegree(n);
+    if(degree===null||degrees.has(degree))return false;
+    degrees.add(degree);return true;
+  }
+  return visit(fractionUngroup(node));
+}
+function fractionAnswer(f){
+  const terms=f.n.concat(f.d);
+  const scale=terms.reduce((m,c)=>m/gcd(m,c.d)*c.d,1n);
+  const integers=p=>Array.from({length:3},(_,i)=>p[i]?p[i].n*(scale/p[i].d):0n);
+  const n=integers(f.n),d=integers(f.d);
+  return {key:n.join(',')+'|'+d.join(','),numerator:n,denominator:d,
+    text:f.d.length===1&&d[0]===1n?polyText(n.map(q)):'('+polyText(n.map(q))+')/('+polyText(d.map(q))+')'};
+}
+mount.fractionExpressionQuestion=(source)=>{
+  const trimmed=String(source).trim();
+  const eq=trimmed.toLowerCase().replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/\s/g,'');
+  const m=eq.match(fractionSource);
+  if(!m||trimmed.length>100||/\d\s+\d/.test(trimmed))
+    throw Error('Enter two fractions like 2/(x+1)+3/(x+2). Use whole-number numerators and put each denominator in brackets.');
+  const sides=[m[2],m[5]].map(s=>{
+    if(!/^[+-]?(?:(?:\d{1,3})?x(?:\^2)?|\d{1,3})(?:[+-](?:(?:\d{1,3})?x(?:\^2)?|\d{1,3})){0,2}$/.test(s))
+      throw Error('Write each denominator as a linear or expanded quadratic expression.');
+    const d=parseDetail(s);
+    if(!collectedPolynomial(d.ast)||d.value.p.n.length<2||d.value.p.n.length>3)
+      throw Error('Use collected linear or quadratic denominators containing x.');
+    return d.value.p.n;
+  });
+  const [a,b]=sides;
+  let level;
+  if(a.length===2&&b.length===2){
+    level=a[0].zero()&&b[0].zero()?1:pz(pd(a,b)[1])?3:2;
+  }else if(a.length!==b.length){
+    const [quadratic,linear]=a.length===3?[a,b]:[b,a];
+    if(!pz(pd(quadratic,linear)[1])||polynomialRoots(quadratic).length!==2||polynomialRoots(quadratic)[0].eq(polynomialRoots(quadratic)[1]))
+      throw Error('The quadratic denominator must factor into two different linear factors, including the other denominator.');
+    level=quadratic[1].zero()?4:5;
+  }else throw Error('Use at most one quadratic denominator.');
+  const restrictions=[];
+  for(const side of sides)for(const x of polynomialRoots(side))if(!restrictions.some(y=>x.eq(y)))restrictions.push(x);
+  restrictions.sort((a,b)=>a.num()-b.num());
+  const value=parseDetail(eq).value.p, answer=fractionAnswer(value);
+  return {eq,type:'rational-'+level,x:answer.key,display:answer.text,restrictions,value};
+};
+mount.checkFractionExpression=(source,question)=>{
+  const compact=String(source).trim().toLowerCase().replace(/^=\s*/,'').replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/[×·⋅]/g,'*').replace(/÷/g,'/');
+  if(!/^[0-9x()+*\/^\s-]+$/.test(compact)||/\d\s+\d/.test(compact))throw Error('Enter an expression using x, fractions and brackets.');
+  const p=parseDetail(compact);
+  const allowed=question.restrictions.map(x=>[x.neg(),ONE]);
+  for(const rule of p.rules){
+    let remaining=rule.value.n;
+    for(const factor of allowed){
+      while(remaining.length>1){
+        const [quotient,remainder]=pd(remaining,factor);
+        if(!pz(remainder))break;
+        remaining=quotient;
+      }
+    }
+    if(remaining.length>1)throw Error('This line introduces a new denominator restriction. Keep the original restrictions.');
+  }
+  if(!p.value.p.eq(question.value))throw Error('This line isn’t equivalent to the original expression. Check the signs and common denominator.');
+  let node=fractionUngroup(p.ast), sign=1n;
+  while(node.kind==='neg'){sign=-sign;node=fractionUngroup(node.left);}
+  const answer=fractionAnswer(question.value);
+  let simplified=false;
+  if(node.kind==='/'){
+    const top=fractionUngroup(node.left),bottom=fractionUngroup(node.right);
+    const factored=['implicit','*'].includes(bottom.kind)&&[bottom.left,bottom.right].every(part=>
+      collectedPolynomial(part)&&part.v.p.n.length===2);
+    const np=top.v.p.n,dp=bottom.v.p.n,denSign=dp.at(-1).n<0n?-1n:1n;
+    const matches=(actual,expected,factor)=>actual.length<=expected.length&&expected.every((n,i)=>(actual[i]||Z).eq(q(n*factor)));
+    simplified=collectedPolynomial(top)&&(collectedPolynomial(bottom)||factored)
+      &&answer.denominator.join(',')!=='1,0,0'
+      &&matches(np,answer.numerator,sign*denSign)&&matches(dp,answer.denominator,denSign);
+  }else simplified=answer.denominator.join(',')==='1,0,0'&&collectedPolynomial(node);
+  return {compact:compact.replace(/\s/g,''),answer:answer.key,simplified};
+};
+
 mount.validateMissionEquation=(source,kind)=>{
   const isFraction=kind==='fraction';
   const eq=source.trim().replace(/[−–]/g,'-').replace(/X/g,'x').replace(/\s+/g,' ');
@@ -774,7 +880,15 @@ mount.setMissionBusy=(busy,last)=>{
   const names = {one:'One step',two:'Two steps',both:'Unknown on both sides',brackets:'Brackets',
     'fraction-one':'Fraction and whole number','fraction-numerator':'Bracketed numerator',
     'fraction-both':'Fractions on both sides','fraction-denominator':'Unknown in denominator',
-    'expand-single':'Single bracket','expand-double':'Two brackets','expand-square':'Squared bracket'};
+     'expand-single':'Single bracket','expand-double':'Two brackets','expand-square':'Squared bracket',
+    'rational-1':'Level 1','rational-2':'Level 2','rational-3':'Level 3','rational-4':'Level 4','rational-5':'Level 5'};
+  const rationalHints=['Use the lowest common multiple of the numbers multiplying x.',
+    'The two linear denominators are different. Their product gives a common denominator.',
+    'Factorise the larger denominator to see the shared linear factor.',
+    'Use a² − b² = (a − b)(a + b), then find the missing factor.',
+    'Factorise the quadratic denominator. One factor matches the other denominator.'];
+  const expressionType=kind=>kind==='expand'||kind==='rational';
+  const isRational=kind=>kind?.startsWith('rational-');
   const expansionExamples={
     'expand-single':'Multiply each term inside by the number outside: 3(3x − 2) = 9x − 6.',
     'expand-double':'Multiply each term in the first bracket by each term in the second: (2x + 3)(x − 4) = 2x² − 8x + 3x − 12 = 2x² − 5x − 12.',
@@ -895,15 +1009,16 @@ mount.setMissionBusy=(busy,last)=>{
     return {compact,answer:coeffs.den===1n?coeffs.terms.reverse().join(','):null,simplified};
   }
   const family=()=>pick('family').value;
-  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets'};
+  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets',rational:'Simplifying Fractional Expression'};
   function setFamily(kind){
     pick('family').value=kind;
     pick('types-whole').hidden=kind!=='whole';
     pick('types-fraction').hidden=kind!=='fraction';
     pick('types-expand').hidden=kind!=='expand';
-    pick('equation-family').hidden=kind==='expand';
-    pick('review-help').textContent=kind==='expand'?'Edit a question to enter your own expression. The simplified answer appears below it.':'Edit an equation to type your own. Equation Lab calculates the answer for you.';
-    const label=kind==='expand'?'Expression':'Equation';
+    pick('types-rational').hidden=kind!=='rational';
+    pick('equation-family').hidden=expressionType(kind);
+    pick('review-help').textContent=expressionType(kind)?'Edit a question to enter your own expression. The simplified answer appears below it.':'Edit an equation to type your own. Equation Lab calculates the answer for you.';
+    const label=expressionType(kind)?'Expression':'Equation';
     pick('question-label').textContent=label;
     pick('question-preview-label').textContent=label+' preview';
     pick('question-save').textContent='Save '+label.toLowerCase();
@@ -916,7 +1031,12 @@ mount.setMissionBusy=(busy,last)=>{
   const lab=root.querySelector('[data-equation-lab]');
   const topicDrafts=new Map();
   let draftFamily='whole';
-  const questionFromInput=()=>family()==='expand'?expansionQuestion(pick('question-input').value):lab.validateMissionEquation(pick('question-input').value,family());
+  function rationalQuestion(input){
+    const {eq,type,x,display}=lab.fractionExpressionQuestion(input);
+    return {eq,type,x,display};
+  }
+  const questionFromInput=()=>family()==='expand'?expansionQuestion(pick('question-input').value):
+    family()==='rational'?rationalQuestion(pick('question-input').value):lab.validateMissionEquation(pick('question-input').value,family());
   let editing=-1, finished=null;
   const victory=pick('victory'), finishButton=pick('finish-mission');
   finishButton.onclick=()=>{
@@ -936,7 +1056,9 @@ mount.setMissionBusy=(busy,last)=>{
     pick('question-heading').textContent='Edit question '+(i+1);
     pick('question-input').value=rows[i].eq;
     pick('question-error').textContent='';
-    pick('question-help').textContent=family()==='expand'?
+    pick('question-help').textContent=family()==='rational'?
+      'Enter two fractions with brackets around the denominators, e.g. 3/(4x^2-9)-1/(2x+3).':
+      family()==='expand'?
       'Use x and integer coefficients, e.g. 3(3x - 2), (2x + 3)(x - 4) or (2x + 3)^2.':
       family()==='fraction'?
       'Use / for fractions and brackets to group terms, e.g. (x + 1)/3 = 2 or 4/(x - 1) = 2.':
@@ -950,8 +1072,8 @@ mount.setMissionBusy=(busy,last)=>{
     try{
       const q=questionFromInput();
       if(family()==='expand')output.textContent=displayExpansion(q.eq);
-      else output.innerHTML=lab.formatMissionEquation(q.eq);
-    }catch{output.textContent='Enter a valid '+(family()==='expand'?'expression':'equation')+' to see it here.';}
+      else output.innerHTML=isRational(q.type)?lab.formatMissionExpression(q.eq):lab.formatMissionEquation(q.eq);
+    }catch{output.textContent='Enter a valid '+(expressionType(family())?'expression':'equation')+' to see it here.';}
   }
   pick('question-input').oninput=()=>{
     pick('question-error').textContent='';
@@ -978,6 +1100,21 @@ mount.setMissionBusy=(busy,last)=>{
     if(type==='expand-single')return expansionQuestion(a+'('+a+'x'+constant(b)+')');
     if(type==='expand-double')return expansionQuestion('('+a+'x'+constant(b)+')('+c+'x'+constant(rand(1,9)*(Math.random()<.5?-1:1))+')');
     if(type==='expand-square')return expansionQuestion('('+a+'x'+constant(Math.abs(b))+')^2');
+    if(isRational(type)){
+      const level=Number(type.at(-1)), a=rand(1,4), b=rand(1,8), d=b+rand(1,5), k=rand(2,5);
+      const left=rand(1,9),right=rand(1,9),sign=Math.random()<.5?'+':'-';
+      const linear=(coef,n)=> (coef===1?'':coef)+'x'+(n?constant(n):'');
+      let first,second;
+      if(level===1){first=linear(a,0);second=linear(a+rand(1,5),0);}
+      else if(level===2){first=linear(a,b);second=linear(a,d);}
+      else if(level===3){first=linear(k*a,k*b);second=linear(a,b);}
+      else{
+        const end=level===4?-b:d;
+        first=(a*a===1?'':a*a)+'x^2'+((b+end)?constant(a*(b+end))+'x':'')+constant(b*end);
+        second=linear(a,b);
+      }
+      return rationalQuestion(left+'/('+first+')'+sign+right+'/('+second+')');
+    }
     if(type.startsWith('fraction-')){
       const d=rand(2,7), e=d+rand(1,3);
       let equation;
@@ -1007,9 +1144,9 @@ mount.setMissionBusy=(busy,last)=>{
       const li = document.createElement('li'), data = document.createElement('div');
       const q = document.createElement('span'), meta = document.createElement('small');
       q.className='question-text';
-      if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatMissionEquation(r.eq);
+      if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+(isRational(r.type)?lab.formatMissionExpression(r.eq):lab.formatMissionEquation(r.eq));
       else q.textContent=(i+1)+'.  '+(r.type.startsWith('expand-')?displayExpansion(r.eq):r.eq);
-      meta.textContent=names[r.type]+' · '+(r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
+      meta.textContent=names[r.type]+' · '+(isRational(r.type)?displayExpansion(r.display||rationalQuestion(r.eq).display):r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
       data.append(q,meta);
       const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
       btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
@@ -1050,7 +1187,7 @@ mount.setMissionBusy=(busy,last)=>{
     pick('play-status').textContent=playing?.solved.includes(index)?'Solved previously. You can practise again.':'';
     pick('retry').hidden=true;
     const token=++playToken, i=index;
-    const question=questions[i], expand=Boolean(expansionExamples[question.type]);
+    const question=questions[i], rational=isRational(question.type), expand=rational||Boolean(expansionExamples[question.type]);
     const hints=playing?.hints??pick('hints').checked;
     const next=()=>{if(!saving&&index<questions.length-1){index++;preview();}};
     lab.hidden=expand;
@@ -1062,16 +1199,26 @@ mount.setMissionBusy=(busy,last)=>{
     }
     pick('expansion-count').textContent='Question '+(i+1)+' of '+questions.length;
     const original=pick('expansion-expression');
-    original.textContent=displayExpansion(question.eq);
+    const fracQuestion=rational?lab.fractionExpressionQuestion(question.eq):null;
+    pick('expansion-heading').textContent=rational?'Fractional Expression Lab':'Expansion Lab';
+    pick('expansion-instruction').textContent=rational?'Combine into one fraction, then simplify. Keep the original restrictions.':'Expand the brackets and collect like terms.';
+    pick('expansion-practice').setAttribute('aria-label',rational?'Fractional expression practice':'Bracket expansion practice');
+    const limits=pick('fraction-restrictions');
+    limits.hidden=!rational;
+    limits.textContent=rational?'Original restrictions: x ≠ '+fracQuestion.restrictions.map(x=>x.str()).join(', '):'';
+    if(rational)original.innerHTML=lab.formatMissionExpression(question.eq);
+    else original.textContent=displayExpansion(question.eq);
     pick('expansion-hint').hidden=!hints;
     pick('expansion-hint').open=false;
-    pick('expansion-example').textContent=expansionExamples[question.type];
+    pick('expansion-hint-label').textContent=rational?'Show a hint':'Show a worked example';
+    pick('expansion-example').textContent=rational?rationalHints[Number(question.type.at(-1))-1]:expansionExamples[question.type];
     const input=pick('expansion-answer'),check=pick('expansion-check'),feedback=pick('expansion-feedback');
     const steps=pick('expansion-steps'), form=pick('expansion-form'), nextButton=pick('expansion-next');
     const work=expansionWork.get(i)||{steps:[],done:false};
     expansionWork.set(i,work);
     let editingStep=null;
-    const expected=expansionQuestion(question.eq).x;
+    const expected=rational?fracQuestion.x:expansionQuestion(question.eq).x;
+    const finalText=()=>rational?'Correct! You simplified the fractional expression.':'Correct! '+polynomial(expected);
     const statusText=(text,kind='')=>{
       feedback.textContent=text;
       feedback.dataset.state=kind;
@@ -1109,6 +1256,13 @@ mount.setMissionBusy=(busy,last)=>{
     pick('expansion-fraction-cancel').onclick=()=>{closeFraction();input.focus();};
     const insertFraction=()=>{
       const top=numerator.value.trim(),bottom=denominator.value.trim();
+      if(rational){
+        if(!top||!bottom||![top,bottom].every(part=>/^[0-9xX²()+*×^\s−–-]+$/.test(part))){
+          statusText('Enter a number or algebraic expression above and below the fraction line.','error');return;
+        }
+        if(insertNotation('('+top+')/('+bottom+')'))closeFraction();
+        return;
+      }
       if(!/^[+-]?\d{1,7}$/.test(top)||!/^[+-]?\d{1,7}$/.test(bottom)||Number(bottom)===0){
         statusText('Enter whole numbers for the numerator and denominator. The denominator cannot be zero.','error');
         return;
@@ -1133,7 +1287,8 @@ mount.setMissionBusy=(busy,last)=>{
         label.append(mark);
         const line=document.createElement('span');
         line.className='question-text';
-        line.textContent='= '+displayExpansion(text);
+        if(rational)line.innerHTML='= '+lab.formatMissionExpression(text);
+        else line.textContent='= '+displayExpansion(text);
         li.append(label,line);
         if(!work.done&&editingStep===null){
           const edit=document.createElement('button');
@@ -1162,7 +1317,7 @@ mount.setMissionBusy=(busy,last)=>{
     const clearEditor=()=>{input.value='';editingStep=null;closeFraction();updateControls();};
     clearEditor();renderSteps();
     input.disabled=false;
-    statusText(work.done?'Correct! '+polynomial(expected):'');
+    statusText(work.done?finalText():'');
     nextButton.disabled=i===questions.length-1;
     nextButton.onclick=next;
     pick('expansion-cancel').onclick=()=>{clearEditor();renderSteps();statusText('');input.focus();};
@@ -1171,22 +1326,22 @@ mount.setMissionBusy=(busy,last)=>{
       if(saving||work.done)return;
       if(!fraction.hidden){statusText('Insert or cancel the fraction before checking this step.','error');return;}
       try {
-        const line=checkExpansionLine(input.value);
+        const line=rational?lab.checkFractionExpression(input.value,fracQuestion):checkExpansionLine(input.value);
         if(line.answer!==expected)throw Error('This line isn’t equivalent to the original expression. Check your signs and multiplication.');
         const n=editingStep??work.steps.length;
         if(!line.simplified && line.compact===(n?work.steps[n-1].compact:question.eq.replace(/\s/g,'')))
-          throw Error('This repeats the previous line. Try multiplying out a bracket or collecting like terms.');
+          throw Error('This repeats the previous line. '+(rational?'Try finding a common denominator or simplifying.':'Try multiplying out a bracket or collecting like terms.'));
         work.steps.splice(n,work.steps.length-n,{compact:line.compact,text:line.compact.replaceAll('*','×')});
         work.done=line.simplified;
         clearEditor();renderSteps();
         if(work.done){
-          statusText('Correct! '+polynomial(line.answer),'correct');
+          statusText(finalText(),'correct');
           if(playing)await submitAnswer(i,line.answer,token,questions.length,true);
           else if(!nextButton.disabled)nextButton.focus();
           else feedback.focus();
         }else{
           const stillBracketed=line.compact.replace(/\([+-]?\d+\/[+-]?\d+\)/g,'').includes('(');
-          statusText('Correct step. '+(stillBracketed?'Keep expanding the brackets.':line.compact.includes('/')?'Simplify the fractions and collect like terms to finish.':'Collect the like terms to finish.'),'correct');
+          statusText('Correct step. '+(rational?'Keep going until you have one simplified fraction.':stillBracketed?'Keep expanding the brackets.':line.compact.includes('/')?'Simplify the fractions and collect like terms to finish.':'Collect the like terms to finish.'),'correct');
           input.focus();
         }
       }catch(error){
@@ -1296,7 +1451,7 @@ mount.setMissionBusy=(busy,last)=>{
         if(!d||!(d.questions?.length>=1&&d.questions.length<=10)||!Array.isArray(d.selected))return;
         pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;pick('release').value=d.release||'';
         pick('count').value=d.count||d.questions.length;
-        setFamily(initialFamily==='expand'?'expand':d.family==='fraction'?'fraction':'whole');
+        setFamily(expressionType(initialFamily)?initialFamily:d.family==='fraction'?'fraction':'whole');
         activeTypes().forEach(el=>el.checked=d.selected.includes(el.value));
         rows=d.questions;lastMix=d.lastMix??mix();review();
         this.savedClass=d.className;
@@ -1323,7 +1478,7 @@ mount.setMissionBusy=(busy,last)=>{
       pick('class').value=m.classId;
       pick('coins').value=m.coins;pick('hints').checked=m.hints;pick('release').value='';
       pick('count').value=m.questions.length;
-      setFamily(m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
+      setFamily(m.questions.some(r=>isRational(r.type))?'rational':m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
       activeTypes().forEach(el=>el.checked=m.questions.some(r=>r.type===el.value));
       rows=m.questions.map(r=>({...r}));lastMix=mix();review();message('');
       status('Draft · Copied mission');show('setup');pick('title').focus();
@@ -1359,5 +1514,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=class-login-2"></script>
-<script src="app.js?v=class-overview-1"></script>
+<script src="app.js?v=fractional-expression-1"></script>
 </body></html>
