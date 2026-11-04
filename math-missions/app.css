@@ -145,10 +145,17 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 @media(max-width:740px){.mm-street{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:560px){.mm-street{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:350px){.mm-street{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.mm-wardrobe-preview{display:grid;grid-template-columns:minmax(85px,1fr) minmax(0,1.55fr);align-items:center;gap:12px;padding:12px;border:1px solid var(--rule);border-radius:18px;background:var(--panel)}
-#mm-own-avatar{display:grid;place-items:center;min-height:142px;border-radius:14px;background:#fef4e2}
-#mm-own-avatar svg{display:block;width:87%;height:clamp(125px,23vw,210px)}
-#missions-app .mm-wardrobe-details h3{margin:3px 0}
+.mm-cabin-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mm-cabin-preview{min-width:0;padding:12px;border:1px solid var(--rule);border-radius:18px;background:var(--panel)}
+.mm-cabin-art{display:grid;place-items:center;height:clamp(145px,22vw,230px);padding:8px;border-radius:14px;background:#fef4e2}
+.mm-cabin-art svg{display:block;width:100%;height:100%;min-height:0}
+.mm-cabin-details{padding:8px 2px 0;overflow-wrap:anywhere}
+#missions-app .mm-cabin-details h3{margin:3px 0}
+#missions-app .mm-cabin-details [role=status]:empty{display:none}
+@media(max-width:520px){
+  .mm-cabin-overview{grid-template-columns:minmax(0,1fr)}
+  .mm-cabin-art{height:150px}
+}
 #missions-app .mm-shop-jumps{margin:15px 0;gap:7px}
 #missions-app .mm-shop-jumps a{display:inline-block;border:1px solid var(--rule);border-radius:30px;padding:5px 9px;font-size:.86rem;text-decoration:none}
 .mm-shop-section{border-top:1px solid var(--rule);margin-top:14px;padding-top:4px;scroll-margin-top:12px}

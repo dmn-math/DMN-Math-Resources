@@ -101,33 +101,39 @@
     if(result?.outfit)town.outfit=result.outfit;
     if(result?.owned&&!state.owned.includes(result.owned))state.owned.push(result.owned);
     renderWallet();renderTown();
-    const output=q(area==='home'?'mm-upgrade-note':'mm-shop-message');
+    const prefix=area==='home'?'mm-':area==='cabin'?'mm-cabin-':null;
+    const output=q(prefix?prefix+'upgrade-note':'mm-shop-message');
     if(result?.message||result?.error)output.textContent=result.error||result.message;
     if(focusId){
       const target=q(focusId);
-      (target&&!target.disabled&&!target.hidden?target:q(area==='home'?'mm-house-name':'mm-outfit-title')).focus({preventScroll:true});
+      (target&&!target.disabled&&!target.hidden?target:q(prefix?prefix+'house-name':'mm-outfit-title')).focus({preventScroll:true});
     }
+  }
+  function renderHouseUpgrade(prefix,area,current,next){
+    q(prefix+'house-name').textContent=current.name;
+    q(prefix+'house-level').textContent='Level '+town.level;
+    const upgrade=q(prefix+'upgrade-house'),note=q(prefix+'upgrade-note');
+    upgrade.hidden=!next;
+    if(!next){note.textContent='You’ve reached the final house upgrade!';return;}
+    const missing=Math.max(0,next.price-state.balance);
+    upgrade.textContent='Upgrade house · '+next.price+' coins';
+    upgrade.disabled=!townReady||townPending||missing>0;
+    note.textContent=!townReady?'Loading your home…':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
+    const level=town.level+1;
+    upgrade.onclick=()=>{
+      if(!window.confirm('Spend '+next.price+' coins to reveal your next house?'))return;
+      townAction(async()=>{
+        const wallet=await rpc('mm_town_upgrade',{p_next:level});
+        return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,message:next.name+' is ready!'};
+      },area,upgrade.id);
+    };
   }
   function renderHome(){
     q('mm-home-scene').replaceChildren(art.plot(town));
+    q('mm-cabin-house-scene').replaceChildren(art.house(town.level));
     const current=art.houses[town.level-1],next=art.houses[town.level];
-    q('mm-house-name').textContent=current.name;q('mm-house-level').textContent='Level '+town.level;
-    const upgrade=q('mm-upgrade-house'), note=q('mm-upgrade-note');
-    upgrade.hidden=!next;
-    if(next){
-      const missing=Math.max(0,next.price-state.balance);
-      upgrade.textContent='Upgrade house · '+next.price+' coins';
-      upgrade.disabled=!townReady||townPending||missing>0;
-      note.textContent=!townReady?'Loading your home…':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
-      const level=town.level+1;
-      upgrade.onclick=()=>{
-        if(!window.confirm('Spend '+next.price+' coins to reveal your next house?'))return;
-        townAction(async()=>{
-          const wallet=await rpc('mm_town_upgrade',{p_next:level});
-          return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,message:next.name+' is ready!'};
-        },'home','mm-upgrade-house');
-      };
-    }else note.textContent='You’ve reached the final house upgrade!';
+    renderHouseUpgrade('mm-','home',current,next);
+    renderHouseUpgrade('mm-cabin-','cabin',current,next);
   }
   const sectionNames={tee:'Plain tees',pants:'Simple pants',hat:'Hats',costume:'Costumes'};
   function outfitWith(item){

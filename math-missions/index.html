@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=fractional-expression-1">
+<link rel="stylesheet" href="app.css?v=cabin-shop-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -202,15 +202,27 @@
     </section>
     <section class="mm-card" data-town-panel="cabin" id="mm-town-cabin" hidden>
       <h2 class="mm-ribbon">Cabin &amp; Shop</h2>
-      <div class="mm-wardrobe-preview">
-        <div id="mm-own-avatar"></div>
-        <div class="mm-wardrobe-details">
-          <p class="mm-kicker">FITTING ROOM</p>
-          <h3 id="mm-outfit-title" tabindex="-1">Your look</h3>
-          <p id="mm-outfit-description"></p>
-          <div class="mm-row" id="mm-outfit-tools"></div>
-          <p id="mm-shop-message" role="status" class="mm-muted"></p>
-        </div>
+      <div class="mm-cabin-overview">
+        <section class="mm-cabin-preview" aria-labelledby="mm-cabin-house-name">
+          <div id="mm-cabin-house-scene" class="mm-cabin-art"></div>
+          <div class="mm-cabin-details">
+            <p class="mm-kicker">MY CABIN</p>
+            <h3 id="mm-cabin-house-name" tabindex="-1">Your cabin</h3>
+            <p id="mm-cabin-house-level"></p>
+            <button type="button" class="mm-primary" id="mm-cabin-upgrade-house" disabled>Upgrade house</button>
+            <p id="mm-cabin-upgrade-note" class="mm-muted" role="status"></p>
+          </div>
+        </section>
+        <section class="mm-cabin-preview" aria-labelledby="mm-outfit-title">
+          <div id="mm-own-avatar" class="mm-cabin-art"></div>
+          <div class="mm-cabin-details">
+            <p class="mm-kicker">FITTING ROOM</p>
+            <h3 id="mm-outfit-title" tabindex="-1">Your look</h3>
+            <p id="mm-outfit-description"></p>
+            <div class="mm-row" id="mm-outfit-tools"></div>
+            <p id="mm-shop-message" role="status" class="mm-muted"></p>
+          </div>
+        </section>
       </div>
       <nav class="mm-shop-jumps" aria-label="Shop categories">
         <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a>
@@ -1700,5 +1712,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=class-login-2"></script>
-<script src="app.js?v=fractional-expression-1"></script>
+<script src="app.js?v=cabin-shop-1"></script>
 </body></html>
