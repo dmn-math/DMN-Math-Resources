@@ -14,7 +14,13 @@
       questions:[{eq:'x + 7 = 12'},{eq:'3x - 4 = 11'},{eq:'4x + 1 = 2x + 9'}]}]
   };
   const demoAnswers = [5,5,4];
-  const products=art.catalog;
+  const products=art.catalog, costumes=products.filter(item=>item.slot==='costume');
+  const giftCost=15;
+  let shopPrices=null,priceRequest=0,giftRequest=null;
+  const houseKey=level=>'house-'+level;
+  const priceFor=id=>shopPrices?.[id]??null;
+  const giftPool=()=>costumes.filter(p=>priceFor(p.id)!==null&&!state.owned.includes(p.id));
+  const demoPrices=Object.fromEntries([...products.map(p=>[p.id,p.price]),...art.houses.slice(1).map((h,i)=>[houseKey(i+2),h.price])]);
   function applyTheme(night){
     document.documentElement.dataset.townTheme=night?'night':'day';
     q('mm-theme').setAttribute('aria-pressed',String(night));
@@ -37,7 +43,10 @@
     const selected=b.dataset.townDestination;
     selectDestination(selected);
     if(selected==='neighbourhood')loadStreet();
-    if((selected==='home'||selected==='cabin')&&!townReady)loadTown();
+    if(selected==='home'||selected==='cabin'){
+      if(!townReady)loadTown();
+      else if(!townPending&&(selected==='cabin'||shopPrices===null))refreshShopPrices();
+    }
   });
   const street=q('mm-street');
   function renderStreet(residents){
@@ -71,14 +80,30 @@
       const profile=await rpc('mm_town_profile');
       if(session!==sessionVersion||state?.role!=='student'||townReady)return;
       if(!profile)throw new Error('Your town profile is unavailable.');
-      town=profile;townReady=true;renderTown();
+      town=profile;townReady=true;renderTown();await refreshShopPrices();
     }catch(error){
       if(session===sessionVersion&&state?.role==='student')notice(error.message,true);
     }
   }
+  async function refreshShopPrices({duringAction=false}={}){
+    const session=sessionVersion,request=++priceRequest;
+    try{
+      const prices=await rpc('mm_shop_prices');
+      if(session!==sessionVersion||request!==priceRequest||(townPending&&!duringAction))return;
+      shopPrices=prices;
+    }catch{
+      if(session!==sessionVersion||request!==priceRequest||(townPending&&!duringAction))return;
+      shopPrices=null;
+    }
+    renderTown();
+  }
   function resetTown(){
     ++sessionVersion;++streetRequest;town=blankTown();townReady=false;townPending=false;previewItem=null;
-    q('mm-shop-message').textContent='';renderStreet([]);
+    ++priceRequest;shopPrices=null;giftRequest=null;
+    for(const id of ['mm-shop-message','mm-inventory-status','mm-gift-message','mm-gift-reward'])q(id).replaceChildren();
+    q('mm-gift-reward').hidden=true;q('mm-gift-odds').open=false;
+    q('mm-inventory').hidden=true;q('mm-inventory-toggle').setAttribute('aria-expanded','false');
+    renderStreet([]);
     q('mm-town-home').removeAttribute('aria-busy');q('mm-town-cabin').removeAttribute('aria-busy');
   }
   function renderWallet(){
@@ -87,26 +112,31 @@
   async function townAction(work,area='shop',focusId){
     if(townPending||!townReady)return;
     const session=sessionVersion;
-    townPending=true;
-    q('mm-shop-message').textContent='';
+    townPending=true;++priceRequest;
     q('mm-town-home').setAttribute('aria-busy','true');q('mm-town-cabin').setAttribute('aria-busy','true');
     renderTown();
     let result;
-    try{result=await work();}catch(error){result={error:error.message};}
+    try{result=await work();}catch(error){
+      result={error:error.message};
+      if(error.message.startsWith('The price changed.'))await refreshShopPrices({duringAction:true});
+    }
     if(session!==sessionVersion||state?.role!=='student')return;
     townPending=false;
     q('mm-town-home').removeAttribute('aria-busy');q('mm-town-cabin').removeAttribute('aria-busy');
     if(result?.wallet)Object.assign(state,result.wallet);
     if(result?.level)town.level=result.level;
+    if(result?.prices)shopPrices=result.prices;
     if(result?.outfit)town.outfit=result.outfit;
     if(result?.owned&&!state.owned.includes(result.owned))state.owned.push(result.owned);
     renderWallet();renderTown();
     const prefix=area==='home'?'mm-':area==='cabin'?'mm-cabin-':null;
-    const output=q(prefix?prefix+'upgrade-note':'mm-shop-message');
+    const output=q(prefix?prefix+'upgrade-note':area==='gift'?'mm-gift-message':area==='inventory'?'mm-inventory-status':'mm-shop-message');
+    if(!prefix)output.textContent='';
     if(result?.message||result?.error)output.textContent=result.error||result.message;
     if(focusId){
       const target=q(focusId);
-      (target&&!target.disabled&&!target.hidden?target:q(prefix?prefix+'house-name':'mm-outfit-title')).focus({preventScroll:true});
+      const fallback=prefix?prefix+'house-name':area==='gift'?'mm-gift-title':area==='inventory'?'mm-inventory-toggle':'mm-outfit-title';
+      if(!target?.closest('[hidden]'))(target&&!target.disabled?target:q(fallback)).focus({preventScroll:true});
     }
   }
   function renderHouseUpgrade(prefix,area,current,next){
@@ -115,16 +145,16 @@
     const upgrade=q(prefix+'upgrade-house'),note=q(prefix+'upgrade-note');
     upgrade.hidden=!next;
     if(!next){note.textContent='You’ve reached the final house upgrade!';return;}
-    const missing=Math.max(0,next.price-state.balance);
-    upgrade.textContent='Upgrade house · '+next.price+' coins';
-    upgrade.disabled=!townReady||townPending||missing>0;
-    note.textContent=!townReady?'Loading your home…':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
-    const level=town.level+1;
+    const level=town.level+1,price=priceFor(houseKey(level));
+    const missing=price===null?0:Math.max(0,price-state.balance);
+    upgrade.textContent=price===null?'Upgrade house':'Upgrade house · '+price+' coins';
+    upgrade.disabled=!townReady||townPending||price===null||missing>0;
+    note.textContent=price===null?'Upgrade price unavailable. Open Cabin & Shop to retry.':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
     upgrade.onclick=()=>{
-      if(!window.confirm('Spend '+next.price+' coins to reveal your next house?'))return;
+      if(!window.confirm('Spend '+price+' coins to reveal your next house?'))return;
       townAction(async()=>{
-        const wallet=await rpc('mm_town_upgrade',{p_next:level});
-        return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,message:next.name+' is ready!'};
+        const wallet=await rpc('mm_shop_upgrade',{p_next:level,p_price:price});
+        return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,prices:wallet.prices,message:next.name+' is ready!'};
       },area,upgrade.id);
     };
   }
@@ -169,8 +199,72 @@
       });
     }
   }
+  function equipped(item){
+    return town.outfit[item.slot]===item.id&&(item.slot==='costume'||!town.outfit.costume);
+  }
+  function wearButton(item,area,worn){
+    const equip=button(worn?'Wearing':'Wear',()=>townAction(async()=>{
+      const outfit=await rpc('mm_town_equip',{p_slot:item.slot,p_item:item.id});
+      previewItem=null;return {outfit,message:'Now wearing '+item.name+'.'};
+    },area,equip.id));
+    equip.disabled=worn||townPending||!townReady;
+    equip.id=(area==='inventory'?'mm-inventory-wear-':'mm-equip-')+item.id;
+    equip.setAttribute('aria-label',(worn?'Wearing ':'Wear ')+item.name);
+    return equip;
+  }
+  function renderInventory(){
+    const items=q('mm-inventory-items'),owned=products.filter(p=>state.owned.includes(p.id));
+    items.replaceChildren();
+    if(!owned.length)items.append(el('p','Your wardrobe is empty. Clothes and costumes you collect will appear here.','mm-muted'));
+    for(const p of owned){
+      const card=el('article','','mm-shop-item'),visual=el('div','','mm-product-art');
+      const worn=equipped(p),actions=el('div','','mm-shop-actions');
+      visual.append(art.avatar({[p.slot]:p.id}));
+      actions.append(wearButton(p,'inventory',worn));
+      card.append(visual,el('strong',p.name),el('small',worn?'Equipped':sectionNames[p.slot]),actions);
+      items.append(card);
+    }
+  }
+  q('mm-inventory-toggle').onclick=()=>{
+    const inventory=q('mm-inventory'),open=inventory.hidden;
+    q('mm-inventory-toggle').setAttribute('aria-expanded',String(open));
+    inventory.hidden=!open;
+  };
+  q('mm-gift-art').append(art.gift());
+  const oddsFormat=new Intl.NumberFormat('en-SG',{style:'percent',maximumFractionDigits:2});
+  function renderGift(){
+    const pool=giftPool(),total=pool.reduce((sum,p)=>sum+priceFor(p.id),0);
+    q('mm-open-gift').disabled=!townReady||townPending||!pool.length||state.balance<giftCost;
+    q('mm-gift-odds').hidden=!pool.length;
+    q('mm-gift-odds-list').replaceChildren(...pool.map(p=>{
+      const odds=priceFor(p.id)/total;
+      return el('li',p.name+' · '+(odds<0.0001?'<0.01%':oddsFormat.format(odds)));
+    }));
+    q('mm-gift-availability').textContent=shopPrices===null?'Shop prices are unavailable. Reopen Cabin & Shop to retry.':
+      !pool.length?'You already own every costume.':
+      state.balance<giftCost?'You need '+(giftCost-state.balance)+' more '+(giftCost-state.balance===1?'coin':'coins')+'.':'';
+  }
+  q('mm-open-gift').onclick=()=>{
+    if(!window.confirm('Spend 15 coins on one random costume you don’t own?'))return;
+    giftRequest ||= crypto.randomUUID();
+    const request=giftRequest, session=sessionVersion;
+    q('mm-gift-message').textContent='Opening your gift box…';
+    q('mm-gift-reward').hidden=true;
+    townAction(async()=>{
+      const {item,balance,score}=await rpc('mm_shop_open_gift',{p_request:request});
+      if(session!==sessionVersion)return;
+      giftRequest=null;
+      const costume=art.byId[item],reward=q('mm-gift-reward');
+      reward.replaceChildren();
+      if(costume){
+        reward.append(art.avatar({costume:item}));
+        reward.hidden=false;
+      }
+      return {wallet:{balance,score},owned:item,message:'You found '+(costume?.name||'a new costume')+'! It’s in your inventory.'};
+    },'gift','mm-open-gift');
+  };
   function renderShop(){
-    renderFittingRoom();
+    renderFittingRoom();renderInventory();renderGift();
     const shop=q('mm-shop');shop.replaceChildren();
     Object.entries(sectionNames).forEach(([slot,label])=>{
       const section=el('section','','mm-shop-section');section.id='mm-shop-'+slot;
@@ -179,7 +273,7 @@
       products.filter(p=>p.slot===slot).forEach(p=>{
         const card=el('article','','mm-shop-item'),visual=el('div','','mm-product-art');
         visual.append(art.avatar({[slot]:p.id}));
-        const owned=state.owned.includes(p.id),worn=town.outfit[slot]===p.id&&(slot==='costume'||!town.outfit.costume);
+        const owned=state.owned.includes(p.id),worn=equipped(p),price=priceFor(p.id);
         const tools=el('div','','mm-shop-actions');
         {
           const tryOn=button('Try on',()=>{
@@ -191,21 +285,14 @@
           tryOn.id='mm-preview-'+p.id;tryOn.setAttribute('aria-label','Try on '+p.name);tools.append(tryOn);
         }
         if(!owned){
-          const buy=button('Buy · '+p.price+' coins',()=>townAction(async()=>{
-            const wallet=await rpc('mm_buy',{p_item:p.id});
+          const buy=button(price===null?'Buy':'Buy · '+price+' coins',()=>townAction(async()=>{
+            const wallet=await rpc('mm_shop_buy',{p_item:p.id,p_price:price});
             return {wallet,owned:p.id,message:p.name+' purchased.'};
           },'shop','mm-equip-'+p.id));
-          buy.disabled=townPending||!townReady||state.balance<p.price;
-          buy.setAttribute('aria-label','Buy '+p.name+' for '+p.price+' coins');tools.append(buy);
-        }else{
-          const equip=button(worn?'Wearing':'Wear',()=>townAction(async()=>{
-            const outfit=await rpc('mm_town_equip',{p_slot:slot,p_item:p.id});
-            previewItem=null;return {outfit,message:'Now wearing '+p.name+'.'};
-          },'shop','mm-equip-'+p.id));
-          equip.disabled=worn||townPending||!townReady;equip.id='mm-equip-'+p.id;
-          equip.setAttribute('aria-label',(worn?'Wearing ':'Wear ')+p.name);tools.append(equip);
-        }
-        card.append(visual,el('strong',p.name),el('small',owned?(worn?'Equipped':'Owned'):p.price+' coins'),tools);
+          buy.disabled=townPending||!townReady||price===null||state.balance<price;
+          buy.setAttribute('aria-label',price===null?'Buy '+p.name:'Buy '+p.name+' for '+price+' coins');tools.append(buy);
+        }else tools.append(wearButton(p,'shop',worn));
+        card.append(visual,el('strong',p.name),el('small',owned?(worn?'Equipped':'Owned'):price===null?'Price unavailable':price+' coins'),tools);
         grid.append(card);
       });
       section.append(grid);shop.append(section);
@@ -219,6 +306,15 @@
       return structuredClone(demo);
     }
     if(name==='mm_town_profile')return structuredClone(demo.town);
+    if(name==='mm_shop_prices')return {...demoPrices};
+    if(name==='mm_shop_open_gift'){
+      const pool=costumes.filter(p=>!demo.owned.includes(p.id));
+      if(!pool.length||demo.balance<giftCost)throw new Error('The gift box is unavailable.');
+      let roll=Math.random()*pool.reduce((sum,p)=>sum+p.price,0);
+      const won=pool.find(p=>(roll-=p.price)<0)||pool.at(-1);
+      demo.owned.push(won.id);demo.balance-=giftCost;
+      return {item:won.id,balance:demo.balance,score:demo.score};
+    }
     if(name==='mm_town_neighbours')return [
       {alias:demo.alias,you:true,...structuredClone(demo.town),items:demo.owned},
       {alias:'Mia',level:2,outfit:{hat:'hat-flat',tee:'tee-yellow'},items:[]},
@@ -237,7 +333,7 @@
       }
       return structuredClone(demo.town.outfit);
     }
-    if(name==='mm_town_upgrade'){
+    if(name==='mm_shop_upgrade'){
       const next=art.houses[demo.town.level];
       if(!next||args.p_next!==demo.town.level+1||demo.balance<next.price)throw new Error('You need more coins to upgrade.');
       demo.balance-=next.price;demo.town.level++;
@@ -249,7 +345,7 @@
       if(awarded){m.complete=true;demo.balance+=awarded;demo.score+=awarded;}
       return {complete:m.complete,awarded};
     }
-    if(name==='mm_buy'){
+    if(name==='mm_shop_buy'){
       const product=products.find(item=>item.id===args.p_item);
       if(!product||demo.owned.includes(product.id)||demo.balance<product.price)throw new Error('This item is unavailable.');
       demo.balance-=product.price;demo.owned.push(product.id);return {balance:demo.balance,score:demo.score};
@@ -439,12 +535,61 @@
   q('mm-overview-sort').onchange=renderOverviewRanks;
   q('mm-overview-mission').onchange=renderOverviewProgress;
   function teacherSection(section){
-    const sections={classes:['mm-teacher-classes','mm-manage-classes'],missions:['mm-teacher-missions','mm-create-missions'],overview:['mm-teacher-overview','mm-open-overview']};
+    const sections={classes:['mm-teacher-classes','mm-manage-classes'],missions:['mm-teacher-missions','mm-create-missions'],overview:['mm-teacher-overview','mm-open-overview'],prices:['mm-teacher-prices','mm-open-prices']};
     for(const [key,[panel,control]] of Object.entries(sections)){
       q(panel).hidden=key!==section;
       q(control).setAttribute('aria-pressed',String(key===section));
     }
   }
+  const pricesForm=q('mm-prices-form'),pricesStatus=q('mm-prices-status');
+  let teacherPrices=null,teacherPriceRequest=0;
+  function renderTeacherPrices(){
+    const fields=(entries,container)=>{
+      q(container).replaceChildren(...entries.map(([id,name])=>{
+        const label=el('label'),input=el('input');
+        label.append(el('span',name));
+        input.type='number';input.name=id;input.min=1;input.max=9999;input.step=1;
+        input.required=true;input.value=teacherPrices[id];label.append(input);
+        return label;
+      }));
+    };
+    fields(costumes.map(p=>[p.id,p.name]),'mm-price-costumes');
+    fields(art.houses.slice(1).map((h,i)=>[houseKey(i+2),'Level '+(i+2)+' · '+h.name]),'mm-price-houses');
+  }
+  async function loadTeacherPrices(){
+    const request=++teacherPriceRequest;
+    pricesForm.hidden=true;q('mm-prices-reload').hidden=true;pricesStatus.textContent='Loading prices…';
+    try{
+      const data=await rpc('mm_shop_prices');
+      if(request!==teacherPriceRequest||state?.role!=='teacher')return;
+      teacherPrices=data;renderTeacherPrices();
+      pricesStatus.textContent='';pricesForm.hidden=false;
+    }catch(error){
+      if(request!==teacherPriceRequest||state?.role!=='teacher')return;
+      pricesStatus.textContent='Could not load prices: '+error.message;q('mm-prices-reload').hidden=false;
+    }
+  }
+  q('mm-prices-reload').onclick=loadTeacherPrices;
+  q('mm-open-prices').onclick=()=>{
+    if(!q('mm-teacher-prices').hidden)return;
+    teacherSection('prices');
+    if(!teacherPrices)loadTeacherPrices();
+  };
+  pricesForm.onsubmit=async e=>{
+    e.preventDefault();
+    const request=++teacherPriceRequest;
+    const changes=Object.fromEntries([...new FormData(pricesForm)].map(([id,value])=>[id,Number(value)]).filter(([id,value])=>value!==teacherPrices[id]));
+    if(!Object.keys(changes).length){pricesStatus.textContent='No price changes to save.';return;}
+    const controls=[...pricesForm.querySelectorAll('input,button')];controls.forEach(c=>c.disabled=true);
+    pricesStatus.textContent='Saving prices…';
+    try{
+      const data=await rpc('mm_teacher_save_shop_prices',{p_prices:changes});
+      if(request!==teacherPriceRequest||state?.role!=='teacher')return;
+      teacherPrices=data;renderTeacherPrices();pricesStatus.textContent='Shop prices saved.';
+    }catch(error){
+      if(request===teacherPriceRequest&&state?.role==='teacher')pricesStatus.textContent='Could not save prices: '+error.message;
+    }finally{controls.forEach(c=>c.disabled=false);}
+  };
   function openTopic(topic){
     if(publishing)return;
     teacherTopic=topic;
@@ -776,7 +921,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;++overviewRequest;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;++overviewRequest;++teacherPriceRequest;teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){

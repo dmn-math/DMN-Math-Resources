@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=cabin-shop-1">
+<link rel="stylesheet" href="app.css?v=gift-shop-1">
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -61,7 +61,21 @@
       <button type="button" id="mm-manage-classes" aria-controls="mm-teacher-classes" aria-pressed="true">Classes &amp; student login</button>
       <button type="button" id="mm-create-missions" aria-controls="mm-teacher-missions" aria-pressed="false">Create missions</button>
       <button type="button" id="mm-open-overview" aria-controls="mm-teacher-overview" aria-pressed="false">Class overview</button>
+      <button type="button" id="mm-open-prices" aria-controls="mm-teacher-prices" aria-pressed="false">Shop prices</button>
     </nav>
+    <section id="mm-teacher-prices" class="mm-card" aria-labelledby="mm-prices-title" hidden>
+      <h2 id="mm-prices-title">Shop prices</h2>
+      <p>These prices apply to every Algebra Town class. Costume prices also set their relative gift box odds. The gift box costs 15 coins, and the Straw Hut is free.</p>
+      <p id="mm-prices-status" role="status" class="mm-muted"></p>
+      <button type="button" id="mm-prices-reload" hidden>Retry loading prices</button>
+      <form id="mm-prices-form" hidden>
+        <div class="mm-price-grid">
+          <fieldset><legend>Costumes</legend><div id="mm-price-costumes"></div></fieldset>
+          <fieldset><legend>House upgrades</legend><div id="mm-price-houses"></div></fieldset>
+        </div>
+        <button class="mm-primary" type="submit">Save prices</button>
+      </form>
+    </section>
     <section id="mm-teacher-classes" aria-label="Classes and student login">
       <div class="mm-grid">
         <section class="mm-card">
@@ -217,13 +231,36 @@
           <div id="mm-own-avatar" class="mm-cabin-art"></div>
           <div class="mm-cabin-details">
             <p class="mm-kicker">FITTING ROOM</p>
-            <h3 id="mm-outfit-title" tabindex="-1">Your look</h3>
+            <div class="mm-row mm-look-heading">
+              <h3 id="mm-outfit-title" tabindex="-1">Your look</h3>
+              <button type="button" id="mm-inventory-toggle" aria-expanded="false" aria-controls="mm-inventory">Inventory</button>
+            </div>
             <p id="mm-outfit-description"></p>
             <div class="mm-row" id="mm-outfit-tools"></div>
             <p id="mm-shop-message" role="status" class="mm-muted"></p>
           </div>
         </section>
       </div>
+      <section id="mm-inventory" class="mm-shop-section" aria-labelledby="mm-inventory-title" hidden>
+        <h3 id="mm-inventory-title">My inventory</h3>
+        <div id="mm-inventory-items" class="mm-shop-grid"></div>
+        <p id="mm-inventory-status" class="mm-muted" role="status"></p>
+      </section>
+      <section class="mm-gift-box" aria-labelledby="mm-gift-title">
+        <div id="mm-gift-art"></div>
+        <div>
+          <h3 id="mm-gift-title" tabindex="-1">Mystery Costume Gift Box</h3>
+          <p>Open a surprise costume you don’t own yet. Higher-priced costumes have a higher chance of appearing.</p>
+          <details id="mm-gift-odds">
+            <summary>See your odds</summary>
+            <ul id="mm-gift-odds-list"></ul>
+          </details>
+          <button class="mm-primary" type="button" id="mm-open-gift" disabled>Open gift box · 15 coins</button>
+          <p id="mm-gift-availability" class="mm-muted"></p>
+          <p id="mm-gift-message" role="status"></p>
+          <div id="mm-gift-reward" hidden></div>
+        </div>
+      </section>
       <nav class="mm-shop-jumps" aria-label="Shop categories">
         <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a>
       </nav>
@@ -1711,6 +1748,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js?v=class-login-2"></script>
-<script src="app.js?v=cabin-shop-1"></script>
+<script src="town-art.js?v=gift-shop-1"></script>
+<script src="app.js?v=gift-shop-1"></script>
 </body></html>

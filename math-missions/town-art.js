@@ -26,7 +26,10 @@
     ['costume-tree','costume','Christmas tree',30,[54,662,255,420]],
     ['costume-vampire','costume','Vampire',30,[342,715,271,369]],
     ['costume-iron','costume','Iron Man',40,[646,713,236,371]],
-    ['costume-snowman','costume','Snowman',30,[937,674,251,410]]
+    ['costume-snowman','costume','Snowman',30,[937,674,251,410]],
+    ['costume-angel','costume','Angel',32],['costume-bear','costume','Bear costume',26],
+    ['costume-dinosaur','costume','Dinosaur costume',34],['costume-chinese-warrior','costume','Chinese warrior armour',42],
+    ['costume-english-knight','costume','English knight armour',42]
   ].map(([id,slot,name,price,detail])=>({id,slot,name,price,detail}));
   const byId=Object.fromEntries(catalog.map(item=>[item.id,item]));
   const hats={
@@ -35,6 +38,54 @@
     'hat-baseball':'<path fill="#578fbf" d="M27 42Q28 21 48 18Q66 14 78 30Q83 36 80 44Q54 39 27 42Z"/><path d="M52 18Q63 26 65 39" fill="none" stroke="#335c7c" stroke-width="2"/><path fill="#4275a3" d="M30 38Q40 34 63 39Q36 48 18 48Q11 47 17 43Z"/>',
     'hat-beanie':'<path fill="#ca714b" d="M24 41V37Q24 17 53 16Q81 17 81 39V43Z"/><path fill="#dc8857" d="M22 38Q53 33 82 38L83 47Q51 44 22 48Z"/><path d="M32 39v6m10-7v6m11-7v6m11-6v6m10-5v6" stroke="#915338" stroke-width="2"/>'
   };
+  const face='<path fill="#fffdf8" d="M35 57Q35 44 54 44Q73 44 73 57V66Q73 77 54 77Q35 77 35 66Z"/><path fill="none" d="M47 56v6m14-6v6m-10 7h6"/>';
+  const costumes={
+    'costume-angel':
+      '<path fill="#fcf0db" d="M42 84Q16 55 7 70Q-1 87 23 109Q32 117 42 108M66 84Q92 55 101 70Q109 87 85 109Q76 117 66 108"/>'+
+      '<path fill="none" stroke="#c19f71" d="M14 78q3 12 16 19m64-19q-3 12-16 19"/>'+
+      '<path fill="#fffdf8" d="M36 120v13q0 10 9 10q8 0 8-10h3q0 10 8 10q9 0 9-10v-13"/>'+
+      '<path fill="#f5eadb" d="M42 76Q25 83 24 103Q26 113 36 104L30 124Q53 135 78 124L72 104Q82 113 84 103Q83 83 66 76Z"/>'+
+      '<path fill="none" stroke="#bc8634" d="M38 105q16 5 32 0"/><circle fill="#f3c463" cx="54" cy="93" r="4"/>'+
+      '<path fill="#fffdf8" d="M27 56Q27 33 54 33Q81 33 81 56V64Q81 83 54 83Q27 83 27 64Z"/>'+
+      '<path fill="none" d="M46 54v9m16-9v9m-11 7h6"/><ellipse fill="none" stroke="#9c6824" cx="54" cy="21" rx="24" ry="6"/><ellipse fill="none" stroke="#e6aa40" cx="54" cy="20" rx="24" ry="5"/>',
+    'costume-bear':
+      '<path fill="#a76c48" d="M37 77Q20 82 18 103Q17 117 31 113L31 133Q31 144 43 144Q53 144 53 134H56Q56 144 66 144Q78 144 78 133V113Q92 117 91 103Q89 82 72 77Z"/>'+
+      '<ellipse fill="#e5bc87" cx="54" cy="108" rx="16" ry="20"/>'+
+      '<circle fill="#a76c48" cx="28" cy="35" r="12"/><circle fill="#a76c48" cx="80" cy="35" r="12"/>'+
+      '<circle fill="#d7967a" cx="28" cy="35" r="5" stroke="none"/><circle fill="#d7967a" cx="80" cy="35" r="5" stroke="none"/>'+
+      '<path fill="#b77b50" d="M19 57Q19 28 54 28Q89 28 89 57V64Q89 87 54 87Q19 87 19 64Z"/>'+
+      '<ellipse fill="#efd1a1" cx="54" cy="42" rx="7" ry="5"/><path d="m51 41 3 2 3-2" fill="none"/>'+face,
+    'costume-dinosaur':
+      '<path fill="#639e65" d="M71 107Q95 114 102 96Q107 116 91 128Q82 134 69 130Z"/>'+
+      '<path fill="#77aa68" d="M35 77Q21 83 18 102Q20 115 31 109L31 133Q31 143 43 143Q52 143 52 134H56Q56 143 65 143Q77 143 77 133V109Q88 115 90 102Q87 83 73 77Z"/>'+
+      '<ellipse fill="#e7cd80" cx="54" cy="109" rx="16" ry="21"/>'+
+      '<path fill="#e6bd57" d="m32 33 4-15 13 11 9-17 10 19 13-8 1 17Z"/>'+
+      '<path fill="#77aa68" d="M17 57Q17 28 52 28Q74 28 82 42Q96 43 94 56L90 64Q88 87 54 87Q17 87 17 64Z"/>'+
+      '<circle fill="#302a22" cx="82" cy="48" r="2"/><path fill="#fffdf8" d="m24 52 5 9 5-9m39 0 5 9 5-9"/>'+face,
+    'costume-chinese-warrior':
+      '<path fill="#963f35" d="M41 74Q22 79 18 99L28 109L33 103L29 129H39V136Q39 143 47 143Q55 143 55 135Q55 143 64 143Q72 143 72 136V129H80L76 103L82 109L92 99Q88 79 67 74Z"/>'+
+      '<path fill="#daaa5b" d="M34 81L20 88L19 101L32 103L39 92M74 81l14 7 1 13-13 2-7-11"/>'+
+      '<path fill="#555d69" d="M41 80h26l6 17-4 22H39l-4-22Z"/>'+
+      '<path fill="none" stroke="#e1ba70" d="M39 92h30m-32 8h34m-32 8h30m-24 0v-8m10 0v-8m7 16v-8m-7 16v-8"/>'+
+      '<path fill="#d2a153" d="M35 116h38v7H35Z"/>'+
+      '<path fill="#b84f43" d="M52 32Q43 18 53 13Q68 9 73 18Q61 17 59 32Z"/>'+
+      '<path fill="#444b56" d="M20 55Q20 30 54 30Q88 30 88 55L85 75L74 79L68 58H40L34 79L23 75Z"/>'+face+
+      '<path fill="#daaa5b" d="M22 49Q54 39 86 49L89 56Q54 49 19 56Z"/><circle fill="#b84f43" cx="54" cy="44" r="4"/>',
+    'costume-english-knight':
+      '<path fill="#768b96" d="M40 75Q19 79 18 102Q18 113 31 110V133Q31 143 43 143Q53 143 53 133H56Q56 143 66 143Q78 143 78 133V110Q91 113 91 102Q90 79 68 75Z"/>'+
+      '<path fill="#bcc7cc" d="M31 78q8-5 15 6l-7 13-18-4q2-10 10-15m46 0q-8-5-15 6l7 13 18-4q-2-10-10-15"/>'+
+      '<path fill="#e5e6d8" d="M41 79h26l4 40H37Z"/><path stroke="#a4483f" stroke-width="5" d="M54 91v19m-8-12h16"/>'+
+      '<path fill="#736352" d="M37 118h34v6H37Z"/>'+
+      '<path fill="#aab9c2" d="M22 60Q22 28 54 28Q86 28 86 60V76Q54 89 22 76Z"/>'+face+
+      '<path fill="#71858f" d="M23 49Q54 40 85 49L82 56Q54 50 26 56Z"/>'+
+      '<path fill="none" stroke="#e4ecee" d="M54 31v14M29 39l6-4"/>'
+  };
+  function gift(){
+    return svg([0,0,112,105],'<g stroke="#553829" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path fill="#eeaf55" d="M21 47h70v44q0 5-5 5H26q-5 0-5-5Z"/><rect fill="#ffd683" x="15" y="32" width="82" height="20" rx="5"/>'+
+      '<path fill="#bb535c" d="M50 33h12v63H50Z"/><path fill="#da6b6a" d="M56 32Q27 34 30 20Q33 7 45 17Q52 23 56 32Q61 23 67 17Q79 7 82 20Q85 34 56 32Z"/>'+
+      '<path fill="#fff0a9" stroke="none" d="M10 13l2 6 6 2-6 2-2 6-2-6-6-2 6-2zm91 53 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></g>','mm-gift-art');
+  }
   let cropId=0;
   function svg(box,content,cls){
     const node=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -51,6 +102,8 @@
   }
   function avatar(outfit={}){
     const costume=byId[outfit.costume];
+    if(costume?.slot==='costume'&&Object.hasOwn(costumes,costume.id))
+      return svg([0,5,108,148],'<g stroke="#382a23" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'+costumes[costume.id]+'</g>','mm-avatar');
     if(costume?.slot==='costume')return svg(costume.detail,sheet('costume',1247,1261),'mm-avatar mm-sheet-art');
     const tee=byId[outfit.tee]?.slot==='tee'?byId[outfit.tee].detail:null;
     const pants=byId[outfit.pants]?.slot==='pants'?byId[outfit.pants].detail:null;
@@ -80,5 +133,5 @@
     node.append(avatar(outfit),house(level));
     return node;
   }
-  window.AlgebraTownArt={houses,catalog,byId,avatar,house,plot};
+  window.AlgebraTownArt={houses,catalog,byId,avatar,house,plot,gift};
 })();
