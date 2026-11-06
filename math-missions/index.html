@@ -5,7 +5,8 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=gift-shop-1">
+<link rel="stylesheet" href="app.css?v=subject-missions-1">
+<script src="subject-catalog.js?v=1"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -49,6 +50,7 @@
     <button id="mm-demo-solve" type="button" aria-pressed="true">Solving Equations</button>
     <button id="mm-demo-expand" type="button" aria-pressed="false">Simplifying Linear Expressions</button>
     <button id="mm-demo-rational" type="button" aria-pressed="false">Simplifying Fractional Expression</button>
+    <button id="mm-demo-subject" type="button" aria-pressed="false">Making x the Subject</button>
     <button id="mm-demo-student" type="button" class="mm-primary">Preview student town</button>
   </section>
   <section data-mm-view="join" class="mm-card" hidden>
@@ -127,8 +129,23 @@
         <summary><strong>Solving Equations</strong><small>Set non-fractional and fractional questions using Equation Lab.</small></summary>
         <div data-mm-topic-editor></div>
       </details>
-      <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><div id="mm-published"></div></section>
+      <details class="mm-card mm-teacher-topic" id="mm-topic-subject">
+        <summary><strong>Making x the Subject</strong><small>Rearrange formulas across seven Equation Lab levels.</small></summary>
+        <div data-mm-topic-editor></div>
+      </details>
+      <section class="mm-card"><h2 id="mm-class-missions-title" tabindex="-1">Class missions</h2><p class="mm-muted">Reuse an assignment for the next round of practice.</p><p id="mm-quest-teacher-note" role="status" class="mm-muted"></p><div id="mm-published"></div></section>
     </section>
+    <dialog id="mm-quest-settings" class="mm-town-dialog" aria-labelledby="mm-quest-settings-title">
+      <form id="mm-quest-form" class="mm-form">
+        <h2 id="mm-quest-settings-title">Daily quest settings</h2>
+        <p id="mm-quest-source"></p>
+        <p>Students get fresh questions of the same types each day at midnight Singapore time. If today’s quest is already available, changes apply from tomorrow.</p>
+        <label>Reward in coins<input name="coins" type="number" min="1" max="100" step="1" required></label>
+        <label class="mm-quest-enabled"><input name="enabled" type="checkbox"> Offer this quest daily</label>
+        <p id="mm-quest-save-status" role="status"></p>
+        <div class="mm-row"><button type="submit" class="mm-primary">Save daily quest</button><button id="mm-quest-cancel" type="button">Cancel</button></div>
+      </form>
+    </dialog>
     <section class="mm-card" id="mm-teacher-overview" aria-labelledby="mm-overview-title" hidden>
       <h2 id="mm-overview-title">Class overview</h2>
       <div class="mm-row">
@@ -205,7 +222,15 @@
         <p id="mm-upgrade-note" class="mm-muted" role="status"></p>
       </div>
     </section>
-    <section class="mm-card" id="mm-town-missions"><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
+    <div class="mm-town-activities">
+      <section class="mm-card" id="mm-town-missions"><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
+      <section class="mm-card" id="mm-town-quests" aria-labelledby="mm-daily-title">
+        <div class="mm-row mm-mission-heading"><h2 id="mm-daily-title">Daily quests</h2><button type="button" id="mm-refresh-quests">Refresh quests</button></div>
+        <p class="mm-muted">Fresh questions every day. Quests reset at midnight Singapore time.</p>
+        <p id="mm-quest-status" class="mm-muted" role="status"></p>
+        <div id="mm-quests"></div>
+      </section>
+    </div>
     </div>
     <section class="mm-card" data-town-panel="leaderboard" id="mm-town-leaderboard" hidden><h2>Class leaderboard</h2><ul id="mm-leaderboard"></ul></section>
     <section class="mm-card" data-town-panel="neighbourhood" id="mm-town-neighbourhood" hidden>
@@ -246,26 +271,36 @@
         <div id="mm-inventory-items" class="mm-shop-grid"></div>
         <p id="mm-inventory-status" class="mm-muted" role="status"></p>
       </section>
-      <section class="mm-gift-box" aria-labelledby="mm-gift-title">
-        <div id="mm-gift-art"></div>
-        <div>
-          <h3 id="mm-gift-title" tabindex="-1">Mystery Costume Gift Box</h3>
-          <p>Open a surprise costume you don’t own yet. Higher-priced costumes have a higher chance of appearing.</p>
-          <details id="mm-gift-odds">
-            <summary>See your odds</summary>
-            <ul id="mm-gift-odds-list"></ul>
-          </details>
-          <button class="mm-primary" type="button" id="mm-open-gift" disabled>Open gift box · 15 coins</button>
-          <p id="mm-gift-availability" class="mm-muted"></p>
-          <p id="mm-gift-message" role="status"></p>
-          <div id="mm-gift-reward" hidden></div>
-        </div>
-      </section>
       <nav class="mm-shop-jumps" aria-label="Shop categories">
         <a href="#mm-shop-tee">Tees</a><a href="#mm-shop-pants">Pants</a><a href="#mm-shop-hat">Hats</a><a href="#mm-shop-costume">Costumes</a>
       </nav>
       <div id="mm-shop"></div>
+      <article id="mm-gift-card" class="mm-shop-item" aria-labelledby="mm-gift-title" hidden>
+        <div id="mm-gift-art" class="mm-product-art"></div>
+        <strong id="mm-gift-title" tabindex="-1">Costume blind box</strong>
+        <small>15 coins · One unowned costume</small>
+        <div class="mm-shop-actions"><button type="button" id="mm-open-gift" aria-label="Open Costume blind box for 15 coins" disabled>Open box</button></div>
+        <details id="mm-gift-odds">
+          <summary>See your odds</summary>
+          <p>Higher-priced costumes are more likely to appear.</p>
+          <ul id="mm-gift-odds-list"></ul>
+        </details>
+        <small id="mm-gift-availability"></small>
+        <p id="mm-gift-message" role="status"></p>
+        <div id="mm-gift-reward" hidden></div>
+      </article>
+
     </section>
+    <dialog id="mm-upgrade-dialog" class="mm-town-dialog mm-upgrade-dialog" aria-labelledby="mm-upgrade-title" aria-describedby="mm-upgrade-prompt">
+      <div id="mm-upgrade-art" class="mm-upgrade-art" aria-hidden="true"></div>
+      <h2 id="mm-upgrade-title">Upgrade your house?</h2>
+      <p id="mm-upgrade-prompt"></p>
+      <p id="mm-upgrade-dialog-status" role="status"></p>
+      <div class="mm-row mm-upgrade-actions">
+        <button type="button" id="mm-upgrade-cancel" autofocus>Keep saving</button>
+        <button type="button" id="mm-upgrade-confirm" class="mm-primary">Upgrade house</button>
+      </div>
+    </dialog>
   </section>
 </div>
 <div id="mm-builder-park"></div>
@@ -318,7 +353,7 @@
       <div class="cols">
         <section class="group" aria-label="Task settings">
           <h3>1. Set up the task</h3>
-          <label class="field" data-equation-family>Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option><option value="expand" hidden>Bracket expansion</option><option value="rational" hidden>Fractional expression</option></select></label>
+          <label class="field" data-equation-family>Mission type<select data-family><option value="whole">Non-fractional equations</option><option value="fraction">Fractional equations</option><option value="expand" hidden>Bracket expansion</option><option value="rational" hidden>Fractional expression</option><option value="subject" hidden>Making x the Subject</option></select></label>
           <label class="field">Task title<input data-title value="Solve equations without fractions" maxlength="100"></label>
           <label class="field">Assign to class<input data-class value="3B G2" maxlength="50"></label>
           <div class="pair">
@@ -351,6 +386,18 @@
             <label class="choice"><input type="checkbox" value="rational-4" checked> Level 4 · Difference of two squares</label>
             <label class="choice"><input type="checkbox" value="rational-5" checked> Level 5 · Factorable quadratic denominator</label>
           </fieldset>
+          <fieldset data-types-subject hidden><legend>Levels to include</legend>
+            <label class="choice"><input type="checkbox" value="subject-1" checked> Level 1 · One operation</label>
+            <label class="choice"><input type="checkbox" value="subject-2" checked> Level 2 · Two operations</label>
+            <label class="choice"><input type="checkbox" value="subject-3" checked> Level 3 · Brackets and fractional numerators</label>
+            <label class="choice"><input type="checkbox" value="subject-4" checked> Level 4 · x in multiple terms</label>
+            <label class="choice"><input type="checkbox" value="subject-5" checked> Level 5 · x in a denominator</label>
+            <label class="choice"><input type="checkbox" value="subject-6" checked> Level 6 · Squares and square roots</label>
+            <label class="choice"><input type="checkbox" value="subject-7" checked> Level 7 · Squares and roots with other operations</label>
+          </fieldset>
+          <label class="field" data-mode-field>Working mode
+            <select data-working-mode><option value="unguided">Unguided · I’ll write the working</option><option value="guided">Guided · Calculate for me</option></select>
+          </label>
           <label class="choice"><input data-hints type="checkbox" checked> Offer hints</label>
           <div class="row"><button type="button" class="cursor-interaction" data-generate>Generate questions</button><small data-settings-message role="status"></small></div>
         </section>
@@ -479,6 +526,9 @@ main{display:block;max-width:none;margin:0;padding:0}
 .simp-workline .simp-term{min-width:0;max-width:100%;flex-wrap:wrap;gap:3px}
 .simp-workline .simp-term>span{min-width:0;max-width:100%}
 .simp-workline .simp-mini-frac{width:var(--factor-ch,7ch);min-width:0;max-width:min(16ch,100%)}
+.simp-prefilled-frac{display:inline-grid;grid-template-columns:minmax(0,1fr);width:min(15ch,100%);max-width:100%;font:clamp(17px,3vw,22px) Cambria,Georgia,serif}
+.simp-prefilled-frac>span:first-child{border-bottom:1px solid currentColor}
+.simp-prefilled-frac input{width:100%;min-width:0;padding:4px;font:16px Cambria,Georgia,serif;text-align:center;border:1px solid var(--line);border-radius:5px;color:var(--ink);background:var(--paper)}
 .simp-mini-frac input{min-width:0;font-size:16px;padding:3px 4px}
 .simp-workline .simp-mini-frac span{font-size:14px;padding:2px 3px}
 .simp-workline .simp-op{font-size:15px}
@@ -501,6 +551,10 @@ main{display:block;max-width:none;margin:0;padding:0}
 @media (pointer:coarse){
   .simp-choice button,.simp-intro .primary,.simp-workline .free-check,.simp-workline .free-edit,.simp-tools button{min-height:40px}
 }
+.subject-main{max-width:1240px;padding:0 32px 55px;margin:auto}.subject-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.subject-levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.subject-levels button{padding:11px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--muted)}.subject-levels button.active{background:var(--green);color:white}.subject-layout .difficulty-note{margin:13px 0 0;min-height:0;line-height:1.5}.subject-card{padding:28px;min-width:0}.subject-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.subject-head .section-title{margin:0}.subject-question{font-size:34px;line-height:1.7;overflow-x:auto;padding:14px 0}.subject-condition{background:#fff8eb;color:#866434;padding:10px 12px;border-radius:8px;font-size:11px;margin:4px 0 22px}.subject-guidance{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--muted);font-size:12px;line-height:1.5;border-top:1px solid var(--line);padding-top:18px}.subject-guidance>div{display:flex;gap:6px;flex-shrink:0}.subject-guidance .secondary{white-space:nowrap}.subject-tools{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0 3px;padding-left:72px}.subject-card .free-row{border-bottom:1px solid #edf0e8}.subject-card .draft-row{margin-top:0}.subject-card .free-editor .structured-math-editor{min-height:85px}.subject-tip{font-size:11px;margin-top:15px}.subject-card .hint{margin-top:15px}@media(max-width:850px){.subject-main{padding:0 20px 40px}.subject-layout{grid-template-columns:200px minmax(0,1fr);gap:15px}.subject-card{padding:18px}.subject-tools{padding-left:57px}}@media(max-width:650px){.lab-tabs{overflow-x:auto}.lab-tabs button{white-space:nowrap}.subject-main{padding:0 14px 32px}.subject-layout{display:block}.subject-layout .settings{margin-bottom:15px}.subject-levels{grid-template-columns:repeat(4,minmax(0,1fr))}.subject-levels button{font-size:11px;padding:9px 3px}.subject-card{padding:16px}.subject-question{font-size:27px}.subject-guidance{align-items:flex-start;flex-direction:column}.subject-tools{padding-left:49px}.subject-tip{font-size:10px}}
+.editing-radical{display:inline-flex;align-items:stretch;vertical-align:middle;flex:0 0 auto;line-height:1.25;max-width:none}.editing-root-sign{font-family:Cambria,Georgia,serif;font-size:1.7em;line-height:1;align-self:flex-end;margin-right:-.04em}.editing-radicand{display:inline-flex;align-items:center;gap:2px;min-width:2.5ch;border-top:1.5px solid currentColor;padding:2px 4px 0}.editing-radicand .math-token-input{max-width:none}.editing-radicand .math-token-input:placeholder-shown{background:#edf2e8;border:1px dashed #bdcdb2}.after-radical-cell{min-width:3ch!important}.structured-math-editor .editing-radical+.math-token-input{margin-left:3px}
+.mode-setting{margin:16px 0}.mode-setting .setting-label{margin:0 0 8px}.mode-setting .mode{display:block;width:100%;padding:10px;text-align:left}.mode-setting .mode strong{font-size:11px}.mode-setting .mode small{font-size:10px}.guided-control{background:#f6f8f3;border:1px solid #e7ece2;border-radius:10px;padding:16px;margin:12px 0}.guided-control p{font-size:12px;margin-bottom:12px}.guided-options{display:flex;flex-wrap:wrap;gap:8px}.guided-options button{font-size:12px;padding:9px 11px}.guided-control .primary{font-size:12px;padding:10px 14px}
+.subject-main{padding:0 clamp(8px,2vw,24px) 20px}.subject-layout{grid-template-columns:minmax(155px,.75fr) minmax(0,2fr)}.subject-card,.subject-layout .settings{min-width:0}.subject-card .structured-math-editor{overflow-x:auto}.subject-levels button:disabled,.subject-layout [data-subject-mode]:disabled{cursor:default;opacity:1}@media(max-width:690px){.subject-layout{grid-template-columns:minmax(0,1fr)}.subject-layout .settings{margin-bottom:0}}
 </style>
 <header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
 <div class="intro"><div><div class="eyebrow">SMALL STEPS. BIG UNDERSTANDING.</div><h1>Keep it balanced.</h1><p>Two sides. One golden rule. Find your way to <i>x</i>.</p></div><div class="intro-note">Whatever you do to one side,<br>do to the other.</div></div>
@@ -522,6 +576,14 @@ main{display:block;max-width:none;margin:0;padding:0}
   <div class="simp-intro"><div><div class="eyebrow">FRACTIONS · FACTORS · COMMON DENOMINATORS</div><h1>Simplifying Fractional Expressions</h1><p>Factorise when needed, make equivalent fractions, then combine and simplify.</p></div><button id="simp-next" class="primary">Next question →</button></div>
   <div class="simp-layout"><aside class="settings card"><div class="section-title">Difficulty</div><div id="simp-levels" class="simp-levels"></div><div class="rule-card" id="simp-remember"><strong>Remember</strong><p>Multiply above and below by the same factor. A value that makes an original denominator zero stays excluded.</p></div></aside>
   <div class="simp-card card"><div class="section-title">Original expression</div><div id="simp-question" class="simp-question working-math"></div><p id="simp-domain" class="simp-domain"></p><h2 id="simp-instructions"></h2><div id="simp-steps"></div><p id="simp-error" class="simp-error hidden" role="alert"></p></div></div>
+</section>
+<section id="subject-main" class="subject-main hidden" aria-label="Making x the Subject">
+  <div class="simp-intro"><div><div class="eyebrow">FORMULAS · REARRANGEMENT · REASONING</div><h1>Making <i>x</i> the Subject</h1><p>Keep the other letters as constants. Rearrange the formula one valid step at a time.</p></div><button id="subject-next" class="primary">New formula →</button></div>
+  <div class="subject-layout"><aside class="settings card"><div class="section-title">Difficulty</div><div id="subject-levels" class="subject-levels"></div><div class="mode-setting"><span class="setting-label">Working mode</span><button class="mode" data-subject-mode="auto"><strong>1 · Calculate for me</strong><small>Choose an operation; we show the result.</small></button><button class="mode" data-subject-mode="manual"><strong>2 · I’ll write the working</strong><small>Write and check each formula yourself.</small></button></div><p id="subject-description" class="difficulty-note"></p><div class="rule-card"><strong>Remember</strong><p>Making x the subject means writing x alone on one side. Keep the other letters in your answer.</p></div></aside>
+    <div class="subject-card card"><div class="subject-head"><span class="section-title">Original formula</span><span id="subject-count" class="pill"></span></div><div id="subject-question" class="subject-question working-math"></div><p id="subject-condition" class="subject-condition"></p><div class="subject-guidance"><span id="subject-guidance-text">Write a complete equation on each line. A direct correct answer is welcome.</span><div><button id="subject-hint-btn" class="secondary">✧ Hint</button><button id="subject-restart" class="secondary">↻ Restart</button></div></div><p id="subject-hint" class="hint hidden" role="status"></p>
+      <div id="subject-tools" class="subject-tools" role="group" aria-label="Insert mathematical notation"><button class="notation-tool" data-subject-insert="fraction" aria-label="Insert fraction"><span class="frac notation-fraction"><span>□</span><span>□</span></span></button><button class="notation-tool" data-subject-insert="brackets" aria-label="Insert brackets">( )</button><button class="notation-tool" data-subject-insert="square" aria-label="Square current term">x²</button><button class="notation-tool" data-subject-insert="root" aria-label="Insert square root">√□</button><button class="notation-tool" data-subject-insert="plusminus" aria-label="Insert plus or minus">±</button></div><div id="subject-rows"></div><p id="subject-tip" class="subject-tip">Type inside √, then press → or click after the root to continue. For two solutions, use ± or “or”.</p>
+    </div>
+  </div>
 </section>
 </template>
       <div class="mm-mission-finish"><button type="button" class="main cursor-interaction" data-finish-mission hidden>Complete mission</button></div>
@@ -617,25 +679,27 @@ function operate(u,op,v,rules=[]){if(op==='square')return mapValue(u,a=>vm(a,a))
 function squareRootPair(l,r){if(l.branches||r.branches)throw Error('Finish simplifying the existing two answers first.');let swap=vconstant(l)&&!vconstant(r),expression=swap?r:l,number=swap?l:r;if(expression.rad||number.rad||!number.p.constant()||number.p.n[0].n<0n||expression.p.d.length!==1)throw Error('First isolate a perfect-square expression on one side and a non-negative square number on the other.');let p=expression.p.n;if(p.length!==3)throw Error('First isolate x^2 or a bracketed square.');let a=sqrtQ(p[2]);if(!a||a.zero())throw Error('Divide out the coefficient of the square first.');let b=(p[1]||Z).div(q(2).mul(a));if(!b.mul(b).eq(p[0]))throw Error('First remove the constant outside the squared expression.');let n=sqrtQ(number.p.n[0]);if(!n)throw Error('Use a perfect-square number for this square-root step.');let out=val(new F([b,a])),answers=branch([val(fc(n)),val(fc(n.neg()))]);return swap?[answers,out]:[out,answers]}
 function isolated(l,r){return same(l,VX)&&variants(r).every(vconstant)||same(r,VX)&&variants(l).every(vconstant)}
 const SYMBOL={'+':'+','-':'−','*':'×','/':'÷',square:'Square',root:'Undo square (±)'};
-// A local structured math editor. Text cells and nested fractions share the same equation model.
+// A local structured math editor. Text, fractions and radicals share the same equation model.
 let mathTree=[],mathTokenId=0,activeMathId=null,mathEditorHost='free-input';
 const newMathText=value=>({kind:'text',id:'m'+(++mathTokenId),value:String(value)});
 const newMathFraction=(numerator=[newMathText('')],denominator=[newMathText('')])=>({kind:'fraction',id:'f'+(++mathTokenId),numerator,denominator});
-function serialiseMath(tokens){return tokens.map(t=>t.kind==='text'?t.value:'('+serialiseMath(t.numerator)+')/('+serialiseMath(t.denominator)+')').join('')}
-function incompleteMath(tokens){return tokens.some(t=>t.kind==='fraction'&&(!serialiseMath(t.numerator).trim()||!serialiseMath(t.denominator).trim()||incompleteMath(t.numerator)||incompleteMath(t.denominator)))}
+const newMathRoot=(radicand=[newMathText('')])=>({kind:'root',id:'r'+(++mathTokenId),radicand});
+function serialiseMath(tokens){return tokens.map(t=>t.kind==='text'?t.value:t.kind==='root'?'sqrt('+serialiseMath(t.radicand)+')':'('+serialiseMath(t.numerator)+')/('+serialiseMath(t.denominator)+')').join('')}
+function incompleteMath(tokens){return tokens.some(t=>t.kind==='root'?(!serialiseMath(t.radicand).trim()||incompleteMath(t.radicand)):t.kind==='fraction'&&(!serialiseMath(t.numerator).trim()||!serialiseMath(t.denominator).trim()||incompleteMath(t.numerator)||incompleteMath(t.denominator)))}
 function matchingMathBracket(s,pos,direction){let depth=0;for(let i=pos;i>=0&&i<s.length;i+=direction){if(s[i]===(direction===1?'(':')'))depth++;else if(s[i]===(direction===1?')':'(')&&--depth===0)return i}return -1}
 function ungroupMath(s){return s[0]==='('&&matchingMathBracket(s,0,1)===s.length-1?s.slice(1,-1):s}
 function mathTokensFromSource(source){
   let s=String(source),tokens=[],cursor=0,depth=0;
   for(let i=0;i<s.length;i++){
+    if(depth===0&&s.slice(i,i+5)==='sqrt('){let close=matchingMathBracket(s,i+4,1);if(close<0)continue;tokens.push(newMathText(s.slice(cursor,i)),newMathRoot(mathTokensFromSource(s.slice(i+5,close))));cursor=close+1;i=close;continue}
     if(s[i]==='('){depth++;continue}if(s[i]===')'){depth--;continue}if(s[i]!=='/'||depth!==0)continue;
     let endBase=i,start=i,denStart=i+1,denEnd=denStart;
     while(endBase>cursor&&/\s/.test(s[endBase-1]))endBase--;
     if(s.slice(endBase-2,endBase)==='^2')endBase-=2;else if(s[endBase-1]==='²')endBase--;
-    if(s[endBase-1]===')')start=matchingMathBracket(s,endBase-1,-1);else{start=endBase;while(start>cursor&&/[0-9xX.]/.test(s[start-1]))start--}
+    if(s[endBase-1]===')')start=matchingMathBracket(s,endBase-1,-1);else{start=endBase;while(start>cursor&&/[0-9a-dxyX.]/.test(s[start-1]))start--}
     while(denStart<s.length&&/\s/.test(s[denStart]))denStart++;
     if(s[denStart]==='('){let close=matchingMathBracket(s,denStart,1);if(close<0)continue;denEnd=close+1}
-    else{let match=s.slice(denStart).match(/^[+-]?(?:\d+(?:\.\d+)?|\.\d+|[xX])/);if(!match)continue;denEnd=denStart+match[0].length}
+    else{let match=s.slice(denStart).match(/^[+-]?(?:\d+(?:\.\d+)?|\.\d+|[a-dxyX])/);if(!match)continue;denEnd=denStart+match[0].length}
     if(s.slice(denEnd,denEnd+2)==='^2')denEnd+=2;else if(s[denEnd]==='²')denEnd++;
     if(start<cursor||start<0||start===endBase)continue;
     tokens.push(newMathText(s.slice(cursor,start)),newMathFraction(mathTokensFromSource(ungroupMath(s.slice(start,i).trim())),mathTokensFromSource(ungroupMath(s.slice(denStart,denEnd).trim()))));
@@ -643,57 +707,62 @@ function mathTokensFromSource(source){
   }
   tokens.push(newMathText(s.slice(cursor)));return tokens;
 }
-function findMathToken(id,tokens=mathTree,ancestors=[]){for(let i=0;i<tokens.length;i++){let t=tokens[i];if(t.id===id)return {token:t,index:i,list:tokens,ancestors};if(t.kind==='fraction')for(let slot of ['numerator','denominator']){let found=findMathToken(id,t[slot],[...ancestors,{fraction:t,slot,list:tokens,index:i}]);if(found)return found}}return null}
-function mathLeaves(tokens=mathTree){return tokens.flatMap(t=>t.kind==='text'?[t]:[...mathLeaves(t.numerator),...mathLeaves(t.denominator)])}
+function findMathToken(id,tokens=mathTree,ancestors=[]){for(let i=0;i<tokens.length;i++){let t=tokens[i];if(t.id===id)return {token:t,index:i,list:tokens,ancestors};if(t.kind==='fraction')for(let slot of ['numerator','denominator']){let found=findMathToken(id,t[slot],[...ancestors,{fraction:t,slot,list:tokens,index:i}]);if(found)return found}if(t.kind==='root'){let found=findMathToken(id,t.radicand,[...ancestors,{radical:t,slot:'radicand',list:tokens,index:i}]);if(found)return found}}return null}
+function mathLeaves(tokens=mathTree){return tokens.flatMap(t=>t.kind==='text'?[t]:t.kind==='root'?mathLeaves(t.radicand):[...mathLeaves(t.numerator),...mathLeaves(t.denominator)])}
 function insertMathFractionAt(id,start,end){let loc=findMathToken(id);if(!loc||loc.token.kind!=='text')return null;let value=loc.token.value,selected=value.slice(start,end),fraction=newMathFraction([newMathText(selected)],[newMathText('')]);loc.list.splice(loc.index,1,newMathText(value.slice(0,start)),fraction,newMathText(value.slice(end)));return selected?fraction.denominator[0].id:fraction.numerator[0].id}
+function insertMathRootAt(id,start,end){let loc=findMathToken(id);if(!loc||loc.token.kind!=='text')return null;let value=loc.token.value,root=newMathRoot([newMathText(value.slice(start,end))]);loc.list.splice(loc.index,1,newMathText(value.slice(0,start)),root,newMathText(value.slice(end)));return root.radicand[0].id}
 function removeMathFraction(id){let loc=findMathToken(id);if(!loc||loc.token.kind!=='fraction')return null;let before=loc.list[loc.index-1],after=loc.list[loc.index+1],left=before?.kind==='text'?before.value:'',right=after?.kind==='text'?after.value:'',merged=newMathText(left+right),start=loc.index-(before?.kind==='text'?1:0),count=1+(before?.kind==='text'?1:0)+(after?.kind==='text'?1:0);loc.list.splice(start,count,merged);return {id:merged.id,caret:left.length}}
+function removeMathRoot(id){let loc=findMathToken(id);if(!loc||loc.token.kind!=='root')return null;let before=loc.list[loc.index-1],after=loc.list[loc.index+1],left=before?.kind==='text'?before.value:'',right=after?.kind==='text'?after.value:'',merged=newMathText(left+right),start=loc.index-(before?.kind==='text'?1:0),count=1+(before?.kind==='text'?1:0)+(after?.kind==='text'?1:0);loc.list.splice(start,count,merged);return {id:merged.id,caret:left.length}}
 function mathCellWidth(t,only=false){return only?'100%':Math.min(40,Math.max(2,t.value.length+1))+'ch'}
-function mathEditorHTML(tokens,context='',counter={fraction:0,text:0}){
+function mathEditorHTML(tokens,context='',counter={fraction:0,root:0,text:0}){
   let part=0,only=tokens.length===1&&tokens[0].kind==='text';
   return tokens.map(t=>{
     if(t.kind==='fraction'){let n=++counter.fraction;return '<span class="editing-fraction" role="group" aria-label="Fraction '+n+'"><span class="math-slot numerator-slot">'+mathEditorHTML(t.numerator,'Numerator '+n,counter)+'</span><span class="math-slot denominator-slot">'+mathEditorHTML(t.denominator,'Denominator '+n,counter)+'</span></span>'}
-    let rootOnly=!context&&only,label=context?(context+(only?'':' part '+(++part))):(rootOnly?'Working for Step '+(mathEditorHost==='simp-input'?simpLines.length+1:steps.length):(mathEditorHost==='simp-input'?'Expression text ':'Equation text ')+(++counter.text));
-    let placeholder=context?'□':rootOnly?(mathEditorHost==='simp-input'?'Enter your next expression…':'Enter your next equation…'):'…';
-    return '<input type="text" id="math-cell-'+t.id+'" class="math-token-input'+(context?' fraction-cell':'')+(rootOnly?' single-math-cell':'')+'" data-math-token="'+t.id+'" aria-label="'+esc(label)+'" value="'+esc(t.value)+'" placeholder="'+placeholder+'" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:'+mathCellWidth(t,rootOnly)+'">';
+    if(t.kind==='root'){let n=++counter.root;return '<span class="editing-radical" role="group" aria-label="Square root '+n+'"><span class="editing-root-sign" aria-hidden="true">√</span><span class="editing-radicand">'+mathEditorHTML(t.radicand,'Inside square root '+n,counter)+'</span></span>'}
+    let afterRoot=tokens[tokens.indexOf(t)-1]?.kind==='root',rootOnly=!context&&only,label=context?(context+(only?'':' part '+(++part))):(afterRoot?'After square root':rootOnly?(mathEditorHost==='simp-input'?'Next expression':mathEditorHost==='subject-input'?'Next formula':'Working for Step '+steps.length):'Equation text '+(++counter.text));
+    let placeholder=context?'□':'';
+    return '<input type="text" id="math-cell-'+t.id+'" class="math-token-input'+(context?' fraction-cell':'')+(afterRoot?' after-radical-cell':'')+(rootOnly?' single-math-cell':'')+'" data-math-token="'+t.id+'" aria-label="'+esc(label)+'" value="'+esc(t.value)+'" placeholder="'+placeholder+'" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:'+mathCellWidth(t,rootOnly)+'">';
   }).join('');
 }
 function focusMathCell(id,caret){let input=$('math-cell-'+id);if(!input)return;activeMathId=id;input.focus();let value=findMathToken(id)?.token.value||'';let pos=caret===undefined?value.length:Math.min(caret,value.length);if(input.setSelectionRange)input.setSelectionRange(pos,pos)}
 function focusMathEditor(){let first=findMathToken(activeMathId)?.token||mathLeaves().find(t=>t.value)||mathLeaves()[0];if(first)focusMathCell(first.id)}
-function clearMathError(){if(mathEditorHost==='simp-input'){simpError='';$('simp-error').classList.add('hidden');return;}freeError='';$('free-row-error').classList.add('hidden');$('free-input').removeAttribute('aria-invalid')}
-function syncMathDraft(){if(mathEditorHost==='simp-input'){simpDraft=serialiseMath(mathTree);clearMathError();return;}freeDraft=serialiseMath(mathTree);clearMathError();showFreePreview()}
+function clearMathError(){if(mathEditorHost==='simp-input'){simpError='';$('simp-error').classList.add('hidden');return}if(mathEditorHost==='subject-input'){subjectError='';$('subject-error').classList.add('hidden');$('subject-input').removeAttribute('aria-invalid');return}freeError='';$('free-row-error').classList.add('hidden');$('free-input').removeAttribute('aria-invalid')}
+function syncMathDraft(){if(mathEditorHost==='simp-input'){simpDraft=serialiseMath(mathTree);clearMathError();return}if(mathEditorHost==='subject-input'){subjectDraft=serialiseMath(mathTree);clearMathError();subjectPreview();return}freeDraft=serialiseMath(mathTree);clearMathError();showFreePreview()}
 function moveMathFocus(id,direction){let leaves=mathLeaves(),i=leaves.findIndex(t=>t.id===id),next=leaves[i+direction];if(next)focusMathCell(next.id,direction>0?0:undefined)}
 function handleMathKey(event,id){
   let input=event.currentTarget,loc=findMathToken(id);if(!loc)return;let parent=loc.ancestors.at(-1),atStart=input.selectionStart===0&&input.selectionEnd===0,atEnd=input.selectionStart===input.value.length&&input.selectionEnd===input.value.length;
-  if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(parent)moveMathFocus(id,1);else if(mathEditorHost==='simp-input')simpCheck();else checkFreeWorking();return}
+  if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(parent)moveMathFocus(id,1);else if(mathEditorHost==='simp-input')simpCheck();else if(mathEditorHost==='subject-input')subjectCheck();else checkFreeWorking();return}
   if(event.key==='ArrowDown'&&parent?.slot==='numerator'){event.preventDefault();focusMathCell(mathLeaves(parent.fraction.denominator)[0].id);return}
   if(event.key==='ArrowUp'&&parent?.slot==='denominator'){event.preventDefault();focusMathCell(mathLeaves(parent.fraction.numerator)[0].id);return}
   if(event.key==='ArrowRight'&&atEnd){let leaves=mathLeaves();if(leaves.at(-1).id!==id){event.preventDefault();moveMathFocus(id,1)}return}
   if(event.key==='ArrowLeft'&&atStart){let leaves=mathLeaves();if(leaves[0].id!==id){event.preventDefault();moveMathFocus(id,-1)}return}
-  if(event.key==='Backspace'&&atStart&&parent&&!serialiseMath(parent.fraction.numerator)&&!serialiseMath(parent.fraction.denominator)){event.preventDefault();let target=removeMathFraction(parent.fraction.id);syncMathDraft();renderMathTree(target.id,target.caret);return}
+  if(event.key==='Backspace'&&atStart&&parent?.radical&&!serialiseMath(parent.radical.radicand)){event.preventDefault();let target=removeMathRoot(parent.radical.id);syncMathDraft();renderMathTree(target.id,target.caret);return}
+  if(event.key==='Backspace'&&atStart&&parent?.fraction&&!serialiseMath(parent.fraction.numerator)&&!serialiseMath(parent.fraction.denominator)){event.preventDefault();let target=removeMathFraction(parent.fraction.id);syncMathDraft();renderMathTree(target.id,target.caret);return}
   let adjacent=event.key==='Backspace'&&atStart?loc.list[loc.index-1]:event.key==='Delete'&&atEnd?loc.list[loc.index+1]:null;
+  if(adjacent?.kind==='root'){event.preventDefault();if(!serialiseMath(adjacent.radicand)){let target=removeMathRoot(adjacent.id);syncMathDraft();renderMathTree(target.id,target.caret)}else focusMathCell(mathLeaves(adjacent.radicand)[0].id);return}
   if(adjacent?.kind==='fraction'){event.preventDefault();if(incompleteMath([adjacent])&&!serialiseMath(adjacent.numerator)&&!serialiseMath(adjacent.denominator)){let target=removeMathFraction(adjacent.id);syncMathDraft();renderMathTree(target.id,target.caret)}else focusMathCell(mathLeaves(event.key==='Backspace'?adjacent.denominator:adjacent.numerator)[0].id)}
 }
 function renderMathTree(focusId,caret){
   let editor=$(mathEditorHost);if(!editor)return;editor.innerHTML=mathEditorHTML(mathTree);
   editor.onclick=e=>{
     if(e.target.tagName==='INPUT')return;
-    const slot=e.target.closest('.math-slot'),cell=slot?.querySelector('[data-math-token]');
-    if(cell)focusMathCell(cell.dataset.mathToken);
-    else focusMathEditor();
+    const cell=e.target.closest('.math-slot,.editing-radicand')?.querySelector('[data-math-token]');
+    const last=mathLeaves().at(-1);
+    if(cell)focusMathCell(cell.dataset.mathToken);else if(last)focusMathCell(last.id);
   };
   editor.querySelectorAll('[data-math-token]').forEach(input=>{
     let id=input.dataset.mathToken;input.addEventListener('focus',()=>activeMathId=id);
     input.addEventListener('input',()=>{let loc=findMathToken(id);if(!loc)return;loc.token.value=input.value;activeMathId=id;input.style.width=mathCellWidth(loc.token,input.classList.contains('single-math-cell'));syncMathDraft()});
     input.addEventListener('keydown',e=>handleMathKey(e,id));
-    input.addEventListener('paste',e=>{let text=e.clipboardData?.getData('text/plain');if(!text||!text.includes('/')||!input.classList.contains('single-math-cell'))return;e.preventDefault();let loc=findMathToken(id),a=input.selectionStart||0,b=input.selectionEnd||a;const pasted=loc.token.value.slice(0,a)+text+loc.token.value.slice(b);if(mathEditorHost==='simp-input')simpDraft=pasted;else freeDraft=pasted;mathTree=mathTokensFromSource(pasted);clearMathError();renderMathTree();if(mathEditorHost==='free-input')showFreePreview();focusMathEditor()});
+    input.addEventListener('paste',e=>{let text=e.clipboardData?.getData('text/plain');if(!text||!text.includes('/')||!input.classList.contains('single-math-cell'))return;e.preventDefault();let loc=findMathToken(id),a=input.selectionStart||0,b=input.selectionEnd||a;let pasted=loc.token.value.slice(0,a)+text+loc.token.value.slice(b);if(mathEditorHost==='simp-input')simpDraft=pasted;else if(mathEditorHost==='subject-input')subjectDraft=pasted;else freeDraft=pasted;mathTree=mathTokensFromSource(pasted);clearMathError();renderMathTree();if(mathEditorHost==='subject-input')subjectPreview();else if(mathEditorHost!=='simp-input')showFreePreview();focusMathEditor()});
   });
   if(focusId)focusMathCell(focusId,caret);
 }
-function initialiseMathEditor(source,editor='free-input'){mathEditorHost=editor;mathTree=mathTokensFromSource(source);activeMathId=(mathLeaves().find(t=>t.value)||mathLeaves()[0])?.id||null;renderMathTree()}
+function initialiseMathEditor(source,host='free-input'){mathEditorHost=host;mathTree=mathTokensFromSource(source);activeMathId=(mathLeaves().find(t=>t.value)||mathLeaves()[0])?.id||null;renderMathTree()}
 function squareMathTerm(value,start,end){
   let position=end;
   while(position>0&&/\s/.test(value[position-1]))position--;
-  if(!position||!/[0-9xX)\u00b2]/.test(value[position-1]))throw Error('Write a term first, then press the square symbol.');
+  if(!position||!/[0-9a-dxyX)\u00b2]/.test(value[position-1]))throw Error('Write a term first, then press the square symbol.');
   if(value[position-1]==='²'||value.slice(position-2,position)==='^2')throw Error('This term is already squared. Add your own brackets if you want to square the whole expression again.');
   return {value:value.slice(0,position)+'²'+value.slice(position),caret:position+1};
 }
@@ -702,7 +771,8 @@ function insertMathNotation(kind){
   let loc=findMathToken(activeMathId)||findMathToken(mathLeaves().at(-1)?.id);if(!loc||loc.token.kind!=='text')return;
   let input=$('math-cell-'+loc.token.id),start=input?.selectionStart??loc.token.value.length,end=input?.selectionEnd??start,target,caret;
   if(kind==='fraction'){target=insertMathFractionAt(loc.token.id,start,end);caret=0}
-  else if(kind==='square'){try{let result=squareMathTerm(loc.token.value,start,end);loc.token.value=result.value;target=loc.token.id;caret=result.caret}catch(e){if(mathEditorHost==='simp-input')simpShowError(e);else feedback('warn','Choose a term to square.',e.message);return}}
+  else if(kind==='root'){target=insertMathRootAt(loc.token.id,start,end);caret=0}
+  else if(kind==='square'){try{let result=squareMathTerm(loc.token.value,start,end);loc.token.value=result.value;target=loc.token.id;caret=result.caret}catch(e){if(mathEditorHost==='subject-input'){$('subject-error').textContent=e.message;$('subject-error').classList.remove('hidden')}else if(mathEditorHost==='simp-input')simpShowError(e);else feedback('warn','Choose a term to square.',e.message);return}}
   else{let selected=loc.token.value.slice(start,end),text=kind==='brackets'?'('+selected+')':'±';loc.token.value=loc.token.value.slice(0,start)+text+loc.token.value.slice(end);target=loc.token.id;caret=start+(kind==='plusminus'?1:selected?text.length:1)}
   syncMathDraft();renderMathTree(target,caret);
 }
@@ -819,7 +889,7 @@ function feedback(kind,title,description){$('feedback').className='feedback '+ki
 function finalCandidates(){let c=current();if(!isolated(c.left,c.right))return [];return variants(same(c.left,VX)?c.right:c.left)}
 function finalValid(){let a=finalCandidates();return a.length===expected.length&&expected.every(x=>a.some(v=>veq(v,val(fc(x)))))}
 function domainText(){let excluded=[],other=[];for(let r of restrictions){if(r.value.constant())continue;if(r.type==='nonzero'){try{for(let x of polynomialRoots(r.value.n))if(!excluded.some(v=>v.eq(x)))excluded.push(x)}catch{other.push(fText(r.value)+' ≠ 0')}}else{let p=r.value.n;if(p.length===2&&r.value.d.length===1){let boundary=p[0].neg().div(p[1]);other.push('x '+(p[1].n>0n?'≥':'≤')+' '+boundary.str())}else other.push(fText(r.value)+' ≥ 0')}}return [...(excluded.length?['x ≠ '+excluded.map(v=>v.str()).join(', ')]:[]),...new Set(other)].join(' · ')}
-function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent='Non-fractional · I’ll write the working';$('difficulty-note').textContent=notes[family][difficulty-1];$('history-count').textContent=steps.length-1+' balanced step'+(steps.length===2?'':'s');$('history').innerHTML=steps.map((s,i)=>'<div class="history-row"><span class="step-number">'+i+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join('');lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
+function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · '+(mode==='auto'?'Calculate for me':'I’ll write the working');$('difficulty-note').textContent=notes[family][difficulty-1];$('history-count').textContent=steps.length-1+' balanced step'+(steps.length===2?'':'s');$('history').innerHTML=steps.map((s,i)=>'<div class="history-row"><span class="step-number">'+i+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join('');lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
 function cleanInputs(){freeDraft='';freeError='';for(let side of ['left','right']){$(side+'-value').value='';$('work-'+side).value=''}$('hint').classList.add('hidden')}
 function start(l,r,custom=false){let ld=parseDetail(l),rd=parseDetail(r),rules=[...ld.rules,...rd.rules],answers=solveEquation(ld.value,rd.value,rules);if(!answers.length)throw Error('Choose an equation with at least one real solution.');if(answers.length>2)throw Error('Use an equation with at most two answers.');restrictions=rules;expected=answers;initial={left:ld.value,right:rd.value,leftText:l,rightText:r,note:'Starting equation',hasSquare:/\^2|²/.test(l+r),hasRoot:/sqrt|√/.test(l+r)};steps=[initial];pending=null;counted=false;isCustom=custom;cleanInputs();resetOperators();feedback('','A balanced beginning.',mode==='auto'?'Choose an operation and a value on either side to take your first step.':'Choose matching operations for both sides. Then type the next line yourself.');if(isFreeWorking())feedback('','Choose your own method.',family==='whole'?'Enter your next complete equation and press Check.':'Simplify the fractions, combine them, or clear the denominators. Enter your next equation and press Check.');render();if(isolated(initial.left,initial.right)&&!(missionTotal&&family==='fraction'))complete()}
 function rand(a,b){return a+Math.floor(Math.random()*(b-a+1))}
@@ -927,8 +997,16 @@ mount.checkFractionExpression=(source,question)=>{
   let simplified=false;
   if(node.kind==='/'){
     const top=fractionUngroup(node.left),bottom=fractionUngroup(node.right);
-    const factored=['implicit','*'].includes(bottom.kind)&&[bottom.left,bottom.right].every(part=>
-      collectedPolynomial(part)&&part.v.p.n.length===2);
+    const factors=[];
+    function collectFactors(part){
+      part=fractionUngroup(part);
+      if(['implicit','*'].includes(part.kind)){collectFactors(part.left);collectFactors(part.right);}
+      else factors.push(part);
+    }
+    collectFactors(bottom);
+    const linear=factors.filter(part=>collectedPolynomial(part)&&part.v.p.n.length===2).length;
+    const scalar=factors.filter(part=>fractionDegree(part)===0).length;
+    const factored=factors.length>1&&linear>=1&&linear<=2&&scalar<=1&&linear+scalar===factors.length;
     const np=top.v.p.n,dp=bottom.v.p.n,denSign=dp.at(-1).n<0n?-1n:1n;
     const matches=(actual,expected,factor)=>actual.length<=expected.length&&expected.every((n,i)=>(actual[i]||Z).eq(q(n*factor)));
     simplified=collectedPolynomial(top)&&(collectedPolynomial(bottom)||factored)
@@ -1014,7 +1092,7 @@ mount.openFractionMission=(source,position,total,hints,next,solved)=>{
   simpLines=saved?.lines||[];simpPath=saved?.path||null;simpDraft=saved?.draft||'';
   simpFactors=saved?.factors||['','','',''];simpReported=saved?.reported||false;simpError='';
   $('simp-remember').hidden=!hints;
-  $('simplify-main').classList.remove('hidden');$('equation-main').classList.add('hidden');
+  $('simplify-main').classList.remove('hidden');$('equation-main').classList.add('hidden');$('subject-main').classList.add('hidden');
   simpRender();
 };
 mount.setFractionMissionBusy=(busy)=>{simpBusy=busy;$('simp-next').disabled=busy||simpPosition>=simpTotal;lab.querySelectorAll('[data-simp-edit]').forEach(b=>b.disabled=busy);};
@@ -1037,7 +1115,14 @@ function simpEquivalent(source){
 function simpCheckFactors(){try{let q=simpQuestion;for(let i=0;i<2;i++){let target=q.multipliers[i];if(target==='1')continue;let a=simpFactors[i*2].trim(),b=simpFactors[i*2+1].trim();if(!a||!b)throw Error('Enter the factor above and below the fraction line.');if(!same(parse(a),parse(b))||!same(parse(a),parse(target)))throw Error('Multiply the numerator and denominator by the same missing factor.');}
   simpLines.push({kind:'multiply',factors:simpFactors.slice()});simpError='';simpFactors=['','','',''];simpRender();
 }catch(e){simpShowError(e)}}
-function simpCheck(){try{if(incompleteMath(mathTree))throw Error('Complete every numerator and denominator.');let source=simpDraft.trim(),stage=simpStage(),detail=simpEquivalent(source),parts=simpParts(detail.ast),q=simpQuestion;
+function simpCheck(){try{let stage=simpStage(),q=simpQuestion,source=simpDraft.trim(),factor;
+  if(stage==='factor'){
+    factor=source.toLowerCase().replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/[×·⋅]/g,'*');
+    if(!factor)throw Error('Enter the factorised denominator.');
+    if(!/^[x0-9()+*^\s-]+$/.test(factor)||/\d\s+\d/.test(factor))throw Error('Use brackets and multiplication to write the factors of the denominator.');
+    source=q.terms.map((t,i)=>'('+t[0]+')/('+(i===q.factorIndex?factor:t[1])+')').join(' '+q.op+' ');
+  }else if(incompleteMath(mathTree))throw Error('Complete every numerator and denominator.');
+  let detail=simpEquivalent(source),parts=simpParts(detail.ast);
   if(stage==='factor'){
     const i=q.factorIndex,j=1-i;
     if(detail.ast.kind!==q.op||parts.length!==2||parts[i].kind!=='/'||!simpFactorTree(parts[i].right))
@@ -1054,10 +1139,10 @@ function simpCheck(){try{if(incompleteMath(mathTree))throw Error('Complete every
     }
   }
   if(stage==='combine'&&(parts.length!==1||parts[0].kind!=='/')&&!mount.checkFractionExpression(source,q.data).simplified)throw Error('Combine the terms into one fraction. Use brackets when subtracting numerators.');
-  simpLines.push({kind:stage==='factor'?'factor':'expression',text:source});simpDraft='';simpError='';simpRender();
+  simpLines.push({kind:stage==='factor'?'factor':'expression',text:source,factor});simpDraft='';simpError='';simpRender();
   if(simpIsDone()&&!simpReported){simpReported=true;simpSaveState();simpSolved?.(q.data.x);}
-}catch(e){simpShowError(e);focusMathEditor();}}
-function simpEdit(index){if(simpBusy)return;let line=simpLines[index];simpLines=simpLines.slice(0,index);if(line.kind==='multiply')simpFactors=line.factors.slice();else simpDraft=line.text;simpError='';simpRender()}
+}catch(e){simpShowError(e);if(simpStage()==='factor')$('simp-factor-denominator').focus();else focusMathEditor();}}
+function simpEdit(index){if(simpBusy)return;let line=simpLines[index];simpLines=simpLines.slice(0,index);if(line.kind==='multiply')simpFactors=line.factors.slice();else simpDraft=line.factor??line.text;simpError='';simpRender()}
 function simpCompletionIssue(source){
   let ast=simpAst(source);if(mount.checkFractionExpression(source,simpQuestion.data).simplified)return null;
   if(ast.kind!=='/')return 'Combine the terms into one fraction.';
@@ -1073,7 +1158,14 @@ function simpCompletionIssue(source){
   return 'Write the numerator and denominator in simplified form.';
 }
 function simpIsDone(){return simpStage()==='combine'&&simpLines.some(line=>line.kind==='expression')&&!simpCompletionIssue(simpCurrent())}
-function simpFactorMarkup(factors,editable){let q=simpQuestion;return '<div class="simp-multipliers">'+q.terms.map((t,i)=>{let den=i===q.factorIndex&&simpPath==='yes'?q.factored:t[1],base=math('('+t[0]+')/('+den+')'),target=q.multipliers[i];if(target==='1')return '<span class="simp-term">'+base+'</span>';let size=Math.min(32,Math.max(5,(factors[i*2]||'').length,(factors[i*2+1]||'').length)+2);return '<span class="simp-term"><span>'+base+'</span> × <span class="simp-mini-frac" style="--factor-ch:'+size+'ch">'+[0,1].map(j=>editable?'<input data-simp-factor="'+(i*2+j)+'" aria-label="'+(j?'Denominator':'Numerator')+' multiplier for fraction '+(i+1)+'" value="'+esc(factors[i*2+j]||'')+'" autocomplete="off">':'<span>'+math(factors[i*2+j])+'</span>').join('')+'</span></span>'}).join('<span class="simp-op">'+q.op+'</span>')+'</div>'}
+function simpFactorMarkup(factors,editable){let q=simpQuestion;return '<div class="simp-multipliers">'+q.terms.map((t,i)=>{let den=i===q.factorIndex&&simpPath==='yes'?(simpLines[0]?.factor||q.factored):t[1],base=math('('+t[0]+')/('+den+')'),target=q.multipliers[i];if(target==='1')return '<span class="simp-term">'+base+'</span>';let size=Math.min(32,Math.max(5,(factors[i*2]||'').length,(factors[i*2+1]||'').length)+2);return '<span class="simp-term"><span>'+base+'</span> × <span class="simp-mini-frac" style="--factor-ch:'+size+'ch">'+[0,1].map(j=>editable?'<input data-simp-factor="'+(i*2+j)+'" aria-label="'+(j?'Denominator':'Numerator')+' multiplier for fraction '+(i+1)+'" value="'+esc(factors[i*2+j]||'')+'" autocomplete="off">':'<span>'+math(factors[i*2+j])+'</span>').join('')+'</span></span>'}).join('<span class="simp-op">'+q.op+'</span>')+'</div>'}
+function simpDenominatorMarkup(){
+  const q=simpQuestion;
+  return '<div class="simp-multipliers simp-denominator-entry">'+q.terms.map((t,i)=>i===q.factorIndex
+    ?'<span class="frac simp-prefilled-frac"><span>'+math(t[0])+'</span><span><input id="simp-factor-denominator" aria-label="Factorised denominator for fraction '+(i+1)+'" value="'+esc(simpDraft)+'" placeholder="Factorise here" maxlength="70" autocomplete="off" spellcheck="false" autocapitalize="none"></span></span>'
+    :'<span class="simp-term">'+math('('+t[0]+')/('+t[1]+')')+'</span>'
+  ).join('<span class="simp-op">'+q.op+'</span>')+'</div>';
+}
 function simpWorkline(number,left,right,action='',extra=''){return '<div class="simp-workline"><span class="free-step">Step '+number+'</span><span class="simp-left working-math">'+math(left)+'</span><span class="simp-equal">=</span><div class="simp-right">'+right+extra+'</div>'+action+'</div>'}
 function simpRender(){
   const q=simpQuestion,stage=simpStage(),done=simpIsDone(),level=Number(q.data.type.at(-1));
@@ -1086,16 +1178,124 @@ function simpRender(){
   let rows=simpLines.map((line,i)=>{let right=line.kind==='multiply'?simpFactorMarkup(line.factors,false):'<span class="working-math">'+math(line.text)+'</span>';return simpWorkline(i+1,line.kind==='multiply'&&simpPath==='yes'?simpLines[0].text:simpOriginal,right,'<button class="free-edit" data-simp-edit="'+i+'" aria-label="Edit fraction step '+(i+1)+'">Edit</button>','<span class="checked-label">✓ Checked</span>')}).join('');
   let instructions={choose:'Step 1 · Can a denominator be factorised for the common denominator?',factor:'Step 1 · Factorise the '+(q.factorIndex?'second':'first')+' denominator.',multiply:'Step '+(simpLines.length+1)+' · Enter the missing factor above and below each fraction.',rewrite:'Step '+(simpLines.length+1)+' · Rewrite with a common denominator, or combine directly.',combine:'Step '+(simpLines.length+1)+' · '+(simpLines.at(-1)?.kind==='expression'?simpCompletionIssue(simpCurrent())||'Simplify the fraction fully.':'Combine and simplify into one fraction.')};
   let choices=stage==='choose'?'<div class="simp-choice"><button data-simp-choice="yes">Yes</button><button data-simp-choice="no">No</button></div>':'';
-  let draft=done?'<div class="free-finished">✓ Simplified to one equivalent fraction. Remember the original denominator restrictions.</div>':stage==='choose'?choices:stage==='multiply'?simpWorkline(simpLines.length+1,simpPath==='yes'?simpCurrent():simpOriginal,simpFactorMarkup(simpFactors,true),'<button id="simp-factor-check" class="free-check">Check</button>'):simpWorkline(simpLines.length+1,simpOriginal,'<div id="simp-input" class="structured-math-editor" role="group" aria-label="Next expression"></div><div class="simp-tools" role="group" aria-label="Insert notation"><button data-simp-insert="fraction" aria-label="Insert fraction"><span class="frac"><span>□</span><span>□</span></span></button><button data-simp-insert="brackets" aria-label="Insert brackets">( )</button><button data-simp-insert="square" aria-label="Square current term">x²</button></div>','<button id="simp-check" class="free-check">Check</button>');
+  let draft=done?'<div class="free-finished">✓ Simplified to one equivalent fraction. Remember the original denominator restrictions.</div>':stage==='choose'?choices:stage==='multiply'?simpWorkline(simpLines.length+1,simpPath==='yes'?simpCurrent():simpOriginal,simpFactorMarkup(simpFactors,true),'<button id="simp-factor-check" class="free-check">Check</button>'):stage==='factor'?simpWorkline(1,simpOriginal,simpDenominatorMarkup(),'<button id="simp-check" class="free-check">Check</button>'):simpWorkline(simpLines.length+1,simpOriginal,'<div id="simp-input" class="structured-math-editor" role="group" aria-label="Next expression"></div><div class="simp-tools" role="group" aria-label="Insert notation"><button data-simp-insert="fraction" aria-label="Insert fraction"><span class="frac"><span>□</span><span>□</span></span></button><button data-simp-insert="brackets" aria-label="Insert brackets">( )</button><button data-simp-insert="square" aria-label="Square current term">x²</button></div>','<button id="simp-check" class="free-check">Check</button>');
   $('simp-instructions').textContent=done?'Complete':instructions[stage];$('simp-steps').innerHTML=rows+draft;$('simp-error').textContent=simpError;$('simp-error').classList.toggle('hidden',!simpError);
   lab.querySelectorAll('[data-simp-choice]').forEach(b=>b.onclick=()=>simpSelect(b.dataset.simpChoice));lab.querySelectorAll('[data-simp-edit]').forEach(b=>b.onclick=()=>simpEdit(+b.dataset.simpEdit));
   if(!done&&stage==='multiply'){lab.querySelectorAll('[data-simp-factor]').forEach(input=>{let i=+input.dataset.simpFactor;input.oninput=()=>{simpFactors[i]=input.value;let width=Math.min(32,Math.max(5,simpFactors[i-i%2].length,simpFactors[i-i%2+1].length)+2);input.parentElement.style.setProperty('--factor-ch',width+'ch')}});$('simp-factor-check').onclick=simpCheckFactors}
-  if(!done&&['factor','rewrite','combine'].includes(stage)){initialiseMathEditor(simpDraft,'simp-input');lab.querySelectorAll('[data-simp-insert]').forEach(b=>b.onclick=()=>insertMathNotation(b.dataset.simpInsert));$('simp-check').onclick=simpCheck}
+  if(!done&&stage==='factor'){
+    const input=$('simp-factor-denominator');
+    input.oninput=()=>{simpDraft=input.value;};
+    input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();simpCheck();}};
+    $('simp-check').onclick=simpCheck;
+  }
+  if(!done&&['rewrite','combine'].includes(stage)){initialiseMathEditor(simpDraft,'simp-input');lab.querySelectorAll('[data-simp-insert]').forEach(b=>b.onclick=()=>insertMathNotation(b.dataset.simpInsert));$('simp-check').onclick=simpCheck}
   $('simp-next').onclick=simpNext;
   if(simpBusy)lab.querySelectorAll('[data-simp-edit]').forEach(b=>b.disabled=true);
 }
 
-mount.openMissionEquation=(equation, position, total, showHint, next, onSolved)=>{
+const subjectDescriptions=['One operation: addition, subtraction, multiplication or division.','Two operations with x in a linear formula.','Brackets and fractions with x in the numerator.','x in more than one term: collect and factor.','x in a denominator: cross multiply and collect.','A square or a square root; check branches and domain.','Squares and roots combined with brackets, fractions and other operations.'];
+const subjectCatalog=window.AlgebraTownSubjectCatalog;
+const subjectWork=new Map();
+let subjectLevel=1,subjectQuestion='',subjectGuide='',subjectDomain='',subjectRows=[],subjectDraft='',subjectError='',subjectSolved=0,subjectDone=false,subjectMode='manual',subjectAutoSteps=[];
+let subjectPosition=0,subjectTotal=0,subjectBusy=false,subjectReported=false,subjectSolvedCallback;
+function redundantOperation(s){return /(?:\+0(?!\d)|-0(?!\d)|\*1(?!\d)|\/1(?!\d)|0\+|1\*)/.test(normaliseWritten(s))}
+
+function subjectSignature(samples, answer){
+  return samples.map(sample=>sample.values.y.str()+':'+(answer?subjectSolve(answer,sample.values):sample.expected).map(r=>r.str()).sort().join(',')).join(';');
+}
+function subjectAutoChoose(action){if(subjectBusy)return;let next=subjectAutoSteps[subjectRows.length];if(action!==next[0]){subjectError='This step needs “'+next[0]+'”. Choose that operation to continue.';subjectRender();return}try{let final=subjectCheckLine(next[1]);subjectRows.push(next[1]);subjectError='';subjectDone=final;if(final)subjectSolved++;subjectRender();if(final)reportSubject(next[1])}catch(e){subjectError=e.message;subjectRender()}}
+function subjectAutoControls(){let next=subjectAutoSteps[subjectRows.length],other=['Subtract the constant','Multiply both sides','Divide both sides','Expand and collect x terms','Cross multiply','Square both sides','Take both square roots'].filter(a=>a!==next[0]),choices=[other[0],other[1]];choices.splice((subjectRows.length+subjectLevel)%3,0,next[0]);return '<div class="guided-control"><p>Choose an operation. The next equivalent formula will be calculated for you.</p><div class="guided-options">'+choices.map((a,i)=>'<button class="secondary" data-subject-auto="'+i+'">'+esc(a)+'</button>').join('')+'</div></div>'}
+function subjectSubstitute(text,values){return text.replace(/[abcdy]/g,ch=>values[ch]===undefined?ch:'('+values[ch].str()+')')}
+function subjectValueAt(v,x){let out=v.p.at(x);if(v.rad){let root=sqrtQ(v.rad.at(x));if(!root)throw Error('The sampled square root is not rational.');out=out.add(v.t.at(x).mul(root))}return out}
+function subjectSamples(){let samples=[];for(let i=0;i<110&&samples.length<18;i++){
+  let params={a:q(2+i%6),b:q((i*3)%11-5),c:q(2+(i*5)%7),d:q((i*7)%13-6)},t=q(1+i%7),x=q((i*11)%17-8),formula=subjectQuestion.split('=')[1];
+  try{let evaluated=parseDetail(subjectSubstitute(formula,params));if(evaluated.value.rad){let rad=evaluated.value.rad;if(rad.n.length!==2||rad.d.length!==1)continue;x=t.mul(t).mul(rad.d[0]).sub(rad.n[0]).div(rad.n[1])}
+    if(!permitted(x,evaluated.rules))continue;let y=subjectValueAt(evaluated.value,x);let values={...params,y};let expected=subjectSolve(subjectQuestion,values);if(!expected.length||expected.length>2||!expected.some(v=>v.eq(x)))continue;
+    // Avoid parameter choices where a rearrangement loses its unique coefficient.
+    if(expected.length===1&&subjectQuestion.includes('ax+b(x-c)')&&params.a.add(params.b).zero())continue;
+    samples.push({values,expected});
+  }catch{}
+ }if(samples.length<12)throw Error('Could not validate this formula. Choose a new one.');return samples}
+function subjectBranches(text){let parts=text.split(/\s+or\s+/i);let out=[];for(let part of parts){if(part.includes('±')){if((part.match(/±/g)||[]).length!==1)throw Error('Use one ± per branch, or write two equations joined by “or”.');out.push(part.replace('±','+'),part.replace('±','-'))}else out.push(part)}return out}
+function subjectSolve(text,values){let roots=[];for(let branch of subjectBranches(text)){
+  let halves=branch.split('=');if(halves.length!==2)throw Error('Write a complete equation with one equals sign. Use “or” between two answers.');
+  let left=parseDetail(subjectSubstitute(halves[0],values)),right=parseDetail(subjectSubstitute(halves[1],values));
+  for(let root of solveEquation(left.value,right.value,[...left.rules,...right.rules]))if(!roots.some(v=>v.eq(root)))roots.push(root);
+}return roots}
+function subjectCheckLine(text,samples=subjectSamples()){
+  text=String(text).trim();if(!text)throw Error('Write the next equation before checking.');if(text.length>300)throw Error('Use one short rearrangement per step.');
+  if(!/^[a-dxy0-9=+\-*/^().,\s±√²]+$/.test(text.replace(/sqrt|\sor\s/gi,'')))throw Error('Use x, y, a–d, numbers, operations, brackets, sqrt and ±.');
+  let branches=subjectBranches(text),halves=branches.map(s=>s.split('=').map(v=>v.trim()));if(halves.some(v=>v.length!==2||!v[0]||!v[1]))throw Error('Write a complete equation, such as x = (y-b)/a.');
+  let final=halves.every(v=>v[0]==='x'&&!/[xX]/.test(v[1])||v[1]==='x'&&!/[xX]/.test(v[0]));
+  if(normaliseWritten(text)===normaliseWritten(subjectRows.at(-1)||subjectQuestion))throw Error('This repeats the previous line. Show the next rearrangement.');
+  for(let sample of samples){let roots;try{roots=subjectSolve(text,sample.values)}catch(e){if(e.message.includes('finite set'))throw Error('This line loses the condition on x. Check what was cancelled.');throw Error('Check your signs, brackets, denominators and square roots. '+e.message)}
+    if(roots.length!==sample.expected.length||roots.some(r=>!sample.expected.some(v=>v.eq(r))))throw Error(sample.expected.length===2&&roots.length===1?'One square-root branch is missing. Add ± before the root or write both solutions joined by “or”.':'This line changes the possible values of x. Check each operation and the original restrictions.');
+  }
+  if(final&&redundantOperation(text))throw Error('This answer is equivalent but unsimplified. Remove the zero term or operation by 1.');
+  return final;
+}
+function subjectCheck(){try{if(incompleteMath(mathTree))throw Error('Type an expression inside every square root and complete each fraction.');let final=subjectCheckLine(subjectDraft);subjectRows.push(subjectDraft.trim());subjectDraft='';subjectError='';subjectDone=final;if(final)subjectSolved++;subjectRender();if(final)reportSubject(subjectRows.at(-1));else focusMathEditor()}catch(e){subjectError=e.message;if($('subject-error')){$('subject-error').textContent=subjectError;$('subject-error').classList.remove('hidden');$('subject-input').setAttribute('aria-invalid','true')}}}
+function subjectEdit(index){subjectDraft=subjectRows[index];subjectRows=subjectRows.slice(0,index);if(subjectDone)subjectSolved--;subjectDone=false;subjectError='';subjectRender();focusMathEditor()}
+function subjectAst(text){let s=String(text).replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/√/g,'sqrt').replace(/×/g,'*').replace(/÷/g,'/').replace(/\s+/g,'');let tok=s.match(/sqrt|\d+(?:\.\d+)?|[a-dxy()+\-*/^]/g);if(!tok||tok.join('')!==s)throw Error('Incomplete');let i=0;
+  function expr(){let n=term();while(tok[i]==='+'||tok[i]==='-'){let op=tok[i++],r=term();n={op,left:n,right:r}}return n}
+  function term(){let n=unary();while(tok[i]==='*'||tok[i]==='/'||tok[i]==='('||tok[i]==='sqrt'||/^[a-dxy]$/.test(tok[i]||'')){let op=tok[i]==='*'||tok[i]==='/'?tok[i++]:'implicit',r=unary();n={op,left:n,right:r}}return n}
+  function unary(){if(tok[i]==='+'||tok[i]==='-'){let op=tok[i++];return op==='+'?unary():{op:'neg',left:unary()}}return power()}
+  function power(){let n=atom();if(tok[i]==='^'){i++;if(tok[i++]!=='2')throw Error('Only squares');n={op:'square',left:n}}return n}
+  function atom(){if(tok[i]==='('){i++;let n=expr();if(tok[i++]!==')')throw Error('Brackets');return {op:'group',left:n}}if(tok[i]==='sqrt'){i++;return {op:'sqrt',left:atom()}}let t=tok[i++];if(!t||!(/^[a-dxy]$/.test(t)||/^\d/.test(t)))throw Error('Incomplete');return {op:/^[a-dxy]$/.test(t)?'var':'number',text:t}}
+  let n=expr();if(i!==tok.length)throw Error('Incomplete');return n
+}
+function subjectNode(n){switch(n.op){case 'var':return '<var>'+n.text+'</var>';case 'number':return esc(n.text);case 'group':return '('+subjectNode(n.left)+')';case 'neg':return '−'+subjectNode(n.left);case 'square':return subjectNode(n.left)+'<sup>2</sup>';case 'sqrt':{let inner=n.left.op==='group'?n.left.left:n.left;return '<span class="radical"><span class="root-sign">√</span><span class="radicand">'+subjectNode(inner)+'</span></span>'}case '/':return fractionHTML(subjectNode(n.left.op==='group'?n.left.left:n.left),subjectNode(n.right.op==='group'?n.right.left:n.right));case 'implicit':return subjectNode(n.left)+subjectNode(n.right);case '*':return subjectNode(n.left)+' × '+subjectNode(n.right);default:return subjectNode(n.left)+(n.op==='+'?' + ':' − ')+subjectNode(n.right)}}
+function subjectMath(text){try{return String(text).split(/\s+or\s+/i).map(part=>part.split('=').map(s=>{let pieces=s.trim().split('±');return pieces.map(p=>p?subjectNode(subjectAst(p)):'').join(' ± ')}).join(' <span class="working-equals">=</span> ')).join(' <span class="or-word">or</span> ')}catch{return esc(text)}}
+function subjectPreview(){let node=$('subject-preview');if(node)node.innerHTML=subjectDraft.trim()?'<span class="preview-label">Preview</span><span class="working-math">'+subjectMath(subjectDraft)+'</span>':'<span class="preview-placeholder">Write a complete equation, then press Check.</span>'}
+function subjectRender(){let done=subjectDone;
+  $('subject-levels').innerHTML=Array.from({length:7},(_,i)=>'<button data-subject-level="'+(i+1)+'" class="'+(subjectLevel===i+1?'active':'')+'" aria-pressed="'+(subjectLevel===i+1)+'">Level '+(i+1)+'</button>').join('');lab.querySelectorAll('[data-subject-level]').forEach(b=>b.disabled=true);
+  lab.querySelectorAll('[data-subject-mode]').forEach(b=>{let active=b.dataset.subjectMode===subjectMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active);b.disabled=true});
+  $('subject-description').textContent=subjectDescriptions[subjectLevel-1];$('subject-question').innerHTML=subjectMath(subjectQuestion);$('subject-condition').textContent=subjectDomain;$('subject-guidance-text').textContent=subjectMode==='auto'?'Choose an operation for each step. The equivalent formula is calculated for you.':'Write a complete equation on each line. A direct correct answer is welcome.';
+  $('subject-count').textContent='Question '+subjectPosition+' of '+subjectTotal;let rows=subjectRows.map((line,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ '+(subjectMode==='auto'?'Calculated':'Checked')+'</span></span><div class="accepted-working working-math">'+subjectMath(line)+'</div>'+(subjectMode==='manual'?'<button class="free-edit" data-subject-edit="'+i+'" aria-label="Edit Step '+(i+1)+'">Edit</button>':'')+'</div>').join('');
+  if(done)rows+='<div class="free-finished">✓ x is the subject. Check the stated restrictions when using the formula.</div>';
+  else if(subjectMode==='auto')rows+='<div class="free-row draft-row"><span class="free-step">Step '+(subjectRows.length+1)+'</span><div>'+subjectAutoControls()+'<p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div></div>';
+  else rows+='<div class="free-row draft-row"><span class="free-step">Step '+(subjectRows.length+1)+'</span><div class="free-editor"><div id="subject-input" class="structured-math-editor" role="group" aria-label="Working space for Step '+(subjectRows.length+1)+'"></div><div id="subject-preview" class="free-preview"></div><p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div><button id="subject-check" class="free-check">Check</button></div>';
+  $('subject-rows').innerHTML=rows;lab.querySelectorAll('[data-subject-edit]').forEach(b=>b.onclick=()=>subjectEdit(+b.dataset.subjectEdit));
+  $('subject-next').disabled=subjectBusy||subjectPosition>=subjectTotal;
+  $('subject-restart').disabled=subjectBusy;
+  $('subject-tools').classList.toggle('hidden',!!done||subjectMode==='auto');$('subject-tip').classList.toggle('hidden',subjectMode==='auto');$('subject-hint').classList.add('hidden');if(!done&&subjectMode==='manual'){initialiseMathEditor(subjectDraft,'subject-input');subjectPreview();$('subject-check').onclick=subjectCheck}if(!done&&subjectMode==='auto')lab.querySelectorAll('[data-subject-auto]').forEach(b=>b.onclick=()=>{let actions=[...lab.querySelectorAll('[data-subject-auto]')].map(n=>n.textContent);subjectAutoChoose(actions[+b.dataset.subjectAuto])})
+}
+
+function reportSubject(answer){
+  if(!subjectSolvedCallback||subjectReported)return;
+  const proof=subjectSignature(subjectSamples(),answer);
+  subjectReported=true;subjectSolvedCallback(proof);
+}
+function saveSubjectWork(){
+  if(subjectPosition)subjectWork.set(subjectPosition,{rows:subjectRows.slice(),draft:subjectDraft,done:subjectDone,reported:subjectReported});
+}
+mount.resetSubjectMission=()=>{subjectWork.clear();subjectPosition=0;};
+mount.subjectQuestions=type=>subjectCatalog.filter(q=>q.type===type);
+mount.formatSubjectFormula=subjectMath;
+mount.openSubjectMission=(question,position,total,showHint,next,onSolved,mode)=>{
+  saveSubjectWork();
+  const item=subjectCatalog.find(q=>q.eq===question.eq&&q.type===question.type);
+  if(!item)throw Error('This formula is unavailable. Refresh the mission and try again.');
+  subjectPosition=position;subjectTotal=total;subjectBusy=false;
+  subjectLevel=Number(item.type.at(-1));subjectQuestion=item.eq;subjectGuide=item.guide;subjectDomain=item.domain;
+  subjectAutoSteps=item.steps;subjectMode=mode==='guided'?'auto':'manual';subjectSolvedCallback=onSolved;
+  const saved=subjectWork.get(position);
+  subjectRows=saved?.rows||[];subjectDraft=saved?.draft||'';subjectDone=saved?.done||false;subjectReported=saved?.reported||false;subjectError='';
+  $('equation-main').classList.add('hidden');$('simplify-main').classList.add('hidden');$('subject-main').classList.remove('hidden');
+  $('subject-next').textContent='Next question →';$('subject-next').setAttribute('aria-label','Next question');$('subject-next').onclick=next;
+  $('subject-hint-btn').hidden=!showHint;
+  subjectRender();
+};
+mount.setSubjectMissionBusy=busy=>{
+  subjectBusy=busy;$('subject-next').disabled=busy||subjectPosition>=subjectTotal;$('subject-restart').disabled=busy;
+  lab.querySelectorAll('[data-subject-edit]').forEach(b=>b.disabled=busy);
+};
+lab.querySelectorAll('[data-subject-insert]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>insertMathNotation(b.dataset.subjectInsert)});
+$('subject-restart').onclick=()=>{if(subjectBusy)return;subjectRows=[];subjectDraft='';subjectError='';subjectDone=false;subjectRender()};
+$('subject-hint-btn').onclick=()=>{$('subject-hint').textContent=subjectError||(subjectMode==='auto'?subjectAutoSteps[subjectRows.length]?.[0]||subjectGuide:subjectGuide);$('subject-hint').classList.remove('hidden')};
+
+mount.openMissionEquation=(equation, position, total, showHint, next, onSolved, workingMode)=>{
+  $('subject-main').classList.add('hidden');
   $('simplify-main').classList.add('hidden');$('equation-main').classList.remove('hidden');
   reportSolved=onSolved;
   const [left,right]=equation.replaceAll('−','-').split('=').map(s=>s.trim());
@@ -1104,9 +1304,9 @@ mount.openMissionEquation=(equation, position, total, showHint, next, onSolved)=
   solved=0;
   family=equation.includes('/')?'fraction':'whole';
   difficulty=1;
-  mode='manual';
+  mode=workingMode==='guided'?'auto':'manual';
   start(left,right,true);
-  $('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · I’ll write the working';
+  $('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · '+(mode==='auto'?'Calculate for me':'I’ll write the working');
   $('solved-count').textContent='Question '+position+' of '+total;
   $('hint-btn').hidden=!showHint;
   $('next').textContent='Next question →';
@@ -1129,8 +1329,10 @@ mount.setMissionBusy=(busy,last)=>{
     'fraction-one':'Fraction and whole number','fraction-numerator':'Bracketed numerator',
     'fraction-both':'Fractions on both sides','fraction-denominator':'Unknown in denominator',
      'expand-single':'Single bracket','expand-double':'Two brackets','expand-square':'Squared bracket',
-    'rational-1':'Level 1','rational-2':'Level 2','rational-3':'Level 3','rational-4':'Level 4','rational-5':'Level 5'};
+    'rational-1':'Level 1','rational-2':'Level 2','rational-3':'Level 3','rational-4':'Level 4','rational-5':'Level 5','subject-1':'Level 1','subject-2':'Level 2','subject-3':'Level 3','subject-4':'Level 4','subject-5':'Level 5','subject-6':'Level 6','subject-7':'Level 7'};
   const expressionType=kind=>kind==='expand'||kind==='rational';
+  const isSubject=kind=>kind?.startsWith('subject-');
+  const modeFamilies=['whole','fraction','subject'];
   const isRational=kind=>kind?.startsWith('rational-');
   const expansionExamples={
     'expand-single':'Multiply each term inside by the number outside: 3(3x − 2) = 9x − 6.',
@@ -1252,15 +1454,18 @@ mount.setMissionBusy=(busy,last)=>{
     return {compact,answer:coeffs.den===1n?coeffs.terms.reverse().join(','):null,simplified};
   }
   const family=()=>pick('family').value;
-  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets',rational:'Simplifying Fractional Expression'};
+  const defaultTitle={whole:'Solve equations without fractions',fraction:'Solve fractional equations',expand:'Expand and simplify brackets',rational:'Simplifying Fractional Expression',subject:'Making x the Subject'};
   function setFamily(kind){
     pick('family').value=kind;
     pick('types-whole').hidden=kind!=='whole';
     pick('types-fraction').hidden=kind!=='fraction';
     pick('types-expand').hidden=kind!=='expand';
     pick('types-rational').hidden=kind!=='rational';
-    pick('equation-family').hidden=expressionType(kind);
+    pick('types-subject').hidden=kind!=='subject';
+    pick('mode-field').hidden=!modeFamilies.includes(kind);
+    pick('equation-family').hidden=expressionType(kind)||kind==='subject';
     pick('review-help').textContent=expressionType(kind)?'Edit a question to enter your own expression. The simplified answer appears below it.':'Edit an equation to type your own. Equation Lab calculates the answer for you.';
+    if(kind==='subject')pick('review-help').textContent='Choose levels, then generate formulas from Equation Lab. Use Replace to swap an individual formula.';
     const label=expressionType(kind)?'Expression':'Equation';
     pick('question-label').textContent=label;
     pick('question-preview-label').textContent=label+' preview';
@@ -1284,6 +1489,7 @@ mount.setMissionBusy=(busy,last)=>{
   const victory=pick('victory'), finishButton=pick('finish-mission');
   finishButton.onclick=()=>{
     if(!playing||!finished||victory.open)return;
+    victory.querySelector('h2').textContent=playing.daily?'Daily quest complete!':'Mission complete!';
     const coins=finished.coins;
     pick('victory-reward').textContent=coins?'You earned '+coins+' '+(coins===1?'coin':'coins')+'!':'You solved every question.';
     victory.showModal();
@@ -1339,6 +1545,10 @@ mount.setMissionBusy=(busy,last)=>{
     }
   };
   function make(type) {
+    if(isSubject(type)){
+      const options=lab.subjectQuestions(type),q=options[rand(0,options.length-1)];
+      return {type:q.type,eq:q.eq};
+    }
     const x = rand(-8,12), a = rand(2,6), b = rand(1,9) * (Math.random() < .5 ? -1 : 1), c = rand(2,6);
     if(type==='expand-single')return expansionQuestion(a+'('+a+'x'+constant(b)+')');
     if(type==='expand-double')return expansionQuestion('('+a+'x'+constant(b)+')('+c+'x'+constant(rand(1,9)*(Math.random()<.5?-1:1))+')');
@@ -1387,15 +1597,20 @@ mount.setMissionBusy=(busy,last)=>{
       const li = document.createElement('li'), data = document.createElement('div');
       const q = document.createElement('span'), meta = document.createElement('small');
       q.className='question-text';
-      if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+(isRational(r.type)?lab.formatMissionExpression(r.eq):lab.formatMissionEquation(r.eq));
+      if(isSubject(r.type))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatSubjectFormula(r.eq);
+      else if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+(isRational(r.type)?lab.formatMissionExpression(r.eq):lab.formatMissionEquation(r.eq));
       else q.textContent=(i+1)+'.  '+(r.type.startsWith('expand-')?displayExpansion(r.eq):r.eq);
-      meta.textContent=names[r.type]+' · '+(isRational(r.type)?displayExpansion(r.display||rationalQuestion(r.eq).display):r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
+      if(isSubject(r.type)){
+        const formula=lab.subjectQuestions(r.type).find(q=>q.eq===r.eq);
+        meta.textContent=names[r.type];
+        if(formula){meta.append(' · ',Object.assign(document.createElement('span'),{innerHTML:lab.formatSubjectFormula(formula.steps.at(-1)[1])}));}
+      }else meta.textContent=names[r.type]+' · '+(isRational(r.type)?displayExpansion(r.display||rationalQuestion(r.eq).display):r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
       data.append(q,meta);
       const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
       btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
       const edit=document.createElement('button');
       edit.type='button';edit.textContent='Edit';edit.setAttribute('aria-label','Edit question '+(i+1));edit.onclick=()=>editEquation(i);
-      const actions=document.createElement('div');actions.className='row';actions.append(edit,btn);
+      const actions=document.createElement('div');actions.className='row';if(!isSubject(r.type))actions.append(edit);actions.append(btn);
       li.append(data,actions);list.append(li);
     });
     pick('total').textContent=rows.length+' questions';
@@ -1430,11 +1645,16 @@ mount.setMissionBusy=(busy,last)=>{
     pick('play-status').textContent=playing?.solved.includes(index)?'Solved previously. You can practise again.':'';
     pick('retry').hidden=true;
     const token=++playToken, i=index;
-    const question=questions[i], rational=isRational(question.type), expand=rational||Boolean(expansionExamples[question.type]);
+    const question=questions[i], subject=isSubject(question.type), rational=isRational(question.type), expand=rational||Boolean(expansionExamples[question.type]);
     const hints=playing?.hints??pick('hints').checked;
     const next=()=>{if(!saving&&index<questions.length-1){index++;preview();}};
+    const workingMode=playing?(playing.mode||'unguided'):pick('working-mode').value;
     lab.hidden=expand&&!rational;
     pick('expansion-practice').hidden=!expand||rational;
+    if(subject){
+      lab.openSubjectMission(question,i+1,questions.length,hints,next,playing?answer=>submitAnswer(i,answer,token,questions.length,'subject'):null,workingMode);
+      return;
+    }
     if(rational){
       lab.openFractionMission(question.eq,i+1,questions.length,hints,next,
         playing?answer=>submitAnswer(i,answer,token,questions.length,'rational'):null);
@@ -1442,7 +1662,7 @@ mount.setMissionBusy=(busy,last)=>{
     }
     if(!expand){
       lab.openMissionEquation(question.eq,i+1,questions.length,hints,next,
-        playing ? answer=>submitAnswer(i,answer,token,questions.length) : null);
+        playing ? answer=>submitAnswer(i,answer,token,questions.length) : null,workingMode);
       return;
     }
     pick('expansion-count').textContent='Question '+(i+1)+' of '+questions.length;
@@ -1585,7 +1805,8 @@ mount.setMissionBusy=(busy,last)=>{
     if(saving||token!==playToken)return;
     saving=true;
     pick('retry').hidden=true;
-    if(expand==='rational')lab.setFractionMissionBusy(true);
+    if(expand==='subject')lab.setSubjectMissionBusy(true);
+    else if(expand==='rational')lab.setFractionMissionBusy(true);
     else if(expand){pick('expansion-answer').disabled=true;pick('expansion-next').disabled=true;}
     else lab.setMissionBusy(true,i===total-1);
     pick('prev').disabled=true;
@@ -1603,7 +1824,9 @@ mount.setMissionBusy=(busy,last)=>{
     }catch(error){
       if(token===playToken){
         pick('play-status').textContent='Couldn’t save: '+error.message;
-        if(error.message==='Mission unavailable.'){
+        if(error.message==='Daily quest unavailable.'){
+          pick('play-status').textContent='This daily quest has ended. Go back to Home & Missions for today’s quests.';
+        }else if(error.message==='Mission unavailable.'){
           pick('play-status').textContent='This mission is no longer available. Go back to Home & Missions for your current missions.';
         }else{
           pick('retry').hidden=false;
@@ -1615,7 +1838,10 @@ mount.setMissionBusy=(busy,last)=>{
         saving=false;
         pick('prev').disabled=i===0;
         pick('back').disabled=false;
-        if(expand==='rational'){
+        if(expand==='subject'){
+          lab.setSubjectMissionBusy(false);
+          if(!finished&&!pick('retry').hidden)pick('retry').focus();
+        }else if(expand==='rational'){
           lab.setFractionMissionBusy(false);
           if(!finished&&!pick('retry').hidden)pick('retry').focus();
         }else if(expand){
@@ -1634,13 +1860,13 @@ mount.setMissionBusy=(busy,last)=>{
   };
   pick('generate').onclick=generate;
   [...types,pick('count')].forEach(el=>el.addEventListener('change',()=>message(lastMix===mix()?'':'Generate questions to apply changes.')));
-  pick('preview').onclick=()=>{if(ready(true)){expansionWork.clear();lab.resetFractionMission();index=0;show('preview');preview();pick('back').focus();}};
+  pick('preview').onclick=()=>{if(ready(true)){expansionWork.clear();lab.resetFractionMission();lab.resetSubjectMission();index=0;show('preview');preview();pick('back').focus();}};
   pick('prev').onclick=()=>{if(index>0){index--;preview();}};
   pick('back').onclick=()=>playing?leave():show('setup');
   pick('edit').onclick=()=>show('setup');
   function draftSettings(){
     return {title:pick('title').value,className:pick('class').value,coins:pick('coins').value,
-      hints:pick('hints').checked,family:family(),selected:chosen(),questions:rows,release:pick('release').value};
+      hints:pick('hints').checked,mode:modeFamilies.includes(family())?pick('working-mode').value:'unguided',family:family(),selected:chosen(),questions:rows,release:pick('release').value};
   }
   function draft(){
     const d=draftSettings();
@@ -1655,7 +1881,7 @@ mount.setMissionBusy=(busy,last)=>{
     if(!ready())return;
     const coins=Number(pick('coins').value);
     const cls=pick('class'), release=releaseInstant();
-    pick('summary').textContent=pick('title').value+' · '+(cls.selectedOptions?.[0]?.textContent||cls.value)+' · '+rows.length+' questions';
+    pick('summary').textContent=pick('title').value+' · '+(cls.selectedOptions?.[0]?.textContent||cls.value)+' · '+rows.length+' questions'+(modeFamilies.includes(family())?' · '+(pick('working-mode').value==='guided'?'Guided':'Unguided'):'');
     pick('release-summary').textContent=release?'Release: '+new Intl.DateTimeFormat('en-SG',{
       dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Singapore'
     }).format(release)+' (Singapore time)':'Release: As soon as you publish.';
@@ -1675,7 +1901,7 @@ mount.setMissionBusy=(busy,last)=>{
       storageKey=key;draftFamily=initialFamily;
       show('setup');this.savedClass=null;
       setFamily(initialFamily);pick('title').value=defaultTitle[initialFamily];
-      pick('coins').value='10';
+      pick('coins').value='10';pick('working-mode').value='unguided';
       pick('release').value='';
       pick('hints').checked=true;
       pick('count').value='6';
@@ -1686,7 +1912,8 @@ mount.setMissionBusy=(busy,last)=>{
         if(!d||!(d.questions?.length>=1&&d.questions.length<=10)||!Array.isArray(d.selected))return;
         pick('title').value=d.title;pick('coins').value=d.coins;pick('hints').checked=d.hints;pick('release').value=d.release||'';
         pick('count').value=d.count||d.questions.length;
-        setFamily(expressionType(initialFamily)?initialFamily:d.family==='fraction'?'fraction':'whole');
+        pick('working-mode').value=d.mode==='guided'?'guided':'unguided';
+        setFamily((expressionType(initialFamily)||initialFamily==='subject')?initialFamily:d.family==='fraction'?'fraction':'whole');
         activeTypes().forEach(el=>el.checked=d.selected.includes(el.value));
         rows=d.questions;lastMix=d.lastMix??mix();review();
         this.savedClass=d.className;
@@ -1713,7 +1940,8 @@ mount.setMissionBusy=(busy,last)=>{
       pick('class').value=m.classId;
       pick('coins').value=m.coins;pick('hints').checked=m.hints;pick('release').value='';
       pick('count').value=m.questions.length;
-      setFamily(m.questions.some(r=>isRational(r.type))?'rational':m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
+      pick('working-mode').value=m.mode==='guided'?'guided':'unguided';
+      setFamily(m.questions.some(r=>isSubject(r.type))?'subject':m.questions.some(r=>isRational(r.type))?'rational':m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
       activeTypes().forEach(el=>el.checked=m.questions.some(r=>r.type===el.value));
       rows=m.questions.map(r=>({...r}));lastMix=mix();review();message('');
       status('Draft · Copied mission');show('setup');pick('title').focus();
@@ -1726,7 +1954,7 @@ mount.setMissionBusy=(busy,last)=>{
     },
     publishError(message){pick('publish-message').textContent=message;},
     play(m,onSolve,onBack){
-      expansionWork.clear();lab.resetFractionMission();playing=m;saveAnswer=onSolve;leave=onBack;finished=null;finishButton.hidden=true;
+      expansionWork.clear();lab.resetFractionMission();lab.resetSubjectMission();playing=m;saveAnswer=onSolve;leave=onBack;finished=null;finishButton.hidden=true;finishButton.textContent=m.daily?'Complete daily quest':'Complete mission';
       index=m.questions.findIndex((_,i)=>!m.solved.includes(i));
       if(index<0)index=0;
       root.querySelector('header').hidden=true;
@@ -1748,6 +1976,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js?v=gift-shop-1"></script>
-<script src="app.js?v=gift-shop-1"></script>
+<script src="town-art.js?v=subject-missions-1"></script>
+<script src="app.js?v=subject-missions-1"></script>
 </body></html>

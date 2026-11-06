@@ -14,6 +14,7 @@
       questions:[{eq:'x + 7 = 12'},{eq:'3x - 4 = 11'},{eq:'4x + 1 = 2x + 9'}]}]
   };
   const demoAnswers = [5,5,4];
+  const demoDaily={id:'demo-quest',title:'Solve a daily equation',hints:true,coins:3,solved:[],complete:false,questions:[{type:'one',eq:'x + 4 = 9'}]};
   const products=art.catalog, costumes=products.filter(item=>item.slot==='costume');
   const giftCost=15;
   let shopPrices=null,priceRequest=0,giftRequest=null;
@@ -43,6 +44,7 @@
     const selected=b.dataset.townDestination;
     selectDestination(selected);
     if(selected==='neighbourhood')loadStreet();
+    if(selected==='home')loadDailyQuests();
     if(selected==='home'||selected==='cabin'){
       if(!townReady)loadTown();
       else if(!townPending&&(selected==='cabin'||shopPrices===null))refreshShopPrices();
@@ -100,6 +102,9 @@
   function resetTown(){
     ++sessionVersion;++streetRequest;town=blankTown();townReady=false;townPending=false;previewItem=null;
     ++priceRequest;shopPrices=null;giftRequest=null;
+    ++dailyQuestRequest;dailyQuests=[];dailyDay=null;
+    if(upgradeDialog.open)upgradeDialog.close();
+    upgradeSelection=null;
     for(const id of ['mm-shop-message','mm-inventory-status','mm-gift-message','mm-gift-reward'])q(id).replaceChildren();
     q('mm-gift-reward').hidden=true;q('mm-gift-odds').open=false;
     q('mm-inventory').hidden=true;q('mm-inventory-toggle').setAttribute('aria-expanded','false');
@@ -138,7 +143,48 @@
       const fallback=prefix?prefix+'house-name':area==='gift'?'mm-gift-title':area==='inventory'?'mm-inventory-toggle':'mm-outfit-title';
       if(!target?.closest('[hidden]'))(target&&!target.disabled?target:q(fallback)).focus({preventScroll:true});
     }
+    return result;
   }
+  const upgradeDialog=q('mm-upgrade-dialog'), upgradeConfirm=q('mm-upgrade-confirm'), upgradeCancel=q('mm-upgrade-cancel');
+  let upgradeSelection=null,upgradePending=false;
+  function showUpgrade(selection){
+    upgradeSelection=selection;
+    q('mm-upgrade-title').textContent='Upgrade your house?';
+    q('mm-upgrade-prompt').textContent='Spend '+selection.price+' coins to reveal your next house.';
+    q('mm-upgrade-dialog-status').textContent='';
+    q('mm-upgrade-art').replaceChildren(art.house(town.level));
+    upgradeConfirm.hidden=false;upgradeConfirm.disabled=false;upgradeCancel.disabled=false;
+    upgradeCancel.textContent='Keep saving';
+    upgradeDialog.showModal();
+  }
+  upgradeCancel.onclick=()=>upgradeDialog.close();
+  upgradeDialog.addEventListener('cancel',e=>{if(upgradePending)e.preventDefault();});
+  upgradeDialog.addEventListener('close',()=>{
+    const trigger=q(upgradeSelection?.trigger);
+    if(trigger&&!trigger.closest('[hidden]'))(trigger.disabled?q(upgradeSelection.area==='home'?'mm-house-name':'mm-cabin-house-name'):trigger).focus({preventScroll:true});
+    upgradeSelection=null;
+  });
+  upgradeConfirm.onclick=async()=>{
+    if(!upgradeSelection||upgradePending||townPending)return;
+    const {level,price,area,next}=upgradeSelection;
+    const session=sessionVersion;
+    upgradePending=true;upgradeConfirm.disabled=true;upgradeCancel.disabled=true;
+    q('mm-upgrade-dialog-status').textContent='Upgrading your house…';
+    const result=await townAction(async()=>{
+      const wallet=await rpc('mm_shop_upgrade',{p_next:level,p_price:price});
+      return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,prices:wallet.prices,message:next.name+' is ready!'};
+    },area);
+    upgradePending=false;
+    if(session!==sessionVersion||!upgradeDialog.open)return;
+    upgradeCancel.disabled=false;upgradeCancel.textContent='Done';
+    if(result?.level){
+      q('mm-upgrade-title').textContent='House upgraded!';
+      q('mm-upgrade-prompt').textContent=next.name+' is ready!';
+      q('mm-upgrade-art').replaceChildren(art.house(level));
+      q('mm-upgrade-dialog-status').textContent='';
+    }else q('mm-upgrade-dialog-status').textContent=result?.error||'Could not upgrade your house. Try again.';
+    upgradeConfirm.hidden=true;upgradeCancel.focus();
+  };
   function renderHouseUpgrade(prefix,area,current,next){
     q(prefix+'house-name').textContent=current.name;
     q(prefix+'house-level').textContent='Level '+town.level;
@@ -150,14 +196,9 @@
     upgrade.textContent=price===null?'Upgrade house':'Upgrade house · '+price+' coins';
     upgrade.disabled=!townReady||townPending||price===null||missing>0;
     note.textContent=price===null?'Upgrade price unavailable. Open Cabin & Shop to retry.':missing?'Earn '+missing+' more '+(missing===1?'coin':'coins')+' to upgrade.':'Your next house is a surprise.';
-    upgrade.onclick=()=>{
-      if(!window.confirm('Spend '+price+' coins to reveal your next house?'))return;
-      townAction(async()=>{
-        const wallet=await rpc('mm_shop_upgrade',{p_next:level,p_price:price});
-        return {wallet:{balance:wallet.balance,score:wallet.score},level:wallet.level,prices:wallet.prices,message:next.name+' is ready!'};
-      },area,upgrade.id);
-    };
+    upgrade.onclick=()=>showUpgrade({price,level,area,next,trigger:upgrade.id});
   }
+
   function renderHome(){
     q('mm-home-scene').replaceChildren(art.plot(town));
     q('mm-cabin-house-scene').replaceChildren(art.house(town.level));
@@ -230,6 +271,7 @@
     q('mm-inventory-toggle').setAttribute('aria-expanded',String(open));
     inventory.hidden=!open;
   };
+  const giftCard=q('mm-gift-card');
   q('mm-gift-art').append(art.gift());
   const oddsFormat=new Intl.NumberFormat('en-SG',{style:'percent',maximumFractionDigits:2});
   function renderGift(){
@@ -270,6 +312,7 @@
       const section=el('section','','mm-shop-section');section.id='mm-shop-'+slot;
       section.append(el('h3',label));
       const grid=el('div','','mm-shop-grid');
+      if(slot==='costume'){grid.append(giftCard);giftCard.hidden=false;}
       products.filter(p=>p.slot===slot).forEach(p=>{
         const card=el('article','','mm-shop-item'),visual=el('div','','mm-product-art');
         visual.append(art.avatar({[slot]:p.id}));
@@ -304,6 +347,12 @@
     if(name==='mm_state'){
       demo.leaderboard=[{alias:'Map Maker',score:20},{alias:'Trail Scout',score:8},{alias:demo.alias,score:demo.score,you:true}].sort((a,b)=>b.score-a.score);
       return structuredClone(demo);
+    }
+    if(name==='mm_daily_quests')return {day:singaporeDay.format(new Date()),quests:[demoDaily]};
+    if(name==='mm_solve_daily_quest'&&args.p_quest===demoDaily.id&&args.p_index===0&&args.p_answer==='5'){
+      const awarded=demoDaily.complete?0:demoDaily.coins;
+      demoDaily.solved=[0];demoDaily.complete=true;demo.balance+=awarded;demo.score+=awarded;
+      return {complete:true,awarded,balance:demo.balance,score:demo.score};
     }
     if(name==='mm_town_profile')return structuredClone(demo.town);
     if(name==='mm_shop_prices')return {...demoPrices};
@@ -385,7 +434,7 @@
     catch(error){ notice(error.message || 'Please try again.',true); }
     finally { control.disabled=false; }
   }
-  const editorTopics={expand:q('mm-topic-expand'),rational:q('mm-topic-rational'),solve:q('mm-topic-solve')};
+  const editorTopics={expand:q('mm-topic-expand'),rational:q('mm-topic-rational'),subject:q('mm-topic-subject'),solve:q('mm-topic-solve')};
   let teacherTopic=null, publishing=false;
   function view(role){
     page.querySelectorAll('[data-mm-view]').forEach(node=>node.hidden=node.dataset.mmView!==role);
@@ -601,7 +650,7 @@
     builder.hidden=false;
   }
   q('mm-manage-classes').onclick=()=>teacherSection('classes');
-  q('mm-create-missions').onclick=()=>teacherSection('missions');
+  q('mm-create-missions').onclick=()=>{teacherSection('missions');if(!questSettingsLoaded)loadQuestSettings();};
   q('mm-open-overview').onclick=()=>{teacherSection('overview');loadOverview();};
   Object.entries(editorTopics).forEach(([topic,details])=>{
     details.querySelector('summary').onclick=e=>{e.preventDefault();openTopic(details.open?null:topic);};
@@ -610,11 +659,13 @@
     q('mm-demo-solve').setAttribute('aria-pressed',String(topic==='solve'));
     q('mm-demo-expand').setAttribute('aria-pressed',String(topic==='expand'));
     q('mm-demo-rational').setAttribute('aria-pressed',String(topic==='rational'));
+    q('mm-demo-subject').setAttribute('aria-pressed',String(topic==='subject'));
     builder.missionBuilder.draftKey('mm-demo-draft'+(topic==='solve'?'':':'+topic),topic==='solve'?'whole':topic);
   }
   q('mm-demo-solve').onclick=()=>demoTopic('solve');
   q('mm-demo-expand').onclick=()=>demoTopic('expand');
   q('mm-demo-rational').onclick=()=>demoTopic('rational');
+  q('mm-demo-subject').onclick=()=>demoTopic('subject');
   function fillClasses(control,preferred){
     control.replaceChildren(new Option('Select a class',''));
     state.classes.forEach(c=>control.add(new Option(c.label,c.id)));
@@ -628,9 +679,9 @@
       if(publishing)return;
       publishing=true;publishButton.disabled=true;
       try {
-        await rpc('mm_schedule_mission',{
+        await rpc('mm_publish_mission',{
           p_class:draft.className,p_title:draft.title,p_coins:draft.coins,p_hints:draft.hints,
-          p_questions:draft.questions,p_release_at:draft.releaseAt
+          p_questions:draft.questions,p_release_at:draft.releaseAt,p_mode:draft.mode
         });
       } catch(error){
         builder.missionBuilder.publishError(error.message);
@@ -646,6 +697,47 @@
       }
     });
   }
+  const questDialog=q('mm-quest-settings'),questForm=q('mm-quest-form');
+  let questSettings={},questSettingsLoaded=false,questSettingsRequest=0,questSource=null,questSaving=false;
+  async function loadQuestSettings(){
+    const request=++questSettingsRequest;
+    try{
+      const data=await rpc('mm_teacher_daily_quests');
+      if(request!==questSettingsRequest||state?.role!=='teacher')return;
+      questSettings=data;questSettingsLoaded=true;renderTeacher();
+    }catch{
+      if(request===questSettingsRequest&&state?.role==='teacher')q('mm-quest-teacher-note').textContent='Could not load daily quest settings. Reopen Create missions to retry.';
+    }
+  }
+  function openQuestSettings(mission){
+    if(!questSettingsLoaded){loadQuestSettings();return;}
+    questSource=mission;
+    const saved=questSettings[mission.id];
+    q('mm-quest-settings-title').textContent=saved?'Edit daily quest':'Create daily quest';
+    q('mm-quest-source').textContent=mission.title+' · '+mission.class+' · '+mission.questions.length+' questions';
+    questForm.elements.coins.value=saved?.coins??Math.min(100,Math.max(1,mission.coins));
+    questForm.elements.enabled.checked=saved?.enabled??true;
+    q('mm-quest-save-status').textContent='';
+    questDialog.showModal();questForm.elements.coins.focus();
+  }
+  q('mm-quest-cancel').onclick=()=>questDialog.close();
+  questDialog.addEventListener('cancel',e=>{if(questSaving)e.preventDefault();});
+  questForm.onsubmit=async e=>{
+    e.preventDefault();
+    if(!questSource||questSaving||state?.role!=='teacher')return;
+    const m=questSource, teacher=user?.id;
+    const coins=Number(questForm.elements.coins.value),enabled=questForm.elements.enabled.checked;
+    const controls=[...questForm.elements];controls.forEach(c=>c.disabled=true);
+    questSaving=true;q('mm-quest-save-status').textContent='Saving…';
+    try{
+      const result=await rpc('mm_save_daily_quest',{p_mission:m.id,p_coins:coins,p_enabled:enabled});
+      if(state?.role!=='teacher'||teacher!==user?.id)return;
+      questSettings[m.id]=result;questDialog.close();renderTeacher();
+      q('mm-quest-for-'+m.id)?.focus();
+      notice(enabled?'Daily quest saved.':'Daily quest paused for future days.');
+    }catch(error){if(questDialog.open)q('mm-quest-save-status').textContent=error.message;}
+    finally{questSaving=false;controls.forEach(c=>c.disabled=false);}
+  };
   function renderTeacher(){
     fillClasses(overviewClass,overviewClass.value);
     const cls=q('mm-roster-class');fillClasses(cls,cls.value);
@@ -653,6 +745,7 @@
     fillClasses(loginClass,oldClass);
     if(loginClass.value!==oldClass)clearLoginRoster();
     if(teacherTopic)configureBuilder();
+    if(questSettingsLoaded)q('mm-quest-teacher-note').textContent='';
     const list=q('mm-published');
     list.replaceChildren();
     if(!state.missions.length){list.append(el('p','No class missions yet.','mm-muted'));return;}
@@ -660,6 +753,7 @@
       const row=el('div','','mm-row mm-mission mm-teacher-mission');
       const details=el('div');
       details.append(el('strong',m.title),el('small',m.class+' · '+m.coins+' coins · '+m.completed+' completed'));
+      if(m.questions?.some(q=>q.type?.startsWith('subject-')||q.type?.startsWith('fraction-')||['one','two','both','brackets'].includes(q.type)))details.append(el('small',m.mode==='guided'?'Guided · Calculate for me':'Unguided · I’ll write the working'));
       if(m.releaseAt){
         details.append(el('small',(m.scheduled?'Scheduled for ':'Released ')+releaseFormat.format(new Date(m.releaseAt))+' (Singapore time)'));
       }
@@ -667,9 +761,15 @@
       const actions=el('div','','mm-row mm-mission-actions');
       if(m.questions?.length)actions.append(button('Duplicate',()=>{
         if(publishing)return;
-        const topic=m.questions.some(question=>question.type?.startsWith('rational-'))?'rational':m.questions.some(question=>question.type?.startsWith('expand-'))?'expand':'solve';
+        const topic=m.questions.some(question=>question.type?.startsWith('subject-'))?'subject':m.questions.some(question=>question.type?.startsWith('rational-'))?'rational':m.questions.some(question=>question.type?.startsWith('expand-'))?'expand':'solve';
         teacherSection('missions');openTopic(topic);builder.missionBuilder.duplicate(m);
       }));
+      if(m.questions?.length&&questSettingsLoaded){
+        const saved=questSettings[m.id];
+        if(saved)details.append(el('small',saved.enabled?'Daily quest · '+saved.coins+' coins':'Daily quest paused'));
+        const questButton=button(saved?'Edit daily quest':'Create daily quest',()=>openQuestSettings(m));
+        questButton.id='mm-quest-for-'+m.id;actions.append(questButton);
+      }
       const remove=button('Delete',()=>{
         if(!window.confirm('Delete “'+m.title+'” for '+m.class+'? It will be removed from Mission Hall. Students keep coins already earned.'))return;
         busy(remove,async()=>{
@@ -690,6 +790,42 @@
     const next=await rpc('mm_state');
     if(next.role==='student'&&!q('mm-view-student').hidden){state=next;renderStudent();}
   });
+  let dailyQuests=[],dailyDay=null,dailyQuestRequest=0;
+  async function loadDailyQuests(){
+    if(state?.role!=='student')return;
+    const request=++dailyQuestRequest,session=sessionVersion;
+    q('mm-quest-status').textContent=dailyDay?'':'Loading today’s quests…';
+    try{
+      const data=await rpc('mm_daily_quests');
+      if(request!==dailyQuestRequest||session!==sessionVersion||state?.role!=='student')return;
+      dailyDay=data.day;dailyQuests=data.quests.map(m=>({...m,daily:true}));
+      renderDailyQuests();
+    }catch{
+      if(request===dailyQuestRequest&&session===sessionVersion)q('mm-quest-status').textContent='Could not load today’s quests. Use Refresh quests to try again.';
+    }
+  }
+  q('mm-refresh-quests').onclick=loadDailyQuests;
+  const singaporeDay=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit',day:'2-digit'});
+  function checkNewDay(){
+    if(state?.role==='student'&&!q('mm-view-student').hidden&&dailyDay&&singaporeDay.format(new Date())!==dailyDay)loadDailyQuests();
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkNewDay();});
+  setInterval(checkNewDay,60000);
+  function renderDailyQuests(){
+    const list=q('mm-quests');list.replaceChildren();
+    q('mm-quest-status').textContent=dailyDay&&!dailyQuests.length?'No daily quests have been set for your class.':'';
+    for(const quest of dailyQuests)renderActivity(list,quest);
+  }
+  function renderActivity(list,m){
+    const row=el('div','','mm-row mm-mission');
+    const name=el('div');name.append(el('strong',m.title),el('small',m.solved.length+' / '+m.questions.length+' solved · '+m.coins+' coins'+(m.complete?' · Completed':'')));
+    const progress=el('progress','','mm-meter');
+    progress.max=m.questions.length;progress.value=m.solved.length;
+    progress.setAttribute('aria-label','Questions solved: '+m.title);
+    name.append(progress);
+    const start=button(m.complete?'Practise again':m.solved.length?'Continue':'Start',()=>play(m));
+    row.append(name,start);list.append(row);
+  }
   function renderStudent(){
     q('mm-student-name').textContent=state.alias+' · '+state.class;
     q('mm-demo-note').hidden=!demoActive;
@@ -698,17 +834,8 @@
     const missions=q('mm-missions');missions.replaceChildren();
     if(!state.missions.length)missions.append(el('p','Your teacher hasn’t published any missions yet.','mm-muted'));
     const topicOrder=m=>m.questions[0]?.type?.startsWith('expand-')?0:m.questions[0]?.type?.startsWith('rational-')?1:2;
-    [...state.missions].sort((a,b)=>topicOrder(a)-topicOrder(b)).forEach(m=>{
-      const row=el('div','','mm-row mm-mission');
-      const name=el('div');name.append(el('strong',m.title),el('small',m.solved.length+' / '+m.questions.length+' solved · '+m.coins+' coins'+(m.complete?' · Completed':'')));
-      const progress=el('progress','','mm-meter');
-      progress.max=m.questions.length;
-      progress.value=m.solved.length;
-      progress.setAttribute('aria-label','Questions solved: '+m.title);
-      name.append(progress);
-      row.append(name,button(m.complete?'Practise again':m.solved.length?'Continue':'Start',()=>play(m)));
-      missions.append(row);
-    });
+    [...state.missions].sort((a,b)=>topicOrder(a)-topicOrder(b)).forEach(m=>renderActivity(missions,m));
+    renderDailyQuests();
     const list=q('mm-leaderboard');list.replaceChildren();
     state.leaderboard.forEach((s,i,a)=>{
       const rank=a.findIndex(x=>x.score===s.score)+1;
@@ -723,16 +850,18 @@
     view('play');builder.hidden=false;
     builder.missionBuilder.play(mission,async (i,answer)=>{
       if(mission.solved.includes(i))return {message:'Already saved. Keep practising!'};
-      const result=await rpc('mm_solve_answer',{p_mission:mission.id,p_index:i,p_answer:answer});
+      const result=mission.daily
+        ?await rpc('mm_solve_daily_quest',{p_quest:mission.id,p_index:i,p_answer:answer})
+        :await rpc('mm_solve_answer',{p_mission:mission.id,p_index:i,p_answer:answer});
       mission.solved.push(i);mission.complete=result.complete;
       if(myRun!==run)return {message:''};
       if(Number.isFinite(result.balance))state.balance=result.balance;
       if(Number.isFinite(result.score))state.score=result.score;
-      return result.complete?{message:'All answers saved. Complete the mission to celebrate!',completion:{coins:result.awarded||0}}:{message:'Question saved.'};
+      return result.complete?{message:mission.daily?'All answers saved. Complete the daily quest to celebrate!':'All answers saved. Complete the mission to celebrate!',completion:{coins:result.awarded||0}}:{message:'Question saved.'};
     },async ()=>{
       ++run;
       builder.missionBuilder.exit();
-      selectDestination('home');view('student');renderStudent();
+      selectDestination('home');view('student');renderStudent();loadDailyQuests();
       try{state=await rpc('mm_state');if(q('mm-view-student').hidden===false)renderStudent();}
       catch(e){notice(e.message,true);}
     });
@@ -740,7 +869,7 @@
   function applyState(next){
     state=next;view(state.role);
     if(state.role==='teacher')renderTeacher();
-    if(state.role==='student'){selectDestination('home');renderStudent();loadTown();}
+    if(state.role==='student'){selectDestination('home');renderStudent();loadTown();loadDailyQuests();}
   }
   q('mm-class-form').onsubmit=e=>{
     e.preventDefault();const form=e.currentTarget;
@@ -921,7 +1050,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;++overviewRequest;++teacherPriceRequest;teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;++overviewRequest;++teacherPriceRequest;++questSettingsRequest;questSettingsLoaded=false;questSettings={};if(questDialog.open)questDialog.close();teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
