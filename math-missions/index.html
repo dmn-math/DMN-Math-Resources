@@ -554,7 +554,36 @@ main{display:block;max-width:none;margin:0;padding:0}
 .subject-main{max-width:1240px;padding:0 32px 55px;margin:auto}.subject-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.subject-levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.subject-levels button{padding:11px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--muted)}.subject-levels button.active{background:var(--green);color:white}.subject-layout .difficulty-note{margin:13px 0 0;min-height:0;line-height:1.5}.subject-card{padding:28px;min-width:0}.subject-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.subject-head .section-title{margin:0}.subject-question{font-size:34px;line-height:1.7;overflow-x:auto;padding:14px 0}.subject-condition{background:#fff8eb;color:#866434;padding:10px 12px;border-radius:8px;font-size:11px;margin:4px 0 22px}.subject-guidance{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--muted);font-size:12px;line-height:1.5;border-top:1px solid var(--line);padding-top:18px}.subject-guidance>div{display:flex;gap:6px;flex-shrink:0}.subject-guidance .secondary{white-space:nowrap}.subject-tools{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0 3px;padding-left:72px}.subject-card .free-row{border-bottom:1px solid #edf0e8}.subject-card .draft-row{margin-top:0}.subject-card .free-editor .structured-math-editor{min-height:85px}.subject-tip{font-size:11px;margin-top:15px}.subject-card .hint{margin-top:15px}@media(max-width:850px){.subject-main{padding:0 20px 40px}.subject-layout{grid-template-columns:200px minmax(0,1fr);gap:15px}.subject-card{padding:18px}.subject-tools{padding-left:57px}}@media(max-width:650px){.lab-tabs{overflow-x:auto}.lab-tabs button{white-space:nowrap}.subject-main{padding:0 14px 32px}.subject-layout{display:block}.subject-layout .settings{margin-bottom:15px}.subject-levels{grid-template-columns:repeat(4,minmax(0,1fr))}.subject-levels button{font-size:11px;padding:9px 3px}.subject-card{padding:16px}.subject-question{font-size:27px}.subject-guidance{align-items:flex-start;flex-direction:column}.subject-tools{padding-left:49px}.subject-tip{font-size:10px}}
 .editing-radical{display:inline-flex;align-items:stretch;vertical-align:middle;flex:0 0 auto;line-height:1.25;max-width:none}.editing-root-sign{font-family:Cambria,Georgia,serif;font-size:1.7em;line-height:1;align-self:flex-end;margin-right:-.04em}.editing-radicand{display:inline-flex;align-items:center;gap:2px;min-width:2.5ch;border-top:1.5px solid currentColor;padding:2px 4px 0}.editing-radicand .math-token-input{max-width:none}.editing-radicand .math-token-input:placeholder-shown{background:#edf2e8;border:1px dashed #bdcdb2}.after-radical-cell{min-width:3ch!important}.structured-math-editor .editing-radical+.math-token-input{margin-left:3px}
 .mode-setting{margin:16px 0}.mode-setting .setting-label{margin:0 0 8px}.mode-setting .mode{display:block;width:100%;padding:10px;text-align:left}.mode-setting .mode strong{font-size:11px}.mode-setting .mode small{font-size:10px}.guided-control{background:#f6f8f3;border:1px solid #e7ece2;border-radius:10px;padding:16px;margin:12px 0}.guided-control p{font-size:12px;margin-bottom:12px}.guided-options{display:flex;flex-wrap:wrap;gap:8px}.guided-options button{font-size:12px;padding:9px 11px}.guided-control .primary{font-size:12px;padding:10px 14px}
-.subject-main{padding:0 clamp(8px,2vw,24px) 20px}.subject-layout{grid-template-columns:minmax(155px,.75fr) minmax(0,2fr)}.subject-card,.subject-layout .settings{min-width:0}.subject-card .structured-math-editor{overflow-x:auto}.subject-levels button:disabled,.subject-layout [data-subject-mode]:disabled{cursor:default;opacity:1}@media(max-width:690px){.subject-layout{grid-template-columns:minmax(0,1fr)}.subject-layout .settings{margin-bottom:0}}
+/* Algebra Town hides the standalone settings sidebar. Give its space to the working card. */
+.subject-main{container:subject-mission / inline-size;width:100%;min-width:0;max-width:none;padding:0 0 12px}
+.subject-layout{display:block;min-width:0}
+.subject-card{width:100%;min-width:0;padding:clamp(10px,2.5cqi,22px)}
+.subject-head,.subject-guidance,.subject-guidance>div{flex-wrap:wrap}
+.subject-guidance{gap:8px 14px;padding-top:10px}
+.subject-guidance>span{flex:1 1 14rem;min-width:0}
+.subject-guidance>div{flex-shrink:1;max-width:100%}
+.subject-guidance .secondary{padding:7px 9px;font-size:11px}
+.subject-question{font-size:clamp(20px,4cqi,30px);line-height:1.5;padding:8px 0}
+.subject-condition{margin:4px 0 12px}
+.subject-tools{padding-left:0;margin:12px 0 4px;gap:5px}
+.subject-card .free-row{grid-template-columns:3rem minmax(0,1fr) auto;gap:5px 9px;padding:9px 0}
+.subject-card .draft-row:has(.guided-control){grid-template-columns:3rem minmax(0,1fr)}
+.subject-card .draft-row>div,.subject-card .free-preview .working-math{min-width:0}
+.subject-card .free-row .working-math{font-size:clamp(16px,3.2cqi,22px);line-height:1.45}
+.subject-card .free-step{padding-top:7px}
+.subject-card .free-check{margin-top:0}
+.subject-card .free-editor .structured-math-editor{min-width:0;min-height:58px;padding:7px;font-size:clamp(16px,3cqi,22px);overflow-x:auto}
+.subject-card .guided-control{min-width:0;padding:10px;margin:0}
+.subject-card .guided-options button{white-space:normal;max-width:100%}
+.subject-levels button:disabled,.subject-layout [data-subject-mode]:disabled{cursor:default;opacity:1}
+@container subject-mission (max-width:410px){
+  .subject-main .simp-intro>div{flex-basis:100%}
+  .subject-card .free-row,.subject-card .draft-row:has(.guided-control){grid-template-columns:minmax(0,1fr)}
+  .subject-card .free-row>button{justify-self:end}
+}
+@media(pointer:coarse){
+  .subject-card .notation-tool,.subject-guidance .secondary,.subject-card .free-row>button,.subject-card .guided-options button{min-height:40px}
+}
 </style>
 <header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
 <div class="intro"><div><div class="eyebrow">SMALL STEPS. BIG UNDERSTANDING.</div><h1>Keep it balanced.</h1><p>Two sides. One golden rule. Find your way to <i>x</i>.</p></div><div class="intro-note">Whatever you do to one side,<br>do to the other.</div></div>
