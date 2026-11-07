@@ -5,8 +5,8 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=subject-missions-1">
-<script src="subject-catalog.js?v=1"></script>
+<link rel="stylesheet" href="app.css?v=mission-refresh-1">
+<script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
     <div class="mm-brand">
@@ -212,6 +212,12 @@
       <button type="button" id="mm-demo-back" hidden>Back to teacher demo</button>
     </nav>
     <div class="mm-dashboard" data-town-panel="home" id="mm-town-dashboard">
+      <section class="mm-card" id="mm-town-quests" aria-labelledby="mm-daily-title">
+        <div class="mm-row mm-mission-heading"><h2 id="mm-daily-title">Daily quests</h2><button type="button" id="mm-refresh-quests">Refresh quests</button></div>
+        <p class="mm-muted">Fresh questions every day. Quests reset at midnight Singapore time.</p>
+        <p id="mm-quest-status" class="mm-muted" role="status"></p>
+        <div id="mm-quests"></div>
+      </section>
     <section class="mm-card mm-home-card" id="mm-town-home">
       <h2 class="mm-ribbon">My Home</h2>
       <div id="mm-home-scene" class="mm-home-scene"></div>
@@ -224,11 +230,8 @@
     </section>
     <div class="mm-town-activities">
       <section class="mm-card" id="mm-town-missions"><div class="mm-row mm-mission-heading"><h2>My missions</h2><button type="button" id="mm-refresh-missions">Refresh missions</button></div><div id="mm-missions"></div></section>
-      <section class="mm-card" id="mm-town-quests" aria-labelledby="mm-daily-title">
-        <div class="mm-row mm-mission-heading"><h2 id="mm-daily-title">Daily quests</h2><button type="button" id="mm-refresh-quests">Refresh quests</button></div>
-        <p class="mm-muted">Fresh questions every day. Quests reset at midnight Singapore time.</p>
-        <p id="mm-quest-status" class="mm-muted" role="status"></p>
-        <div id="mm-quests"></div>
+      <section class="mm-card" id="mm-town-completed" aria-labelledby="mm-completed-title">
+        <h2 id="mm-completed-title">Completed missions</h2><div id="mm-completed-missions"></div>
       </section>
     </div>
     </div>
@@ -584,6 +587,28 @@ main{display:block;max-width:none;margin:0;padding:0}
 @media(pointer:coarse){
   .subject-card .notation-tool,.subject-guidance .secondary,.subject-card .free-row>button,.subject-card .guided-options button{min-height:40px}
 }
+
+.subject-auto-workspace{border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+.subject-auto-workspace h3{font-size:13px;margin:0 0 10px}
+.subject-balance{min-width:0;background:#fbfcf8;border:1px solid var(--line);border-radius:12px;padding:clamp(7px,1.8cqi,14px)}
+.subject-balance-equation{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:5px;align-items:center;min-height:66px}
+.subject-balance-equation>.working-math{font-size:clamp(17px,4.2cqi,27px);text-align:center;overflow-x:auto;white-space:nowrap}
+.subject-balance .balance-art{max-height:48px}
+.subject-balance-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,.75fr) minmax(0,1fr);gap:6px;align-items:start}
+.subject-balance-controls .control-panel{min-width:0;padding:5px}
+.subject-balance-controls .value-row{display:flex;flex-wrap:wrap;gap:4px;margin:0}
+.subject-balance-controls .value-row input{flex:1 1 90px;width:0;min-width:0;font-size:16px}
+.subject-balance-controls .apply{flex:1 0 auto}
+.subject-balance-middle,.subject-both-actions{display:grid;gap:5px;min-width:0}
+.subject-operators{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.subject-operators .op{min-width:0;min-height:36px;padding:4px}
+.subject-both-actions button{font-size:10px;padding:5px 3px}
+.subject-balance .free-row-error{margin:8px 2px 0}
+@container subject-mission (max-width:380px){
+  .subject-balance-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .subject-balance-middle{grid-column:1/-1;grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .subject-balance-controls .value-row input,.subject-balance-controls .apply{width:100%;flex:auto}
+}
 </style>
 <header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
 <div class="intro"><div><div class="eyebrow">SMALL STEPS. BIG UNDERSTANDING.</div><h1>Keep it balanced.</h1><p>Two sides. One golden rule. Find your way to <i>x</i>.</p></div><div class="intro-note">Whatever you do to one side,<br>do to the other.</div></div>
@@ -609,7 +634,7 @@ main{display:block;max-width:none;margin:0;padding:0}
 <section id="subject-main" class="subject-main hidden" aria-label="Making x the Subject">
   <div class="simp-intro"><div><div class="eyebrow">FORMULAS · REARRANGEMENT · REASONING</div><h1>Making <i>x</i> the Subject</h1><p>Keep the other letters as constants. Rearrange the formula one valid step at a time.</p></div><button id="subject-next" class="primary">New formula →</button></div>
   <div class="subject-layout"><aside class="settings card"><div class="section-title">Difficulty</div><div id="subject-levels" class="subject-levels"></div><div class="mode-setting"><span class="setting-label">Working mode</span><button class="mode" data-subject-mode="auto"><strong>1 · Calculate for me</strong><small>Choose an operation; we show the result.</small></button><button class="mode" data-subject-mode="manual"><strong>2 · I’ll write the working</strong><small>Write and check each formula yourself.</small></button></div><p id="subject-description" class="difficulty-note"></p><div class="rule-card"><strong>Remember</strong><p>Making x the subject means writing x alone on one side. Keep the other letters in your answer.</p></div></aside>
-    <div class="subject-card card"><div class="subject-head"><span class="section-title">Original formula</span><span id="subject-count" class="pill"></span></div><div id="subject-question" class="subject-question working-math"></div><p id="subject-condition" class="subject-condition"></p><div class="subject-guidance"><span id="subject-guidance-text">Write a complete equation on each line. A direct correct answer is welcome.</span><div><button id="subject-hint-btn" class="secondary">✧ Hint</button><button id="subject-restart" class="secondary">↻ Restart</button></div></div><p id="subject-hint" class="hint hidden" role="status"></p>
+    <div class="subject-card card"><div class="subject-head"><span class="section-title">Your working</span><span id="subject-count" class="pill"></span></div><p id="subject-condition" class="subject-condition"></p><div class="subject-guidance"><span id="subject-guidance-text">Write a complete equation on each line. A direct correct answer is welcome.</span><div><button id="subject-hint-btn" class="secondary">✧ Hint</button><button id="subject-restart" class="secondary">↻ Restart</button></div></div><p id="subject-hint" class="hint hidden" role="status"></p>
       <div id="subject-tools" class="subject-tools" role="group" aria-label="Insert mathematical notation"><button class="notation-tool" data-subject-insert="fraction" aria-label="Insert fraction"><span class="frac notation-fraction"><span>□</span><span>□</span></span></button><button class="notation-tool" data-subject-insert="brackets" aria-label="Insert brackets">( )</button><button class="notation-tool" data-subject-insert="square" aria-label="Square current term">x²</button><button class="notation-tool" data-subject-insert="root" aria-label="Insert square root">√□</button><button class="notation-tool" data-subject-insert="plusminus" aria-label="Insert plus or minus">±</button></div><div id="subject-rows"></div><p id="subject-tip" class="subject-tip">Type inside √, then press → or click after the root to continue. For two solutions, use ± or “or”.</p>
     </div>
   </div>
@@ -1225,15 +1250,27 @@ function simpRender(){
 const subjectDescriptions=['One operation: addition, subtraction, multiplication or division.','Two operations with x in a linear formula.','Brackets and fractions with x in the numerator.','x in more than one term: collect and factor.','x in a denominator: cross multiply and collect.','A square or a square root; check branches and domain.','Squares and roots combined with brackets, fractions and other operations.'];
 const subjectCatalog=window.AlgebraTownSubjectCatalog;
 const subjectWork=new Map();
-let subjectLevel=1,subjectQuestion='',subjectGuide='',subjectDomain='',subjectRows=[],subjectDraft='',subjectError='',subjectSolved=0,subjectDone=false,subjectMode='manual',subjectAutoSteps=[];
+let subjectLevel=1,subjectQuestion='',subjectGuide='',subjectDomain='',subjectRows=[],subjectDraft='',subjectError='',subjectSolved=0,subjectDone=false,subjectMode='manual',subjectAutoSteps=[],subjectSelectedOp='+',subjectPending={},subjectAutoInputs={left:'',right:''};
 let subjectPosition=0,subjectTotal=0,subjectBusy=false,subjectReported=false,subjectSolvedCallback;
 function redundantOperation(s){return /(?:\+0(?!\d)|-0(?!\d)|\*1(?!\d)|\/1(?!\d)|0\+|1\*)/.test(normaliseWritten(s))}
 
 function subjectSignature(samples, answer){
   return samples.map(sample=>sample.values.y.str()+':'+(answer?subjectSolve(answer,sample.values):sample.expected).map(r=>r.str()).sort().join(',')).join(';');
 }
-function subjectAutoChoose(action){if(subjectBusy)return;let next=subjectAutoSteps[subjectRows.length];if(action!==next[0]){subjectError='This step needs “'+next[0]+'”. Choose that operation to continue.';subjectRender();return}try{let final=subjectCheckLine(next[1]);subjectRows.push(next[1]);subjectError='';subjectDone=final;if(final)subjectSolved++;subjectRender();if(final)reportSubject(next[1])}catch(e){subjectError=e.message;subjectRender()}}
-function subjectAutoControls(){let next=subjectAutoSteps[subjectRows.length],other=['Subtract the constant','Multiply both sides','Divide both sides','Expand and collect x terms','Cross multiply','Square both sides','Take both square roots'].filter(a=>a!==next[0]),choices=[other[0],other[1]];choices.splice((subjectRows.length+subjectLevel)%3,0,next[0]);return '<div class="guided-control"><p>Choose an operation. The next equivalent formula will be calculated for you.</p><div class="guided-options">'+choices.map((a,i)=>'<button class="secondary" data-subject-auto="'+i+'">'+esc(a)+'</button>').join('')+'</div></div>'}
+function subjectAutoExpected(){let current=subjectRows.at(-1)||subjectQuestion,index=subjectAutoSteps.findIndex((step,i)=>normaliseWritten(i?subjectAutoSteps[i-1][2]:subjectQuestion)===normaliseWritten(current));return index<0?null:subjectAutoSteps[index]}
+function subjectAutoHint(){let step=subjectAutoExpected();if(!step)return subjectGuide+' You may use any balanced operation that keeps the possible values of x.';let [op,value]=step;return op==='root'?'Take square roots of both sides and keep both branches.':op==='square'?'Square both sides after isolating the root.':'Try '+({'+':'adding','-':'subtracting','*':'multiplying by','/':'dividing by'}[op])+' ('+value+') on both sides.'}
+function subjectSameOperand(a,b){try{let samples=subjectSamples();return samples.every(({values})=>same(parseDetail(subjectSubstitute(a,values)).value,parseDetail(subjectSubstitute(b,values)).value))}catch{return false}}
+function subjectAutoCommit(op,value=''){if(subjectBusy||subjectDone)return;try{let current=subjectRows.at(-1)||subjectQuestion,step=subjectAutoExpected(),next=step&&step[0]===op&&(op==='root'||op==='square'||subjectSameOperand(value,step[1]))?step[2]:subjectCalculateEquation(current,op,value);
+  if(normaliseWritten(next)===normaliseWritten(current))throw Error('This operation leaves the formula unchanged. Choose a useful next step.');
+  let final=subjectCheckLine(next);subjectRows.push(next);subjectPending={};subjectAutoInputs={left:'',right:''};subjectError='';subjectDone=final;if(final)subjectSolved++;subjectRender();if(final)reportSubject(next)
+ }catch(e){subjectError=e.message;subjectRender()}}
+function subjectAutoOperandSafe(op,raw){if(op!=='*'&&op!=='/')return;
+ if(/x/.test(raw)){let denominators=[];function walk(n){if(n.op==='div')denominators.push(subjectPrint(n.args[1]));for(let child of n.args)if(typeof child==='object')walk(child)}walk(subjectTree(subjectQuestion.split('=')[1]));if(!denominators.some(d=>subjectSameOperand(raw,d)))throw Error('A factor containing x could be zero. Use an original denominator that is already excluded from the formula, or choose another operation.')}
+ let samples=subjectSamples();for(let sample of samples){let operand=parseDetail(subjectSubstitute(raw,sample.values)).value;if(operand.rad)throw Error('Use a rational expression for multiplying or dividing.');for(let x of sample.expected){if(operand.p.at(x).zero())throw Error('This factor can be zero for a valid solution, so multiplying or dividing by it could lose an answer.')}}}
+function subjectAutoApply(side){let field=$('subject-'+side+'-value'),raw=field.value.trim();subjectAutoInputs[side]=field.value;if(!raw){subjectError='Enter a value for the '+side+'-hand side.';subjectRender();return}try{parseDetail(subjectSubstitute(raw,subjectSamples()[0].values));subjectAutoOperandSafe(subjectSelectedOp,raw);subjectPending[side]={op:subjectSelectedOp,value:raw};let other=subjectPending[side==='left'?'right':'left'];if(other){if(other.op!==subjectSelectedOp||!subjectSameOperand(other.value,raw)){subjectError='The sides are unbalanced. Apply the same operation and value to both sides.'}else{return subjectAutoCommit(subjectSelectedOp,raw)}}else subjectError='Apply the same operation and value to the other side.';subjectRender()}catch(e){subjectError=e.message;subjectRender()}}
+function subjectAutoBoth(op){if(Object.keys(subjectPending).length){subjectError='Finish or correct the pending operation on each side first.';subjectRender();return}subjectAutoCommit(op)}
+function subjectAutoSide(side){let equation=subjectRows.at(-1)||subjectQuestion,expression=equation.split('=')[side==='left'?0:1].trim(),pending=subjectPending[side];if(!pending)return subjectMath(expression);let value=subjectMath(pending.value),base=subjectMath(expression);return pending.op==='/'?fractionHTML(base,value):base+' '+({'+':'+','-':'−','*':'×'}[pending.op])+' ('+value+')'}
+function subjectAutoControls(){return '<div class="subject-balance"><div class="subject-balance-equation"><div id="subject-balance-left" class="working-math">'+subjectAutoSide('left')+'</div><span class="simp-equal">=</span><div id="subject-balance-right" class="working-math">'+subjectAutoSide('right')+'</div></div><svg class="balance-art'+(Object.keys(subjectPending).length===1||subjectError.startsWith('The sides are unbalanced.')?' warn':'')+'" viewBox="0 0 700 48" aria-hidden="true"><g class="balance-beam"><path d="M115 13H585" stroke="#b2c7a8" stroke-width="2" stroke-linecap="round"/><circle cx="115" cy="13" r="4" fill="#d3dfcb"/><circle cx="585" cy="13" r="4" fill="#d3dfcb"/></g><path d="M350 15L336 39H364Z" fill="#e1e9d9"/><path d="M323 42H377" stroke="#c4d3ba" stroke-width="2" stroke-linecap="round"/><circle cx="350" cy="13" r="5" fill="#93ad86"/></svg><div class="subject-balance-controls"><div class="control-panel"><div class="value-row"><input id="subject-left-value" aria-label="Value for left side" placeholder="Enter a value" autocomplete="off" value="'+esc(subjectAutoInputs.left)+'"><button class="apply" id="subject-apply-left">Apply</button></div></div><div class="subject-balance-middle"><div class="subject-operators" role="group" aria-label="Choose an operation for both sides">'+[['+','Add','+'],['-','Subtract','−'],['*','Multiply','×'],['/','Divide','÷']].map(([op,label,symbol])=>'<button class="op'+(op===subjectSelectedOp?' selected':'')+'" data-subject-op="'+op+'" aria-label="'+label+'" aria-pressed="'+(op===subjectSelectedOp)+'">'+symbol+'</button>').join('')+'</div><div class="subject-both-actions"><button class="both-sides-action" data-subject-both="square">Square both sides</button><button class="both-sides-action" data-subject-both="root">Square root both sides</button></div></div><div class="control-panel"><div class="value-row"><input id="subject-right-value" aria-label="Value for right side" placeholder="Enter a value" autocomplete="off" value="'+esc(subjectAutoInputs.right)+'"><button class="apply" id="subject-apply-right">Apply</button></div></div></div><p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div>'}
 function subjectSubstitute(text,values){return text.replace(/[abcdy]/g,ch=>values[ch]===undefined?ch:'('+values[ch].str()+')')}
 function subjectValueAt(v,x){let out=v.p.at(x);if(v.rad){let root=sqrtQ(v.rad.at(x));if(!root)throw Error('The sampled square root is not rational.');out=out.add(v.t.at(x).mul(root))}return out}
 function subjectSamples(){let samples=[];for(let i=0;i<110&&samples.length<18;i++){
@@ -1279,15 +1316,66 @@ function subjectPreview(){let node=$('subject-preview');if(node)node.innerHTML=s
 function subjectRender(){let done=subjectDone;
   $('subject-levels').innerHTML=Array.from({length:7},(_,i)=>'<button data-subject-level="'+(i+1)+'" class="'+(subjectLevel===i+1?'active':'')+'" aria-pressed="'+(subjectLevel===i+1)+'">Level '+(i+1)+'</button>').join('');lab.querySelectorAll('[data-subject-level]').forEach(b=>b.disabled=true);
   lab.querySelectorAll('[data-subject-mode]').forEach(b=>{let active=b.dataset.subjectMode===subjectMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active);b.disabled=true});
-  $('subject-description').textContent=subjectDescriptions[subjectLevel-1];$('subject-question').innerHTML=subjectMath(subjectQuestion);$('subject-condition').textContent=subjectDomain;$('subject-guidance-text').textContent=subjectMode==='auto'?'Choose an operation for each step. The equivalent formula is calculated for you.':'Write a complete equation on each line. A direct correct answer is welcome.';
-  $('subject-count').textContent='Question '+subjectPosition+' of '+subjectTotal;let rows=subjectRows.map((line,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ '+(subjectMode==='auto'?'Calculated':'Checked')+'</span></span><div class="accepted-working working-math">'+subjectMath(line)+'</div>'+(subjectMode==='manual'?'<button class="free-edit" data-subject-edit="'+i+'" aria-label="Edit Step '+(i+1)+'">Edit</button>':'')+'</div>').join('');
+  $('subject-description').textContent=subjectDescriptions[subjectLevel-1];$('subject-condition').textContent=subjectDomain;$('subject-guidance-text').textContent=subjectMode==='auto'?'Apply any valid operation and value to both sides; the scale simplifies the result.':'Write a complete equation on each line. A direct correct answer is welcome.';
+  $('subject-count').textContent='Question '+subjectPosition+' of '+subjectTotal;let rows=(subjectMode==='manual'?'<div class="free-row accepted-row"><span class="free-step">Start</span><div class="accepted-working working-math">'+subjectMath(subjectQuestion)+'</div></div>':'')+subjectRows.map((line,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ '+(subjectMode==='auto'?'Calculated':'Checked')+'</span></span><div class="accepted-working working-math">'+subjectMath(line)+'</div>'+(subjectMode==='manual'?'<button class="free-edit" data-subject-edit="'+i+'" aria-label="Edit Step '+(i+1)+'">Edit</button>':'')+'</div>').join('');
   if(done)rows+='<div class="free-finished">✓ x is the subject. Check the stated restrictions when using the formula.</div>';
-  else if(subjectMode==='auto')rows+='<div class="free-row draft-row"><span class="free-step">Step '+(subjectRows.length+1)+'</span><div>'+subjectAutoControls()+'<p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div></div>';
+  else if(subjectMode==='auto')rows+='<div class="subject-auto-workspace"><h3>Step '+(subjectRows.length+1)+' · Apply an operation to both sides</h3>'+subjectAutoControls()+'</div>';
   else rows+='<div class="free-row draft-row"><span class="free-step">Step '+(subjectRows.length+1)+'</span><div class="free-editor"><div id="subject-input" class="structured-math-editor" role="group" aria-label="Working space for Step '+(subjectRows.length+1)+'"></div><div id="subject-preview" class="free-preview"></div><p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div><button id="subject-check" class="free-check">Check</button></div>';
   $('subject-rows').innerHTML=rows;lab.querySelectorAll('[data-subject-edit]').forEach(b=>b.onclick=()=>subjectEdit(+b.dataset.subjectEdit));
   $('subject-next').disabled=subjectBusy||subjectPosition>=subjectTotal;
   $('subject-restart').disabled=subjectBusy;
-  $('subject-tools').classList.toggle('hidden',!!done||subjectMode==='auto');$('subject-tip').classList.toggle('hidden',subjectMode==='auto');$('subject-hint').classList.add('hidden');if(!done&&subjectMode==='manual'){initialiseMathEditor(subjectDraft,'subject-input');subjectPreview();$('subject-check').onclick=subjectCheck}if(!done&&subjectMode==='auto')lab.querySelectorAll('[data-subject-auto]').forEach(b=>b.onclick=()=>{let actions=[...lab.querySelectorAll('[data-subject-auto]')].map(n=>n.textContent);subjectAutoChoose(actions[+b.dataset.subjectAuto])})
+  $('subject-tools').classList.toggle('hidden',!!done||subjectMode==='auto');$('subject-tip').classList.toggle('hidden',subjectMode==='auto');$('subject-hint').classList.add('hidden');if(!done&&subjectMode==='manual'){initialiseMathEditor(subjectDraft,'subject-input');subjectPreview();$('subject-check').onclick=subjectCheck}if(!done&&subjectMode==='auto'){
+    lab.querySelectorAll('[data-subject-op]').forEach(b=>b.onclick=()=>{
+      subjectSelectedOp=b.dataset.subjectOp;
+      lab.querySelectorAll('[data-subject-op]').forEach(op=>{
+        const selected=op===b;op.classList.toggle('selected',selected);op.setAttribute('aria-pressed',selected);
+      });
+    });
+    for(const side of ['left','right']){
+      const input=$('subject-'+side+'-value'),apply=$('subject-apply-'+side);
+      input.oninput=()=>subjectAutoInputs[side]=input.value;
+      input.onkeydown=e=>{if(e.key==='Enter')subjectAutoApply(side)};
+      apply.onclick=()=>subjectAutoApply(side);
+    }
+    lab.querySelectorAll('[data-subject-both]').forEach(b=>b.onclick=()=>subjectAutoBoth(b.dataset.subjectBoth));
+  }
+}
+
+const sn=(op,...args)=>({op,args}), sc=n=>n.op==='num', sz=n=>sc(n)&&n.args[0]===0, so=n=>sc(n)&&n.args[0]===1;
+function subjectTree(text){function read(n){if(n.op==='group')return read(n.left);if(n.op==='var')return sn('var',n.text);if(n.op==='number')return sn('num',Number(n.text));if(n.op==='neg')return sn('mul',sn('num',-1),read(n.left));if(n.op==='square')return sn('square',read(n.left));if(n.op==='sqrt')return sn('root',read(n.left));return sn(n.op==='implicit'||n.op==='*'?'mul':n.op==='/'?'div':n.op==='-'?'sub':'add',read(n.left),read(n.right))}return read(subjectAst(text))}
+function subjectKey(n){return n.op+'('+n.args.map(x=>typeof x==='object'?subjectKey(x):String(x)).join(',')+')'}
+function subjectReduce(n){if(n.op==='var'||n.op==='num')return n;let a=n.args.map(subjectReduce);if(n.op==='sub')return subjectReduce(sn('add',a[0],sn('mul',sn('num',-1),a[1])));
+ if(n.op==='square'){if(a[0].op==='root')return a[0].args[0];return sn('square',a[0])}
+ if(n.op==='root'){if(a[0].op==='square')return a[0].args[0];return sn('root',a[0])}
+ if(n.op==='mul'||n.op==='div'){
+  if(n.op==='mul'&&a[0].op==='num'&&a[1].op==='add')return subjectReduce(sn('add',...a[1].args.map(t=>sn('mul',a[0],t))));
+  if(n.op==='mul'&&a[1].op==='num'&&a[0].op==='add')return subjectReduce(sn('add',...a[0].args.map(t=>sn('mul',a[1],t))));
+  let factors=[],coefficient=1;function gather(t,sign){if(t.op==='mul'){t.args.forEach(x=>gather(x,sign));return}if(t.op==='div'){gather(t.args[0],sign);gather(t.args[1],-sign);return}if(t.op==='num'){if(sign===1)coefficient*=t.args[0];else coefficient/=t.args[0];return}factors.push([t,sign])}gather(a[0],1);if(n.op==='div')gather(a[1],-1);else gather(a[1],1);
+  if(!Number.isFinite(coefficient))throw Error('Division by zero is not allowed.');if(coefficient===0)return sn('num',0);
+  let pos=[],neg=[];for(let [f,s] of factors){let opposite=s===1?neg:pos,at=opposite.findIndex(t=>subjectKey(t)===subjectKey(f));if(at>=0)opposite.splice(at,1);else(s===1?pos:neg).push(f)}
+  function product(items){if(!items.length)return sn('num',1);return items.reduce((v,w)=>sn('mul',v,w))}
+  if(coefficient!==1||!pos.length)pos.unshift(sn('num',coefficient));let top=product(pos);return neg.length?sn('div',top,product(neg)):top
+ }
+ if(n.op==='add'){
+  let terms=[];function gather(t){if(t.op==='add')t.args.forEach(gather);else terms.push(t)}a.forEach(gather);
+  let groups=new Map();for(let term of terms){let coefficient=1,factors=[];function split(t){if(t.op==='mul'){t.args.forEach(split)}else if(t.op==='num')coefficient*=t.args[0];else factors.push(t)}split(term);factors.sort((x,y)=>subjectKey(x).localeCompare(subjectKey(y)));let key=factors.map(subjectKey).join('*'),g=groups.get(key);groups.set(key,{factors,coefficient:(g?.coefficient||0)+coefficient})}
+  let active=[...groups.values()].filter(g=>g.coefficient);if(active.length>1&&active.every(g=>g.factors.some(f=>f.op==='var'&&f.args[0]==='x'))){let rest=active.map(g=>{let factors=g.factors.slice(),at=factors.findIndex(f=>f.op==='var'&&f.args[0]==='x');factors.splice(at,1);let t=factors.reduce((v,w)=>v?sn('mul',v,w):w,sn('num',g.coefficient));return subjectReduce(t)});return sn('mul',sn('var','x'),subjectReduce(rest.reduce((v,w)=>sn('add',v,w))))}
+  let pieces=[];for(let {factors,coefficient} of active){let item=factors.reduce((v,w)=>v?sn('mul',v,w):w,null);pieces.push(item?(coefficient===1?item:subjectReduce(sn('mul',sn('num',coefficient),item))):sn('num',coefficient))}
+  if(!pieces.length)return sn('num',0);if(pieces.length===1)return pieces[0];return pieces.reduce((v,w)=>sn('add',v,w))
+ }return sn(n.op,...a)
+}
+function subjectPrint(n,parent=''){let op=n.op,a=n.args;if(op==='var')return a[0];if(op==='num')return String(a[0]);if(op==='root')return 'sqrt('+subjectPrint(a[0])+')';if(op==='square')return '('+subjectPrint(a[0])+')^2';if(op==='div')return '('+subjectPrint(a[0])+')/('+subjectPrint(a[1])+')';if(op==='mul'){let l=subjectPrint(a[0],'mul'),r=subjectPrint(a[1],'mul');if(a[0].op==='num'&&a[0].args[0]===-1)return '-'+(a[1].op==='add'?'('+subjectPrint(a[1])+')':r);if(a[0].op==='add')l='('+subjectPrint(a[0])+')';if(a[1].op==='add')r='('+subjectPrint(a[1])+')';return l+((/^-?[a-dxy0-9]+$/.test(l)&&(/^[a-dxy]/.test(r)||r.startsWith('(')))?'':'*')+r}if(op==='add'){let l=subjectPrint(a[0]),r=subjectPrint(a[1]);return l+(r.startsWith('-')?'':' + ')+r}return ''}
+function subjectCalculateSide(base,op,value){if(base.includes('±')){let parts=base.split('±');if(parts.length!==2)throw Error('Use one ± branch at a time.');let head=subjectCalculateSide(parts[0]||'0',op,value),tail=parts[1];if(op==='+'||op==='-')return head+'±'+tail;throw Error('Use addition or subtraction to isolate x while keeping both branches.')}
+ let tree=subjectTree(base),operand=value?subjectTree(value):null;
+ let result=op==='square'?sn('square',tree):op==='root'?sn('root',tree):sn(({'+':'add','-':'sub','*':'mul','/':'div'})[op],tree,operand);
+ return subjectPrint(subjectReduce(result))
+}
+function subjectCalculateEquation(equation,op,value){let halves=equation.split('=');if(halves.length!==2)throw Error('Use one equation on the scale.');
+ let [left,right]=halves.map(s=>s.trim());if(op==='root'){
+  let squareLeft=subjectTree(left).op==='square',squareRight=subjectTree(right).op==='square';if(!squareLeft&&!squareRight)throw Error('Isolate a squared expression before taking square roots.');
+  return squareLeft?subjectCalculateSide(left,'root')+'=±'+subjectCalculateSide(right,'root'):subjectCalculateSide(right,'root')+'=±'+subjectCalculateSide(left,'root')
+ }
+ return subjectCalculateSide(left,op,value)+'='+subjectCalculateSide(right,op,value)
 }
 
 function reportSubject(answer){
@@ -1296,10 +1384,23 @@ function reportSubject(answer){
   subjectReported=true;subjectSolvedCallback(proof);
 }
 function saveSubjectWork(){
-  if(subjectPosition)subjectWork.set(subjectPosition,{rows:subjectRows.slice(),draft:subjectDraft,done:subjectDone,reported:subjectReported});
+  if(subjectPosition)subjectWork.set(subjectPosition,{rows:subjectRows.slice(),draft:subjectDraft,done:subjectDone,reported:subjectReported,pending:{...subjectPending},inputs:{...subjectAutoInputs},op:subjectSelectedOp});
 }
 mount.resetSubjectMission=()=>{subjectWork.clear();subjectPosition=0;};
-mount.subjectQuestions=type=>subjectCatalog.filter(q=>q.type===type);
+mount.subjectQuestions=type=>subjectCatalog.filter(q=>q.type===type&&q.balance);
+mount.subjectQuestionInfo=(type,eq)=>subjectCatalog.find(q=>q.type===type&&q.eq===eq);
+function subjectBalanceSteps(item){
+  if(item.balance)return item.balance;
+  const integer=item.eq.match(/\(\d+\)/)?.[0];
+  if(!integer)return [];
+  for(const base of mount.subjectQuestions(item.type)){
+    const first=base.eq.match(/[a-d]/)?.[0];
+    if(first&&base.eq.replaceAll(first,integer)===item.eq){
+      return base.balance.map(([op,value,formula])=>[op,value.replaceAll(first,integer),formula.replaceAll(first,integer)]);
+    }
+  }
+  return [];
+}
 mount.formatSubjectFormula=subjectMath;
 mount.openSubjectMission=(question,position,total,showHint,next,onSolved,mode)=>{
   saveSubjectWork();
@@ -1307,9 +1408,10 @@ mount.openSubjectMission=(question,position,total,showHint,next,onSolved,mode)=>
   if(!item)throw Error('This formula is unavailable. Refresh the mission and try again.');
   subjectPosition=position;subjectTotal=total;subjectBusy=false;
   subjectLevel=Number(item.type.at(-1));subjectQuestion=item.eq;subjectGuide=item.guide;subjectDomain=item.domain;
-  subjectAutoSteps=item.steps;subjectMode=mode==='guided'?'auto':'manual';subjectSolvedCallback=onSolved;
+  subjectAutoSteps=subjectBalanceSteps(item);subjectMode=mode==='guided'?'auto':'manual';subjectSolvedCallback=onSolved;
   const saved=subjectWork.get(position);
   subjectRows=saved?.rows||[];subjectDraft=saved?.draft||'';subjectDone=saved?.done||false;subjectReported=saved?.reported||false;subjectError='';
+  subjectPending=saved?.pending||{};subjectAutoInputs=saved?.inputs||{left:'',right:''};subjectSelectedOp=saved?.op||'+';
   $('equation-main').classList.add('hidden');$('simplify-main').classList.add('hidden');$('subject-main').classList.remove('hidden');
   $('subject-next').textContent='Next question →';$('subject-next').setAttribute('aria-label','Next question');$('subject-next').onclick=next;
   $('subject-hint-btn').hidden=!showHint;
@@ -1320,8 +1422,8 @@ mount.setSubjectMissionBusy=busy=>{
   lab.querySelectorAll('[data-subject-edit]').forEach(b=>b.disabled=busy);
 };
 lab.querySelectorAll('[data-subject-insert]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>insertMathNotation(b.dataset.subjectInsert)});
-$('subject-restart').onclick=()=>{if(subjectBusy)return;subjectRows=[];subjectDraft='';subjectError='';subjectDone=false;subjectRender()};
-$('subject-hint-btn').onclick=()=>{$('subject-hint').textContent=subjectError||(subjectMode==='auto'?subjectAutoSteps[subjectRows.length]?.[0]||subjectGuide:subjectGuide);$('subject-hint').classList.remove('hidden')};
+$('subject-restart').onclick=()=>{if(subjectBusy)return;subjectRows=[];subjectDraft='';subjectError='';subjectDone=false;subjectPending={};subjectAutoInputs={left:'',right:''};subjectSelectedOp='+';subjectRender()};
+$('subject-hint-btn').onclick=()=>{$('subject-hint').textContent=subjectError||(subjectMode==='auto'?subjectAutoHint():subjectGuide);$('subject-hint').classList.remove('hidden')};
 
 mount.openMissionEquation=(equation, position, total, showHint, next, onSolved, workingMode)=>{
   $('subject-main').classList.add('hidden');
@@ -1614,6 +1716,12 @@ mount.setMissionBusy=(busy,last)=>{
   const chosen = () => activeTypes().filter(e=>e.checked).map(e=>e.value);
   const mix = () => family()+'/'+chosen().join(',') + '/' + pick('count').value;
   function unique(type) {
+    if(isSubject(type)){
+      const available=lab.subjectQuestions(type).filter(q=>!rows.some(r=>r.eq===q.eq));
+      if(!available.length)return null;
+      const q=available[rand(0,available.length-1)];
+      return {type:q.type,eq:q.eq};
+    }
     let q;
     do { q = make(type); } while (rows.some(r => r.eq === q.eq));
     return q;
@@ -1630,13 +1738,13 @@ mount.setMissionBusy=(busy,last)=>{
       else if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+(isRational(r.type)?lab.formatMissionExpression(r.eq):lab.formatMissionEquation(r.eq));
       else q.textContent=(i+1)+'.  '+(r.type.startsWith('expand-')?displayExpansion(r.eq):r.eq);
       if(isSubject(r.type)){
-        const formula=lab.subjectQuestions(r.type).find(q=>q.eq===r.eq);
+        const formula=lab.subjectQuestionInfo(r.type,r.eq);
         meta.textContent=names[r.type];
         if(formula){meta.append(' · ',Object.assign(document.createElement('span'),{innerHTML:lab.formatSubjectFormula(formula.steps.at(-1)[1])}));}
       }else meta.textContent=names[r.type]+' · '+(isRational(r.type)?displayExpansion(r.display||rationalQuestion(r.eq).display):r.type.startsWith('expand-')?polynomial(r.x):'x = '+number(r.x));
       data.append(q,meta);
       const btn = document.createElement('button');btn.type='button';btn.className='cursor-interaction';btn.textContent='Replace';btn.setAttribute('aria-label','Replace question '+(i+1));
-      btn.addEventListener('click',()=>{rows[i]=unique(r.type);review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
+      btn.addEventListener('click',()=>{const replacement=unique(r.type);if(!replacement){message('All formulas for this level are already in the mission.',true);return;}rows[i]=replacement;review();status('Draft · Question '+(i+1)+' replaced');pick('list').children[i].querySelector('button:last-child').focus();});
       const edit=document.createElement('button');
       edit.type='button';edit.textContent='Edit';edit.setAttribute('aria-label','Edit question '+(i+1));edit.onclick=()=>editEquation(i);
       const actions=document.createElement('div');actions.className='row';if(!isSubject(r.type))actions.append(edit);actions.append(btn);
@@ -1663,6 +1771,9 @@ mount.setMissionBusy=(busy,last)=>{
     }
     if(!previewOnly&&(!pick('release').checkValidity() || (releaseInstant() && !Number.isFinite(+releaseInstant())))){
       show('setup');message('Enter a valid release date and time.',true);pick('release').focus();return false;
+    }
+    if(!previewOnly&&family()==='subject'&&rows.some(r=>!lab.subjectQuestionInfo(r.type,r.eq)?.balance)){
+      show('setup');message('Generate new symbolic formulas before publishing this mission.',true);return false;
     }
     message('');return true;
   }
@@ -1972,7 +2083,11 @@ mount.setMissionBusy=(busy,last)=>{
       pick('working-mode').value=m.mode==='guided'?'guided':'unguided';
       setFamily(m.questions.some(r=>isSubject(r.type))?'subject':m.questions.some(r=>isRational(r.type))?'rational':m.questions.some(r=>r.type.startsWith('expand-'))?'expand':m.questions.some(r=>r.type.startsWith('fraction-'))?'fraction':'whole');
       activeTypes().forEach(el=>el.checked=m.questions.some(r=>r.type===el.value));
-      rows=m.questions.map(r=>({...r}));lastMix=mix();review();message('');
+      rows=m.questions.map(r=>({...r}));
+      for(const [i,r] of rows.entries()){
+        if(isSubject(r.type)&&!lab.subjectQuestionInfo(r.type,r.eq)?.balance)rows[i]=unique(r.type)||r;
+      }
+      lastMix=mix();review();message('');
       status('Draft · Copied mission');show('setup');pick('title').focus();
     },
     published(scheduled){
@@ -2006,5 +2121,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=subject-missions-1"></script>
-<script src="app.js?v=subject-missions-1"></script>
+<script src="app.js?v=mission-refresh-1"></script>
 </body></html>

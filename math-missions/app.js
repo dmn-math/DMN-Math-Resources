@@ -749,10 +749,25 @@
     const list=q('mm-published');
     list.replaceChildren();
     if(!state.missions.length){list.append(el('p','No class missions yet.','mm-muted'));return;}
-    state.missions.forEach(m=>{
+    const groups=new Map();
+    for(const cls of state.classes)groups.set(cls.id,{label:cls.label,missions:[]});
+    for(const m of state.missions){
+      const key=m.classId||m.class;
+      if(!groups.has(key))groups.set(key,{label:m.class,missions:[]});
+      groups.get(key).missions.push(m);
+    }
+    for(const {label,missions} of groups.values()){
+      if(!missions.length)continue;
+      const section=el('section','','mm-class-mission-group');
+      section.append(el('h3',label));
+      missions.forEach(m=>renderTeacherMission(section,m));
+      list.append(section);
+    }
+  }
+  function renderTeacherMission(list,m){
       const row=el('div','','mm-row mm-mission mm-teacher-mission');
       const details=el('div');
-      details.append(el('strong',m.title),el('small',m.class+' · '+m.coins+' coins · '+m.completed+' completed'));
+      details.append(el('strong',m.title),el('small',m.coins+' coins · '+m.completed+' completed'));
       if(m.questions?.some(q=>q.type?.startsWith('subject-')||q.type?.startsWith('fraction-')||['one','two','both','brackets'].includes(q.type)))details.append(el('small',m.mode==='guided'?'Guided · Calculate for me':'Unguided · I’ll write the working'));
       if(m.releaseAt){
         details.append(el('small',(m.scheduled?'Scheduled for ':'Released ')+releaseFormat.format(new Date(m.releaseAt))+' (Singapore time)'));
@@ -784,7 +799,6 @@
       remove.setAttribute('aria-label','Delete mission: '+m.title);
       actions.append(remove);row.append(actions);
       list.append(row);
-    });
   }
   q('mm-refresh-missions').onclick=()=>busy(q('mm-refresh-missions'),async()=>{
     const next=await rpc('mm_state');
@@ -817,14 +831,23 @@
     for(const quest of dailyQuests)renderActivity(list,quest);
   }
   function renderActivity(list,m){
-    const row=el('div','','mm-row mm-mission');
-    const name=el('div');name.append(el('strong',m.title),el('small',m.solved.length+' / '+m.questions.length+' solved · '+m.coins+' coins'+(m.complete?' · Completed':'')));
+    const row=el('article','','mm-activity');
+    const reward=el('span','','mm-activity-reward');
+    reward.setAttribute('role','img');
+    reward.setAttribute('aria-label',m.coins+(m.coins===1?' coin':' coins'));
+    const icon=el('i','','mm-coin'),amount=el('b',String(m.coins));
+    icon.setAttribute('aria-hidden','true');amount.setAttribute('aria-hidden','true');
+    reward.append(icon,amount);
+    const name=el('div','','mm-activity-title');
+    name.append(el('strong',m.title),el('small',m.complete?'Completed':m.solved.length+' / '+m.questions.length+' solved'));
     const progress=el('progress','','mm-meter');
     progress.max=m.questions.length;progress.value=m.solved.length;
     progress.setAttribute('aria-label','Questions solved: '+m.title);
-    name.append(progress);
+    if(!m.complete&&m.solved.length)name.append(progress);
     const start=button(m.complete?'Practise again':m.solved.length?'Continue':'Start',()=>play(m));
-    row.append(name,start);list.append(row);
+    start.className='mm-activity-action';
+    if(m.complete)row.classList.add('mm-activity-complete');
+    row.append(reward,name,start);list.append(row);
   }
   function renderStudent(){
     q('mm-student-name').textContent=state.alias+' · '+state.class;
@@ -832,9 +855,14 @@
     q('mm-demo-back').hidden=!demoActive;
     renderWallet();
     const missions=q('mm-missions');missions.replaceChildren();
-    if(!state.missions.length)missions.append(el('p','Your teacher hasn’t published any missions yet.','mm-muted'));
+    const completed=q('mm-completed-missions');completed.replaceChildren();
+    const current=state.missions.filter(m=>!m.complete);
+    const finished=state.missions.filter(m=>m.complete);
+    if(!current.length)missions.append(el('p',finished.length?'You’re all caught up!':'Your teacher hasn’t published any missions yet.','mm-muted'));
+    if(!finished.length)completed.append(el('p','Your completed missions will appear here.','mm-muted'));
     const topicOrder=m=>m.questions[0]?.type?.startsWith('expand-')?0:m.questions[0]?.type?.startsWith('rational-')?1:2;
-    [...state.missions].sort((a,b)=>topicOrder(a)-topicOrder(b)).forEach(m=>renderActivity(missions,m));
+    current.sort((a,b)=>topicOrder(a)-topicOrder(b)).forEach(m=>renderActivity(missions,m));
+    finished.forEach(m=>renderActivity(completed,m));
     renderDailyQuests();
     const list=q('mm-leaderboard');list.replaceChildren();
     state.leaderboard.forEach((s,i,a)=>{

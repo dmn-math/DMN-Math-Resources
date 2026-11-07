@@ -298,3 +298,23 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #missions-app .mm-quest-enabled{display:flex;align-items:center;gap:8px}
 #missions-app .mm-quest-enabled input{width:auto;accent-color:var(--accent)}
 @media(prefers-reduced-motion:no-preference){.mm-town-dialog[open]{animation:mm-gift-reveal .25s ease-out}}
+
+/* Mission cards: reward, title and action. */
+#missions-app .mm-dashboard #mm-town-quests{grid-column:1/-1}
+#missions-app .mm-activity{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px 12px;padding:10px 0;border-top:1px solid var(--rule)}
+.mm-activity-title{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+.mm-activity-title small{margin-top:3px}
+.mm-activity-reward{display:grid;justify-items:center;align-content:center;gap:4px;min-width:42px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.mm-activity-reward .mm-coin{width:28px;height:21px}
+.mm-activity-reward b{font-size:.85rem}
+#missions-app .mm-activity .mm-meter{width:min(100%,140px);margin-top:4px}
+#missions-app .mm-activity-action{min-width:0;max-width:100%;border-color:#af7727;background:#efb85d;color:#34240e}
+#missions-app .mm-activity-action:hover{background:#f4c776}
+#missions-app .mm-activity-complete .mm-activity-action{background:var(--paper);color:var(--ink);border-color:var(--rule)}
+#missions-app .mm-class-mission-group{min-width:0;margin-top:12px}
+#missions-app .mm-class-mission-group h3{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px 10px;margin:0 0 4px;font-size:1rem}
+@media(max-width:400px){
+  #missions-app .mm-activity{gap:6px}
+  #missions-app .mm-activity-action{max-width:84px;padding-inline:7px;font-size:.78rem}
+  .mm-activity-reward{min-width:34px}
+}
