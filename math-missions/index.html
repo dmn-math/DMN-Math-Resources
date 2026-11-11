@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=superhero-costumes-1">
+<link rel="stylesheet" href="app.css?v=blind-box-confirmation-1">
 <script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
@@ -283,11 +283,6 @@
         <strong id="mm-gift-title" tabindex="-1">Costume blind box</strong>
         <small>15 coins · One unowned costume</small>
         <div class="mm-shop-actions"><button type="button" id="mm-open-gift" aria-label="Open Costume blind box for 15 coins" disabled>Open box</button></div>
-        <details id="mm-gift-odds">
-          <summary>See your odds</summary>
-          <p>Higher-priced costumes are more likely to appear.</p>
-          <ul id="mm-gift-odds-list"></ul>
-        </details>
         <small id="mm-gift-availability"></small>
         <p id="mm-gift-message" role="status"></p>
         <div id="mm-gift-reward" hidden></div>
@@ -302,6 +297,16 @@
       <div class="mm-row mm-upgrade-actions">
         <button type="button" id="mm-upgrade-cancel" autofocus>Keep saving</button>
         <button type="button" id="mm-upgrade-confirm" class="mm-primary">Upgrade house</button>
+      </div>
+    </dialog>
+    <dialog id="mm-gift-dialog" class="mm-town-dialog mm-upgrade-dialog" aria-labelledby="mm-gift-dialog-title" aria-describedby="mm-gift-dialog-prompt">
+      <div id="mm-gift-dialog-art" class="mm-upgrade-art" aria-hidden="true"></div>
+      <h2 id="mm-gift-dialog-title">Open the costume blind box?</h2>
+      <p id="mm-gift-dialog-prompt"></p>
+      <p id="mm-gift-dialog-status" role="status"></p>
+      <div class="mm-row mm-upgrade-actions">
+        <button type="button" id="mm-gift-cancel" autofocus>Keep saving</button>
+        <button type="button" id="mm-gift-confirm" class="mm-primary">Open box · 15 coins</button>
       </div>
     </dialog>
   </section>
@@ -1505,7 +1510,14 @@ function subjectRender(){let done=subjectDone;
 
 const sn=(op,...args)=>({op,args}), sc=n=>n.op==='num', sz=n=>sc(n)&&n.args[0]===0, so=n=>sc(n)&&n.args[0]===1;
 function subjectTree(text){function read(n){if(n.op==='group')return read(n.left);if(n.op==='var')return sn('var',n.text);if(n.op==='number')return sn('num',Number(n.text));if(n.op==='neg')return sn('mul',sn('num',-1),read(n.left));if(n.op==='square')return sn('square',read(n.left));if(n.op==='sqrt')return sn('root',read(n.left));return sn(n.op==='implicit'||n.op==='*'?'mul':n.op==='/'?'div':n.op==='-'?'sub':'add',read(n.left),read(n.right))}return read(subjectAst(text))}
-function subjectKey(n){return n.op+'('+n.args.map(x=>typeof x==='object'?subjectKey(x):String(x)).join(',')+')'}
+function subjectKey(n){
+  // A reordered sum or product is the same factor.
+  if(n.op==='add'||n.op==='mul'){
+    const terms=n.op==='add'?subjectTerms(n):subjectFactors(n);
+    return n.op+'('+terms.map(subjectKey).sort().join(',')+')';
+  }
+  return n.op+'('+n.args.map(x=>typeof x==='object'?subjectKey(x):String(x)).join(',')+')';
+}
 function subjectReduce(n){if(n.op==='var'||n.op==='num')return n;let a=n.args.map(subjectReduce);if(n.op==='sub')return subjectReduce(sn('add',a[0],sn('mul',sn('num',-1),a[1])));
  if(n.op==='square'){if(a[0].op==='root')return a[0].args[0];return sn('square',a[0])}
  if(n.op==='root'){if(a[0].op==='square')return a[0].args[0];return sn('root',a[0])}
@@ -1530,7 +1542,15 @@ function subjectPrint(n,parent=''){let op=n.op,a=n.args;if(op==='var')return a[0
 function subjectCalculateSide(base,op,value){if(base.includes('±')){let parts=base.split('±');if(parts.length!==2)throw Error('Use one ± branch at a time.');let head=subjectCalculateSide(parts[0]||'0',op,value),tail=parts[1];if(op==='+'||op==='-')return head+'±'+tail;throw Error('Use addition or subtraction to isolate x while keeping both branches.')}
  let tree=subjectTree(base),operand=value?subjectTree(value):null;
  let result=op==='square'?sn('square',tree):op==='root'?sn('root',tree):sn(({'+':'add','-':'sub','*':'mul','/':'div'})[op],tree,operand);
- return subjectPrint(subjectReduce(result))
+ const reduced=subjectReduce(result);
+ // Factor an expanded numerator here only when the factor cancels completely.
+ // For example, (xb + xd)/(b + d) is x; dividing by just b does not isolate x.
+ if(op==='/'&&reduced.op==='div'){
+   const [numerator,denominator]=reduced.args;
+   const parts=subjectFactorParts(numerator);
+   if(parts&&subjectKey(subjectReduce(parts.reduce((a,b)=>sn('add',a,b))))===subjectKey(denominator))return 'x';
+ }
+ return subjectPrint(reduced)
 }
 function subjectCalculateEquation(equation,op,value){let halves=equation.split('=');if(halves.length!==2)throw Error('Use one equation on the scale.');
  let [left,right]=halves.map(s=>s.trim());if(op==='root'){
@@ -2302,5 +2322,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=superhero-costumes-1"></script>
-<script src="app.js?v=superhero-costumes-1"></script>
+<script src="app.js?v=blind-box-confirmation-1"></script>
 </body></html>

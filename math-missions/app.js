@@ -109,7 +109,9 @@
     if(upgradeDialog.open)upgradeDialog.close();
     upgradeSelection=null;
     for(const id of ['mm-shop-message','mm-inventory-status','mm-gift-message','mm-gift-reward'])q(id).replaceChildren();
-    q('mm-gift-reward').hidden=true;q('mm-gift-odds').open=false;
+    if(giftDialog.open)giftDialog.close();
+    giftPending=false;
+    q('mm-gift-reward').hidden=true;
     q('mm-inventory').hidden=true;q('mm-inventory-toggle').setAttribute('aria-expanded','false');
     renderStreet([]);
     q('mm-town-home').removeAttribute('aria-busy');q('mm-town-cabin').removeAttribute('aria-busy');
@@ -276,37 +278,65 @@
   };
   const giftCard=q('mm-gift-card');
   q('mm-gift-art').append(art.gift());
-  const oddsFormat=new Intl.NumberFormat('en-SG',{style:'percent',maximumFractionDigits:2});
+  const giftDialog=q('mm-gift-dialog'),giftOpen=q('mm-open-gift'),giftConfirm=q('mm-gift-confirm'),giftCancel=q('mm-gift-cancel');
+  const giftArt=q('mm-gift-dialog-art'),giftTitle=q('mm-gift-dialog-title'),giftPrompt=q('mm-gift-dialog-prompt'),giftStatus=q('mm-gift-dialog-status');
+  let giftPending=false;
   function renderGift(){
-    const pool=giftPool(),total=pool.reduce((sum,p)=>sum+priceFor(p.id),0);
-    q('mm-open-gift').disabled=!townReady||townPending||!pool.length||state.balance<giftCost;
-    q('mm-gift-odds').hidden=!pool.length;
-    q('mm-gift-odds-list').replaceChildren(...pool.map(p=>{
-      const odds=priceFor(p.id)/total;
-      return el('li',p.name+' · '+(odds<0.0001?'<0.01%':oddsFormat.format(odds)));
-    }));
+    const available=giftPool().length>0;
+    giftOpen.disabled=!townReady||townPending||!available||state.balance<giftCost;
     q('mm-gift-availability').textContent=shopPrices===null?'Shop prices are unavailable. Reopen Cabin & Shop to retry.':
-      !pool.length?'You already own every costume.':
+      !available?'You already own every costume in the box.':
       state.balance<giftCost?'You need '+(giftCost-state.balance)+' more '+(giftCost-state.balance===1?'coin':'coins')+'.':'';
   }
-  q('mm-open-gift').onclick=()=>{
-    if(!window.confirm('Spend 15 coins on one random costume you don’t own?'))return;
+  giftOpen.onclick=()=>{
+    if(giftOpen.disabled||giftDialog.open)return;
+    giftArt.replaceChildren(art.gift());
+    giftTitle.textContent='Open the costume blind box?';
+    giftPrompt.textContent='Spend '+giftCost+' coins to receive one random costume you don’t own.';
+    giftStatus.textContent='';
+    giftConfirm.textContent='Open box · '+giftCost+' coins';
+    giftConfirm.hidden=false;giftConfirm.disabled=false;giftCancel.disabled=false;
+    giftCancel.textContent='Keep saving';
+    giftDialog.showModal();
+  };
+  giftCancel.onclick=()=>giftDialog.close();
+  giftDialog.addEventListener('cancel',event=>{if(giftPending)event.preventDefault();});
+  giftDialog.addEventListener('close',()=>{
+    if(giftOpen.closest('[hidden]'))return;
+    (giftOpen.disabled?q('mm-gift-title'):giftOpen).focus({preventScroll:true});
+  });
+  giftConfirm.onclick=async()=>{
+    if(!giftDialog.open||giftPending||giftOpen.disabled)return;
     giftRequest ||= crypto.randomUUID();
-    const request=giftRequest, session=sessionVersion;
-    q('mm-gift-message').textContent='Opening your gift box…';
-    q('mm-gift-reward').hidden=true;
-    townAction(async()=>{
+    const request=giftRequest,session=sessionVersion;
+    giftPending=true;giftConfirm.disabled=true;giftCancel.disabled=true;
+    giftStatus.textContent='Opening your gift box…';
+    const result=await townAction(async()=>{
       const {item,balance,score}=await rpc('mm_shop_open_gift',{p_request:request});
       if(session!==sessionVersion)return;
       giftRequest=null;
       const costume=art.byId[item],reward=q('mm-gift-reward');
       reward.replaceChildren();
-      if(costume){
-        reward.append(art.avatar({costume:item}));
-        reward.hidden=false;
-      }
+      reward.hidden=!costume;
+      if(costume)reward.append(art.avatar({costume:item}));
       return {wallet:{balance,score},owned:item,message:'You found '+(costume?.name||'a new costume')+'! It’s in your inventory.'};
-    },'gift','mm-open-gift');
+    },'gift');
+    if(session!==sessionVersion)return;
+    giftPending=false;
+    if(!giftDialog.open)return;
+    giftCancel.disabled=false;
+    if(result?.owned){
+      giftTitle.textContent='Costume unlocked!';
+      giftPrompt.textContent=result.message;
+      giftStatus.textContent='';
+      giftCancel.textContent='Done';giftConfirm.hidden=true;
+      if(art.byId[result.owned])giftArt.replaceChildren(art.avatar({costume:result.owned}));
+      giftCancel.focus();
+    }else{
+      giftStatus.textContent=result?.error||'Could not open the box. Try again.';
+      giftConfirm.disabled=giftOpen.disabled;
+      (giftConfirm.disabled?giftCancel:giftConfirm).focus();
+    }
   };
   function renderShop(){
     renderFittingRoom();renderInventory();renderGift();

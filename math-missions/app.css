@@ -271,9 +271,6 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #mm-gift-card{text-align:center}
 #mm-gift-card .mm-shop-actions{justify-content:center}
 #mm-gift-art{padding:6px}
-#mm-gift-odds{margin:5px 0;font-size:.83rem}
-#mm-gift-odds summary{color:var(--accent);font-weight:700;cursor:pointer}
-#mm-gift-odds ul{padding-inline-start:1.15em;text-align:start;margin:5px 0}
 #mm-gift-reward{display:grid;place-items:center;width:min(100%,115px);height:115px;padding:6px;margin:8px auto 0;border-radius:12px;background:#fef4e2;animation:mm-gift-reveal .42s ease-out}
 #mm-gift-reward svg{height:100%;min-height:0}
 #missions-app #mm-gift-message{font-weight:750;color:var(--accent)}
@@ -288,7 +285,7 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 
 
 .mm-town-activities{display:grid;gap:14px;min-width:0}
-#missions-app :is(#mm-quest-status,#mm-quest-teacher-note,#mm-quest-save-status,#mm-upgrade-dialog-status):empty{display:none}
+#missions-app :is(#mm-quest-status,#mm-quest-teacher-note,#mm-quest-save-status,#mm-upgrade-dialog-status,#mm-gift-dialog-status):empty{display:none}
 #missions-app .mm-town-dialog{width:min(calc(100% - 28px),430px);max-height:calc(100% - 28px);overflow:auto;padding:20px;border:1px solid var(--rule);border-radius:21px;background:var(--paper);color:var(--ink);box-shadow:0 8px 26px #211b1940}
 .mm-town-dialog::backdrop{background:#16251cb8}
 .mm-upgrade-dialog{text-align:center}
