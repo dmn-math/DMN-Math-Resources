@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=mission-refresh-1">
+<link rel="stylesheet" href="app.css?v=superhero-costumes-1">
 <script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
@@ -654,7 +654,7 @@ main{display:block;max-width:none;margin:0;padding:0}
 </template>
       <div class="mm-mission-finish"><button type="button" class="main cursor-interaction" data-finish-mission hidden>Complete mission</button></div>
     </section>
-    <dialog class="mm-victory" data-victory aria-labelledby="mm-victory-heading" aria-describedby="mm-victory-reward">
+    <dialog class="mm-victory" data-victory aria-labelledby="mm-victory-heading" aria-describedby="mm-victory-reward mm-victory-costume">
       <div class="mm-victory-art" aria-hidden="true">
         <svg viewBox="0 0 240 150" fill="none">
           <g class="mm-victory-burst" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
@@ -675,6 +675,7 @@ main{display:block;max-width:none;margin:0;padding:0}
       </div>
       <h2 id="mm-victory-heading">Mission complete!</h2>
       <p id="mm-victory-reward" data-victory-reward></p>
+      <div id="mm-victory-costume" class="mm-victory-costume" data-victory-costume hidden></div>
       <button type="button" class="main cursor-interaction" data-victory-close autofocus>Back to Home &amp; Missions</button>
     </dialog>
     <section class="body group" data-view="assign" hidden>
@@ -1794,6 +1795,15 @@ mount.setMissionBusy=(busy,last)=>{
     victory.querySelector('h2').textContent=playing.daily?'Daily quest complete!':'Mission complete!';
     const coins=finished.coins;
     pick('victory-reward').textContent=coins?'You earned '+coins+' '+(coins===1?'coin':'coins')+'!':'You solved every question.';
+    const reward=pick('victory-costume'),art=window.AlgebraTownArt;
+    const costume=art?.byId[finished.costume];
+    reward.replaceChildren();
+    reward.hidden=!costume;
+    if(costume){
+      const caption=document.createElement('span');
+      caption.textContent=costume.name+' unlocked! Find it in your inventory.';
+      reward.append(art.avatar({costume:costume.id}),caption);
+    }
     victory.showModal();
   };
   pick('victory-close').onclick=()=>victory.close();
@@ -2291,6 +2301,6 @@ mount.setMissionBusy=(busy,last)=>{
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="town-art.js?v=subject-missions-1"></script>
-<script src="app.js?v=mission-refresh-1"></script>
+<script src="town-art.js?v=superhero-costumes-1"></script>
+<script src="app.js?v=superhero-costumes-1"></script>
 </body></html>

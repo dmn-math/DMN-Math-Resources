@@ -11,17 +11,20 @@
   const demo = {
     role:'student', alias:'Town Explorer', class:'Sample class', balance:20, score:20, owned:[], town:blankTown(),
     missions:[{id:'demo-equations',title:'Solve equations without fractions',coins:10,hints:true,solved:[],complete:false,
-      questions:[{eq:'x + 7 = 12'},{eq:'3x - 4 = 11'},{eq:'4x + 1 = 2x + 9'}]}]
+      questions:[{type:'one',eq:'x + 7 = 12'},{type:'two',eq:'3x - 4 = 11'},{type:'both',eq:'4x + 1 = 2x + 9'}]}]
   };
   const demoAnswers = [5,5,4];
   const demoDaily={id:'demo-quest',title:'Solve a daily equation',hints:true,coins:3,solved:[],complete:false,questions:[{type:'one',eq:'x + 4 = 9'}]};
-  const products=art.catalog, costumes=products.filter(item=>item.slot==='costume');
+  const products=art.catalog, costumes=products.filter(item=>item.slot==='costume'&&!item.rewardOnly);
+  const balanceCostume='costume-balance';
+  const equationTypes=new Set(['one','two','both','brackets','fraction-one','fraction-numerator','fraction-both','fraction-denominator']);
+  const qualifiesForBalance=m=>!m.daily&&m.questions.length>0&&m.questions.every(q=>equationTypes.has(q.type));
   const giftCost=15;
   let shopPrices=null,priceRequest=0,giftRequest=null;
   const houseKey=level=>'house-'+level;
   const priceFor=id=>shopPrices?.[id]??null;
   const giftPool=()=>costumes.filter(p=>priceFor(p.id)!==null&&!state.owned.includes(p.id));
-  const demoPrices=Object.fromEntries([...products.map(p=>[p.id,p.price]),...art.houses.slice(1).map((h,i)=>[houseKey(i+2),h.price])]);
+  const demoPrices=Object.fromEntries([...products.filter(p=>!p.rewardOnly).map(p=>[p.id,p.price]),...art.houses.slice(1).map((h,i)=>[houseKey(i+2),h.price])]);
   function applyTheme(night){
     document.documentElement.dataset.townTheme=night?'night':'day';
     q('mm-theme').setAttribute('aria-pressed',String(night));
@@ -327,15 +330,16 @@
           });
           tryOn.id='mm-preview-'+p.id;tryOn.setAttribute('aria-label','Try on '+p.name);tools.append(tryOn);
         }
-        if(!owned){
+        if(!owned&&!p.rewardOnly){
           const buy=button(price===null?'Buy':'Buy · '+price+' coins',()=>townAction(async()=>{
             const wallet=await rpc('mm_shop_buy',{p_item:p.id,p_price:price});
             return {wallet,owned:p.id,message:p.name+' purchased.'};
           },'shop','mm-equip-'+p.id));
           buy.disabled=townPending||!townReady||price===null||state.balance<price;
           buy.setAttribute('aria-label',price===null?'Buy '+p.name:'Buy '+p.name+' for '+price+' coins');tools.append(buy);
-        }else tools.append(wearButton(p,'shop',worn));
-        card.append(visual,el('strong',p.name),el('small',owned?(worn?'Equipped':'Owned'):price===null?'Price unavailable':price+' coins'),tools);
+        }else if(owned)tools.append(wearButton(p,'shop',worn));
+        const status=owned?(worn?'Equipped':'Owned'):p.rewardOnly?'Complete a Solving Equations mission to unlock':price===null?'Price unavailable':price+' coins';
+        card.append(visual,el('strong',p.name),el('small',status),tools);
         grid.append(card);
       });
       section.append(grid);shop.append(section);
@@ -391,12 +395,15 @@
     if(name==='mm_solve_answer'&&args.p_mission===m.id&&String(demoAnswers[args.p_index])===args.p_answer){
       if(!m.solved.includes(args.p_index))m.solved.push(args.p_index);
       const awarded=!m.complete&&m.solved.length===m.questions.length?m.coins:0;
-      if(awarded){m.complete=true;demo.balance+=awarded;demo.score+=awarded;}
+      if(!m.complete&&m.solved.length===m.questions.length){
+        m.complete=true;demo.balance+=awarded;demo.score+=awarded;
+        if(!demo.owned.includes(balanceCostume))demo.owned.push(balanceCostume);
+      }
       return {complete:m.complete,awarded};
     }
     if(name==='mm_shop_buy'){
       const product=products.find(item=>item.id===args.p_item);
-      if(!product||demo.owned.includes(product.id)||demo.balance<product.price)throw new Error('This item is unavailable.');
+      if(!product||product.rewardOnly||demo.owned.includes(product.id)||demo.balance<product.price)throw new Error('This item is unavailable.');
       demo.balance-=product.price;demo.owned.push(product.id);return {balance:demo.balance,score:demo.score};
     }
     throw new Error('This action is unavailable in the student preview.');
@@ -840,6 +847,7 @@
     reward.append(icon,amount);
     const name=el('div','','mm-activity-title');
     name.append(el('strong',m.title),el('small',m.complete?'Completed':m.solved.length+' / '+m.questions.length+' solved'));
+    if(!m.complete&&qualifiesForBalance(m)&&!state.owned.includes(balanceCostume))name.append(el('small','First equation mission unlocks Captain Balance'));
     const progress=el('progress','','mm-meter');
     progress.max=m.questions.length;progress.value=m.solved.length;
     progress.setAttribute('aria-label','Questions solved: '+m.title);
@@ -885,7 +893,18 @@
       if(myRun!==run)return {message:''};
       if(Number.isFinite(result.balance))state.balance=result.balance;
       if(Number.isFinite(result.score))state.score=result.score;
-      return result.complete?{message:mission.daily?'All answers saved. Complete the daily quest to celebrate!':'All answers saved. Complete the mission to celebrate!',completion:{coins:result.awarded||0}}:{message:'Question saved.'};
+      if(!result.complete)return {message:'Question saved.'};
+      let costume=null;
+      if(qualifiesForBalance(mission)&&!state.owned.includes(balanceCostume)){
+        try{
+          const latest=await rpc('mm_state');
+          if(myRun!==run)return {message:''};
+          if(latest.owned?.includes(balanceCostume)){
+            state.owned.push(balanceCostume);costume=balanceCostume;
+          }
+        }catch{} // The award is already saved; the next town refresh can load it.
+      }
+      return {message:mission.daily?'All answers saved. Complete the daily quest to celebrate!':'All answers saved. Complete the mission to celebrate!',completion:{coins:result.awarded||0,costume}};
     },async ()=>{
       ++run;
       builder.missionBuilder.exit();

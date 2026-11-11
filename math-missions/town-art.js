@@ -29,8 +29,14 @@
     ['costume-snowman','costume','Snowman',30,[937,674,251,410]],
     ['costume-angel','costume','Angel',32],['costume-bear','costume','Bear costume',26],
     ['costume-dinosaur','costume','Dinosaur costume',34],['costume-chinese-warrior','costume','Chinese warrior armour',42],
-    ['costume-english-knight','costume','English knight armour',42]
-  ].map(([id,slot,name,price,detail])=>({id,slot,name,price,detail}));
+    ['costume-english-knight','costume','English knight armour',42],
+    ['costume-panda','costume','Panda costume',28],
+    ['costume-spider','costume','Spider-Man',42],['costume-bat','costume','Batman',44],
+    ['costume-wonder','costume','Wonder Woman',44],['costume-flash','costume','The Flash',38],
+    ['costume-captain','costume','Captain America',42],['costume-hulk','costume','Hulk',38],
+    ['costume-strange','costume','Doctor Strange',48],['costume-panther','costume','Black Panther',44],
+    ['costume-balance','costume','Captain Balance',null]
+  ].map(([id,slot,name,price,detail])=>({id,slot,name,price,detail,rewardOnly:price===null}));
   const byId=Object.fromEntries(catalog.map(item=>[item.id,item]));
   const hats={
     'hat-flat':'<path fill="#9fb18a" d="M18 40Q15 29 27 22Q48 11 68 21Q82 26 80 39L76 45Q52 37 24 45Z"/><path fill="#788d68" d="M20 42Q45 29 76 43Q60 48 23 47Q16 47 20 42Z"/>',
@@ -39,7 +45,86 @@
     'hat-beanie':'<path fill="#ca714b" d="M24 41V37Q24 17 53 16Q81 17 81 39V43Z"/><path fill="#dc8857" d="M22 38Q53 33 82 38L83 47Q51 44 22 48Z"/><path d="M32 39v6m10-7v6m11-7v6m11-6v6m10-5v6" stroke="#915338" stroke-width="2"/>'
   };
   const face='<path fill="#fffdf8" d="M35 57Q35 44 54 44Q73 44 73 57V66Q73 77 54 77Q35 77 35 66Z"/><path fill="none" d="M47 56v6m14-6v6m-10 7h6"/>';
+  const heroBody=colour=>'<path fill="'+colour+'" d="M39 76Q21 79 17 101Q15 114 24 115Q29 115 33 109V132Q33 143 43 143Q52 143 52 133H56Q56 143 65 143Q76 143 76 132V109Q80 115 86 115Q94 113 92 101Q87 79 69 76Z"/>';
+  const hood=colour=>'<path fill="'+colour+'" d="M22 55Q22 28 54 28Q86 28 86 55V65Q86 84 54 84Q22 84 22 65Z"/>';
+  const cape=colour=>'<path fill="'+colour+'" d="M37 77Q28 87 22 118L12 135Q28 129 36 139Q53 134 70 139Q78 129 96 135L86 118Q80 87 70 77Z"/>';
+  const boots=colour=>'<path fill="'+colour+'" d="M33 124q9 3 19 0v9q0 10-9 10t-10-11Zm23 0q10 3 20 0v8q0 11-11 11-9 0-9-10Z"/>';
   const costumes={
+    'costume-panda':
+      heroBody('#414049')+
+      '<ellipse fill="#fffaf0" cx="54" cy="106" rx="18" ry="19"/>'+
+      '<circle fill="#414049" cx="28" cy="34" r="12"/><circle fill="#414049" cx="80" cy="34" r="12"/>'+
+      '<circle fill="#82717e" cx="27" cy="33" r="5" stroke="none"/><circle fill="#82717e" cx="81" cy="33" r="5" stroke="none"/>'+
+      hood('#fffaf0')+
+      '<ellipse fill="#45424a" cx="40" cy="53" rx="9" ry="10" transform="rotate(24 40 53)" stroke="none"/>'+
+      '<ellipse fill="#45424a" cx="68" cy="53" rx="9" ry="10" transform="rotate(-24 68 53)" stroke="none"/>'+
+      '<path d="M40 51v4m28-4v4" stroke="#fffaf0"/><path d="M50 62q4 3 8 0m-9 5q5 5 10 0" fill="none" stroke-width="2"/>'+
+      '<path d="M34 63h4m32 0h4" stroke="#e9a8a5" stroke-width="2.5"/>'+
+      '<path fill="#82a867" d="M73 130 93 104" stroke="#648147"/><path fill="#a6bf76" d="M83 116q-3-11 8-14 1 8-8 14Zm0 0q10-3 14 4-8 4-14-4Z" stroke="#648147" stroke-width="1.7"/>',
+    'costume-spider':
+      heroBody('#4479ae')+boots('#c84c4f')+
+      '<path fill="#d65b56" d="M33 84 40 107 54 117 68 107 75 84 65 77H43Z"/>'+
+      '<path fill="none" d="M54 91v13m-5-11 5 3 5-3m-7 5-6 2m10-2 6 2m-10 1-5 6m9-6 5 6" stroke-width="1.7"/>'+
+      hood('#d65b56')+
+      '<path d="M54 31v14M36 35l9 11m27-11-9 11m-38-2 11 8m47-8-11 8M26 53q28-25 56 0m-56 8q28-24 56 0" fill="none" stroke="#893c41" stroke-width="1.25"/>'+face+
+      '<path d="m42 53 8 4m16-4-8 4" stroke="#843e43" stroke-width="1.6"/>',
+    'costume-bat':
+      cape('#343743')+heroBody('#626b79')+boots('#343743')+
+      '<path fill="#f4c768" d="M33 110h43v8H33Z"/>'+
+      '<ellipse fill="#efc46e" cx="54" cy="95" rx="12" ry="7" stroke-width="2"/><path fill="#343743" stroke="none" d="M43 92q6 3 8 0l3 3 3-3q2 3 8 0l-3 7q-5-2-8 1-3-3-8-1Z"/>'+
+      '<path fill="#343743" d="M23 63V20l15 17q16-7 32 0l15-17v43Q85 84 54 84 23 84 23 63Z"/>'+face+
+      '<path fill="none" stroke="#727b89" stroke-width="1.5" d="M32 38q3 4 9 5m35-5q-3 4-9 5"/>',
+    'costume-wonder':
+      '<path fill="#54404b" d="M22 56q0-32 32-32t32 32l4 33-17-6H35l-17 6Z"/>'+
+      heroBody('#d75d59')+boots('#bd514c')+
+      '<path fill="#4b74ab" d="M34 103q20 5 41 0l5 19q-25 9-51 0Z"/>'+
+      '<path fill="#f5ca6d" d="M34 100q20 5 40 0v8q-20 5-40 0Z"/>'+
+      '<path d="m41 89 6 7 7-5 7 5 6-7" fill="none" stroke="#f5ca6d" stroke-width="3.5"/>'+
+      '<path d="m19 103 9 3m53 0 9-3" stroke="#d6e5e9" stroke-width="5"/>'+
+      '<ellipse cx="77" cy="109" rx="8" ry="10" fill="none" stroke="#c68838" stroke-width="2.8"/>'+face+
+      '<path fill="#efbd58" d="M29 41 43 42 54 32 65 42 79 41 74 49 54 52 34 49Z"/><path fill="#cb5151" stroke="none" d="m54 38 2 4 5 1-4 3 1 4-4-2-4 2 1-4-4-3 5-1Z"/>',
+    'costume-flash':
+      heroBody('#c95354')+boots('#f1c65c')+
+      '<path d="m33 108 18 5 25-5" fill="none" stroke="#f1c65c" stroke-width="4"/>'+
+      '<circle cx="54" cy="94" r="10" fill="#fff6dc" stroke-width="2"/><path fill="#ecaf39" stroke="none" d="m57 84-10 11h7l-4 9 12-12h-7Z"/>'+
+      hood('#d65953')+
+      '<path fill="#f3ca58" d="m24 47-12 8h8l-6 10 15-12h-7Zm60 0 12 8h-8l6 10-15-12h7Z" stroke-width="2"/>'+face,
+    'costume-captain':
+      heroBody('#4a75a7')+boots('#b75251')+
+      '<path fill="#fff8eb" d="M35 105h38l3 14H33Z"/><path d="M42 106v12m11-12v13m11-13v12" stroke="#bc5657" stroke-width="4"/>'+
+      '<path fill="#fff8eb" stroke="none" d="m54 83 3 6 7 1-5 5 1 6-6-3-6 3 1-6-5-5 7-1Z"/>'+
+      hood('#517eae')+face+'<path d="m48 43 6-10 6 10m-10-3h8" fill="none" stroke="#fff8eb" stroke-width="2"/>'+
+      '<circle cx="78" cy="105" r="20" fill="#c95255"/><circle cx="78" cy="105" r="15" fill="#fff5e9" stroke-width="1.5"/>'+
+      '<circle cx="78" cy="105" r="11" fill="#5481b3" stroke="#c95255" stroke-width="3"/><path fill="#fff5e9" stroke="none" d="m78 97 2.4 5.2 5.7.7-4.4 3.7 1.5 5.4-5.2-3-5.2 3 1.5-5.4-4.4-3.7 5.7-.7Z"/>',
+    'costume-hulk':
+      heroBody('#8cab65')+
+      '<path fill="#80608f" d="M33 105q21 6 43 0v21l-8 2-8-2-6 2-5-2-8 2-8-2Z"/>'+
+      '<path d="M24 97q4 4 9 1m51-1q-4 4-9 1m-32-9q4 4 8 3m14-3q-4 4-8 3" fill="none" stroke="#62794c" stroke-width="2"/>'+
+      hood('#8cab65')+face+
+      '<path fill="#414446" d="M22 49q4-15 14-18l-3-8 14 5 7-8 8 9 12-5-2 9q10 5 14 15l-15-4-6 4-8-6-9 5-8-3-7 5Z"/>',
+    'costume-strange':
+      cape('#ad4f50')+heroBody('#466485')+
+      '<path fill="#c35757" d="m23 71 18 7 13 13 13-13 18-7-7 23-18 4H48l-18-4Z"/>'+
+      '<path d="M35 112q20 4 39 0" fill="none" stroke="#c8ac69" stroke-width="5"/>'+
+      '<circle cx="54" cy="94" r="5" fill="#d8ca7b"/>'+
+      hood('#4d444b')+face+
+      '<path fill="#4d444b" d="M23 49q5-17 21-19 15-6 31 5 7 5 10 14l-15-5-7-6-8 9-8-5-10 6Z"/>'+
+      '<path d="m27 48 5-8m48 8-5-8" stroke="#e1dbda" stroke-width="2.3"/>'+
+      '<circle cx="85" cy="106" r="15" fill="none" stroke="#ce7539" stroke-width="2.6"/><path d="m85 92 10 19-21-1Z" fill="none" stroke="#f2ac4e" stroke-width="1.7"/><path d="M101 97v5m-2.5-2.5h5m-7 24v5m-2.5-2.5h5" stroke="#d68b48" stroke-width="1.5"/>',
+    'costume-panther':
+      heroBody('#424257')+boots('#383a49')+
+      '<path d="M33 109q7 5 14 5m14 0q7 0 15-5" fill="none" stroke="#9678b2" stroke-width="2"/>'+
+      '<path fill="#444257" d="M22 56 23 25 40 34q14-6 28 0l17-9 1 31v10q0 18-32 18T22 66Z"/>'+face+
+      '<path d="m27 51 7 5m47-5-7 5m-43-9 9 5m37-5-9 5" stroke="#a787c0" fill="none" stroke-width="1.9"/>'+
+      '<path fill="#d4d8df" stroke-width="1.3" d="m39 81 7 4-5 7Zm11 5h8l-4 9Zm12-1 7-4-2 11Z"/>',
+    'costume-balance':
+      cape('#5d9067')+heroBody('#e8c87c')+boots('#60886a')+
+      '<path fill="#5d9067" d="M33 111q21 4 43 0v8H33Z"/>'+
+      '<path fill="#648f6a" d="M38 82q16 7 32 0l-4 21-12 7-12-7Z"/><path d="M47 92h14m-14 6h14" stroke="#ffe4a2" stroke-width="3"/>'+
+      hood('#6e9c76')+face+
+      '<path d="m47 39 7-6 7 6m-12 3h10" fill="none" stroke="#ffe4a2" stroke-width="2"/>'+
+      '<path fill="#e6bd69" d="M68 92q11-5 23 0l4 4-2 19q-5 10-13 13-9-4-13-13l-2-19Z"/>'+
+      '<path d="M80 96v20m-11-14h22m-19 1-3 6h6Zm16 0-3 6h6Zm-13 14h10" fill="none" stroke="#655034" stroke-width="1.65"/>',
     'costume-angel':
       '<path fill="#fcf0db" d="M42 84Q16 55 7 70Q-1 87 23 109Q32 117 42 108M66 84Q92 55 101 70Q109 87 85 109Q76 117 66 108"/>'+
       '<path fill="none" stroke="#c19f71" d="M14 78q3 12 16 19m64-19q-3 12-16 19"/>'+
