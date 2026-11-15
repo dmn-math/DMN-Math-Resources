@@ -1492,8 +1492,13 @@ function simpRender(){
 const subjectDescriptions=['One operation: addition, subtraction, multiplication or division.','Two operations with x in a linear formula.','Brackets and fractions with x in the numerator.','x in more than one term: collect and factor.','x in a denominator: cross multiply and collect.','A square or a square root; check branches and domain.','Squares and roots combined with brackets, fractions and other operations.'];
 const subjectCatalog=window.AlgebraTownSubjectCatalog;
 const subjectWork=new Map();
-let subjectLevel=1,subjectQuestion='',subjectGuide='',subjectDomain='',subjectRows=[],subjectDraft='',subjectError='',subjectSolved=0,subjectDone=false,subjectMode='manual',subjectAutoSteps=[],subjectSelectedOp='+',subjectPending={},subjectAutoInputs={left:'',right:''};
+let subjectLevel=1,subjectOriginal='',subjectQuestion='',subjectGuide='',subjectDomain='',subjectRows=[],subjectDraft='',subjectError='',subjectSolved=0,subjectDone=false,subjectMode='manual',subjectAutoSteps=[],subjectSelectedOp='+',subjectPending={},subjectAutoInputs={left:'',right:''};
 let subjectPosition=0,subjectTotal=0,subjectBusy=false,subjectReported=false,subjectSolvedCallback;
+// Display the x side first while retaining the catalog equation for answer validation.
+function subjectXFirst(equation){
+  const [left,right,...extra]=equation.split('=');
+  return !extra.length&&right?.includes('x')&&!left.includes('x')?right+'='+left:equation;
+}
 function redundantOperation(s){return /(?:\+0(?!\d)|-0(?!\d)|\*1(?!\d)|\/1(?!\d)|0\+|1\*)/.test(normaliseWritten(s))}
 
 function subjectSignature(samples, answer){
@@ -1507,7 +1512,7 @@ function subjectAutoCommit(op,value=''){if(subjectBusy||subjectDone)return;try{l
   let final=subjectCheckLine(next);subjectRows.push(next);subjectPending={};subjectAutoInputs={left:'',right:''};subjectError='';subjectDone=final;if(final)subjectSolved++;subjectRender();if(final)reportSubject(next)
  }catch(e){subjectError=e.message;subjectRender()}}
 function subjectAutoOperandSafe(op,raw){if(op!=='*'&&op!=='/')return;
- if(/x/.test(raw)){let denominators=[];function walk(n){if(n.op==='div')denominators.push(subjectPrint(n.args[1]));for(let child of n.args)if(typeof child==='object')walk(child)}walk(subjectTree(subjectQuestion.split('=')[1]));if(!denominators.some(d=>subjectSameOperand(raw,d)))throw Error('A factor containing x could be zero. Use an original denominator that is already excluded from the formula, or choose another operation.')}
+ if(/x/.test(raw)){let denominators=[];function walk(n){if(n.op==='div')denominators.push(subjectPrint(n.args[1]));for(let child of n.args)if(typeof child==='object')walk(child)}walk(subjectTree(subjectOriginal.split('=')[1]));if(!denominators.some(d=>subjectSameOperand(raw,d)))throw Error('A factor containing x could be zero. Use an original denominator that is already excluded from the formula, or choose another operation.')}
  let samples=subjectSamples();for(let sample of samples){let operand=parseDetail(subjectSubstitute(raw,sample.values)).value;if(operand.rad)throw Error('Use a rational expression for multiplying or dividing.');for(let x of sample.expected){if(operand.p.at(x).zero())throw Error('This factor can be zero for a valid solution, so multiplying or dividing by it could lose an answer.')}}}
 function subjectAutoApply(side){let field=$('subject-'+side+'-value'),raw=field.value.trim();subjectAutoInputs[side]=field.value;if(!raw){subjectError='Enter a value for the '+side+'-hand side.';subjectRender();return}try{parseDetail(subjectSubstitute(raw,subjectSamples()[0].values));subjectAutoOperandSafe(subjectSelectedOp,raw);subjectPending[side]={op:subjectSelectedOp,value:raw};let other=subjectPending[side==='left'?'right':'left'];if(other){if(other.op!==subjectSelectedOp||!subjectSameOperand(other.value,raw)){subjectError='The sides are unbalanced. Apply the same operation and value to both sides.'}else{return subjectAutoCommit(subjectSelectedOp,raw)}}else subjectError='Apply the same operation and value to the other side.';subjectRender()}catch(e){subjectError=e.message;subjectRender()}}
 function subjectAutoBoth(op){if(Object.keys(subjectPending).length){subjectError='Finish or correct the pending operation on each side first.';subjectRender();return}subjectAutoCommit(op)}
@@ -1518,9 +1523,9 @@ function subjectAutoControls(){return '<div class="subject-balance"><div class="
 function subjectSubstitute(text,values){return text.replace(/[abcdy]/g,ch=>values[ch]===undefined?ch:'('+values[ch].str()+')')}
 function subjectValueAt(v,x){let out=v.p.at(x);if(v.rad){let root=sqrtQ(v.rad.at(x));if(!root)throw Error('The sampled square root is not rational.');out=out.add(v.t.at(x).mul(root))}return out}
 function subjectSamples(){let samples=[];for(let i=0;i<110&&samples.length<18;i++){
-  let params={a:q(2+i%6),b:q((i*3)%11-5),c:q(2+(i*5)%7),d:q((i*7)%13-6)},t=q(1+i%7),x=q((i*11)%17-8),formula=subjectQuestion.split('=')[1];
+  let params={a:q(2+i%6),b:q((i*3)%11-5),c:q(2+(i*5)%7),d:q((i*7)%13-6)},t=q(1+i%7),x=q((i*11)%17-8),formula=subjectOriginal.split('=')[1];
   try{let evaluated=parseDetail(subjectSubstitute(formula,params));if(evaluated.value.rad){let rad=evaluated.value.rad;if(rad.n.length!==2||rad.d.length!==1)continue;x=t.mul(t).mul(rad.d[0]).sub(rad.n[0]).div(rad.n[1])}
-    if(!permitted(x,evaluated.rules))continue;let y=subjectValueAt(evaluated.value,x);let values={...params,y};let expected=subjectSolve(subjectQuestion,values);if(!expected.length||expected.length>2||!expected.some(v=>v.eq(x)))continue;
+    if(!permitted(x,evaluated.rules))continue;let y=subjectValueAt(evaluated.value,x);let values={...params,y};let expected=subjectSolve(subjectOriginal,values);if(!expected.length||expected.length>2||!expected.some(v=>v.eq(x)))continue;
     // Avoid parameter choices where a rearrangement loses its unique coefficient.
     if(expected.length===1&&subjectQuestion.includes('ax+b(x-c)')&&params.a.add(params.b).zero())continue;
     samples.push({values,expected});
@@ -1677,13 +1682,14 @@ function subjectBalanceSteps(item){
   return [];
 }
 mount.formatSubjectFormula=subjectMath;
+mount.formatSubjectQuestion=equation=>subjectMath(subjectXFirst(equation));
 mount.openSubjectMission=(question,position,total,showHint,next,onSolved,mode)=>{
   saveSubjectWork();
   const item=subjectCatalog.find(q=>q.eq===question.eq&&q.type===question.type);
   if(!item)throw Error('This formula is unavailable. Refresh the mission and try again.');
   subjectPosition=position;subjectTotal=total;subjectBusy=false;
-  subjectLevel=Number(item.type.at(-1));subjectQuestion=item.eq;subjectGuide=item.guide;subjectDomain=item.domain;
-  subjectAutoSteps=subjectBalanceSteps(item);subjectMode=mode==='guided'?'auto':'manual';subjectSolvedCallback=onSolved;
+  subjectLevel=Number(item.type.at(-1));subjectOriginal=item.eq;subjectQuestion=subjectXFirst(subjectOriginal);subjectGuide=item.guide;subjectDomain=item.domain;
+  subjectAutoSteps=subjectBalanceSteps(item).map(([op,value,line])=>[op,value,subjectXFirst(line)]);subjectMode=mode==='guided'?'auto':'manual';subjectSolvedCallback=onSolved;
   const saved=subjectWork.get(position);
   subjectRows=saved?.rows||[];subjectDraft=saved?.draft||'';subjectDone=saved?.done||false;subjectReported=saved?.reported||false;subjectError='';
   subjectPending=saved?.pending||{};subjectAutoInputs=saved?.inputs||{left:'',right:''};subjectSelectedOp=saved?.op||'+';
@@ -2029,7 +2035,7 @@ mount.setMissionBusy=(busy,last)=>{
       const li = document.createElement('li'), data = document.createElement('div');
       const q = document.createElement('span'), meta = document.createElement('small');
       q.className='question-text';
-      if(isSubject(r.type))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatSubjectFormula(r.eq);
+      if(isSubject(r.type))q.innerHTML=(i+1)+'. &nbsp;'+lab.formatSubjectQuestion(r.eq);
       else if(r.eq.includes('/'))q.innerHTML=(i+1)+'. &nbsp;'+(isRational(r.type)?lab.formatMissionExpression(r.eq):lab.formatMissionEquation(r.eq));
       else q.textContent=(i+1)+'.  '+(r.type.startsWith('expand-')?displayExpansion(r.eq):r.eq);
       if(isSubject(r.type)){
