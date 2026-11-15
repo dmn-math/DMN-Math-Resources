@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=blind-box-confirmation-1">
+<link rel="stylesheet" href="app.css?v=class-management-1">
 <script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
@@ -97,6 +97,18 @@
           </form>
         </section>
       </div>
+      <section class="mm-card" aria-labelledby="mm-class-admin-title">
+        <h2 id="mm-class-admin-title">Manage class and students</h2>
+        <div class="mm-row">
+          <label>Class to manage<select id="mm-class-admin-select"></select></label>
+          <div class="mm-row" id="mm-class-admin-controls" hidden>
+            <button type="button" id="mm-class-admin-archive">Archive class</button>
+            <button type="button" id="mm-class-admin-delete" class="mm-danger-outline">Delete class</button>
+          </div>
+        </div>
+        <p id="mm-class-admin-status" role="status" class="mm-muted"></p>
+        <ul id="mm-class-admin-students" class="mm-login-roster-list" aria-label="Students in this class"></ul>
+      </section>
       <section class="mm-card">
         <h2>Class login without Google</h2>
         <form id="mm-login-roster-form" class="mm-form">
@@ -116,6 +128,15 @@
         </div>
       </section>
     </section>
+    <dialog id="mm-class-admin-dialog" class="mm-town-dialog" aria-labelledby="mm-class-admin-dialog-title" aria-describedby="mm-class-admin-prompt">
+      <h2 id="mm-class-admin-dialog-title"></h2>
+      <p id="mm-class-admin-prompt"></p>
+      <p id="mm-class-admin-feedback" role="status"></p>
+      <div class="mm-row">
+        <button type="button" id="mm-class-admin-cancel" autofocus>Cancel</button>
+        <button type="button" id="mm-class-admin-confirm" class="mm-primary"></button>
+      </div>
+    </dialog>
     <section id="mm-teacher-missions" aria-label="Create missions" hidden>
       <details class="mm-card mm-teacher-topic" id="mm-topic-expand">
         <summary><strong>Simplifying Linear Expressions</strong><small>Expand single brackets, products of two brackets and squared brackets.</small></summary>
@@ -2427,5 +2448,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=superhero-costumes-1"></script>
-<script src="app.js?v=blind-box-confirmation-1"></script>
+<script src="app.js?v=class-management-1"></script>
 </body></html>

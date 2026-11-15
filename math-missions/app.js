@@ -686,7 +686,7 @@
     configureBuilder();
     builder.hidden=false;
   }
-  q('mm-manage-classes').onclick=()=>teacherSection('classes');
+  q('mm-manage-classes').onclick=()=>{teacherSection('classes');loadClassAdmin();};
   q('mm-create-missions').onclick=()=>{teacherSection('missions');if(!questSettingsLoaded)loadQuestSettings();};
   q('mm-open-overview').onclick=()=>{teacherSection('overview');loadOverview();};
   Object.entries(editorTopics).forEach(([topic,details])=>{
@@ -708,6 +708,142 @@
     state.classes.forEach(c=>control.add(new Option(c.label,c.id)));
     control.value=state.classes.some(c=>c.id===preferred)?preferred:(state.classes.length===1?state.classes[0].id:'');
   }
+  const classAdminSelect=q('mm-class-admin-select'),classAdminDialog=q('mm-class-admin-dialog');
+  const classAdminConfirm=q('mm-class-admin-confirm'),classAdminCancel=q('mm-class-admin-cancel');
+  const classAdminFeedback=q('mm-class-admin-feedback');
+  let classAdminTarget=null,classAdminBusy=false,classAdminRequest=0;
+
+  function selectedAdminClass(){
+    const id=classAdminSelect.value;
+    const active=state?.classes?.find(c=>c.id===id);
+    if(active)return {...active,archived:false};
+    const archived=state?.archivedClasses?.find(c=>c.id===id);
+    return archived?{...archived,archived:true}:null;
+  }
+  function renderClassAdmin(){
+    const previous=classAdminSelect.value;
+    const active=state.classes,archived=state.archivedClasses||[];
+    classAdminSelect.replaceChildren(new Option('Select a class',''));
+    for(const [label,classes] of [['Active classes',active],['Archived classes',archived]]){
+      if(!classes.length)continue;
+      const group=el('optgroup');group.label=label;
+      for(const cls of classes)group.append(new Option(cls.label,cls.id));
+      classAdminSelect.append(group);
+    }
+    classAdminSelect.value=[...active,...archived].some(c=>c.id===previous)?previous:active.length===1?active[0].id:'';
+    if(!q('mm-teacher-classes').hidden)loadClassAdmin();
+  }
+  async function loadClassAdmin(){
+    const req=++classAdminRequest,cls=selectedAdminClass();
+    const list=q('mm-class-admin-students'),status=q('mm-class-admin-status');
+    list.replaceChildren();
+    status.classList.remove('mm-error');
+    q('mm-class-admin-controls').hidden=!cls;
+    if(!cls){
+      status.textContent='Choose an active or archived class to manage its students.';
+      return;
+    }
+    q('mm-class-admin-archive').textContent=cls.archived?'Restore class':'Archive class';
+    status.textContent='Loading students…';
+    try{
+      const students=await rpc('mm_teacher_class_students',{p_class:cls.id});
+      if(req!==classAdminRequest||state?.role!=='teacher'||classAdminSelect.value!==cls.id)return;
+      const count=students.length===1?'1 student':students.length+' students';
+      status.textContent=(cls.archived?'Archived · ':'')+count+(students.length?'':' in this class');
+      for(const student of students){
+        const row=el('li','','mm-row');
+        row.append(el('span',student.alias+' · '+(student.enrolled?'Joined':'On roster')));
+        row.append(removeStudentButton(cls,student.alias));
+        list.append(row);
+      }
+    }catch(error){
+      if(req!==classAdminRequest||state?.role!=='teacher')return;
+      status.textContent='Could not load students: '+error.message;
+      status.classList.add('mm-error');
+    }
+  }
+  function removeStudentButton(cls,alias){
+    const control=button('Remove student',()=>openClassAdmin('remove',cls,alias));
+    control.className='mm-danger-outline';
+    control.setAttribute('aria-label','Remove '+alias);
+    return control;
+  }
+  function openClassAdmin(action,cls,alias){
+    if(!cls||classAdminDialog.open||classAdminBusy)return;
+    const strings={
+      remove:['Remove '+alias+' from '+cls.label+'?',
+        'This permanently deletes their Algebra Town progress, coins, and items, and removes their access to this class.','Remove student'],
+      archive:['Archive '+cls.label+'?',
+        'This hides the class and its missions from your active teacher view. Students keep access and progress. You can restore the class later.','Archive class'],
+      restore:['Restore '+cls.label+'?',
+        'This brings the class and its missions back to your active teacher view.','Restore class'],
+      delete:['Delete '+cls.label+' permanently?',
+        'This deletes the class, its missions, and its students’ Algebra Town progress, coins, and items. Students lose access. This cannot be undone.','Delete class']
+    };
+    const [title,prompt,confirm]=strings[action];
+    classAdminTarget={action,cls,alias,trigger:document.activeElement};
+    q('mm-class-admin-dialog-title').textContent=title;
+    q('mm-class-admin-prompt').textContent=prompt;
+    classAdminFeedback.textContent='';classAdminFeedback.classList.remove('mm-error');
+    classAdminConfirm.textContent=confirm;
+    classAdminConfirm.className=action==='delete'||action==='remove'?'mm-danger':'mm-primary';
+    classAdminConfirm.disabled=false;classAdminCancel.disabled=false;
+    classAdminDialog.showModal();
+  }
+  classAdminSelect.onchange=loadClassAdmin;
+  q('mm-class-admin-archive').onclick=()=>{
+    const cls=selectedAdminClass();
+    if(cls)openClassAdmin(cls.archived?'restore':'archive',cls);
+  };
+  q('mm-class-admin-delete').onclick=()=>openClassAdmin('delete',selectedAdminClass());
+  classAdminCancel.onclick=()=>classAdminDialog.close();
+  classAdminDialog.addEventListener('cancel',e=>{if(classAdminBusy)e.preventDefault();});
+  classAdminDialog.addEventListener('close',()=>{
+    const trigger=classAdminTarget?.trigger;
+    if(trigger?.isConnected&&!trigger.closest('[hidden]'))trigger.focus({preventScroll:true});
+    else if(state?.role==='teacher')classAdminSelect.focus({preventScroll:true});
+    classAdminTarget=null;
+  });
+  classAdminConfirm.onclick=async()=>{
+    if(!classAdminTarget||classAdminBusy||state?.role!=='teacher')return;
+    const {action,cls,alias}=classAdminTarget,teacher=user?.id;
+    classAdminBusy=true;classAdminConfirm.disabled=true;classAdminCancel.disabled=true;
+    classAdminFeedback.textContent='Saving…';classAdminFeedback.classList.remove('mm-error');
+    let changed=false,removed=true;
+    try{
+      if(action==='remove')removed=await rpc('mm_teacher_remove_student',{p_class:cls.id,p_alias:alias});
+      else await rpc('mm_teacher_change_class',{p_class:cls.id,p_action:action});
+      changed=true;
+      if(teacher!==user?.id||state?.role!=='teacher')return;
+      if(action==='remove'){
+        await Promise.all([
+          classAdminSelect.value===cls.id?loadClassAdmin():null,
+          loginClass()===cls.id&&!q('mm-login-roster-result').hidden?readLoginRoster(cls.id):null
+        ]);
+      }else{
+        const refreshed=await rpc('mm_state');
+        if(teacher!==user?.id||state?.role!=='teacher')return;
+        state=refreshed;
+        renderTeacher();
+      }
+      if(teacher!==user?.id||state?.role!=='teacher')return;
+      classAdminDialog.close();
+      notice(action==='remove'?(removed?alias+' was removed.':'That student is already off the roster.'):
+        cls.label+({archive:' was archived.',restore:' was restored.',delete:' was deleted.'}[action]));
+    }catch(error){
+      if(!classAdminDialog.open||teacher!==user?.id)return;
+      if(changed){
+        classAdminDialog.close();
+        notice('Change saved. Reload Algebra Town to refresh your class list.',true);
+      }else{
+        classAdminFeedback.textContent=error.message||'Please try again.';
+        classAdminFeedback.classList.add('mm-error');
+      }
+    }finally{
+      classAdminBusy=false;classAdminConfirm.disabled=false;classAdminCancel.disabled=false;
+    }
+  };
+
   const releaseFormat=new Intl.DateTimeFormat('en-SG',{
     dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Singapore'
   });
@@ -776,6 +912,7 @@
     finally{questSaving=false;controls.forEach(c=>c.disabled=false);}
   };
   function renderTeacher(){
+    renderClassAdmin();
     fillClasses(overviewClass,overviewClass.value);
     const cls=q('mm-roster-class');fillClasses(cls,cls.value);
     const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
@@ -961,8 +1098,10 @@
         if(fields.length!==2||fields.some(field=>!field))throw new Error('Line '+(i+1)+' needs a school email and nickname.');
         return {email:fields[0],alias:fields[1]};
       });
-      const added=await rpc('mm_add_roster',{p_class:q('mm-roster-class').value,p_entries:entries});
+      const cls=q('mm-roster-class').value;
+      const added=await rpc('mm_add_roster',{p_class:cls,p_entries:entries});
       q('mm-roster').value='';
+      if(classAdminSelect.value===cls)loadClassAdmin();
       notice(added+' students added. Students can now sign in with Google.');
     });
   };
@@ -994,6 +1133,8 @@
         });
         reset.setAttribute('aria-label','Reset password for '+member.alias);li.append(reset);
       }
+      const clsInfo=state.classes.find(c=>c.id===cls);
+      if(clsInfo)li.append(removeStudentButton(clsInfo,member.alias));
       list.append(li);
     }
   }
@@ -1014,6 +1155,7 @@
     busy(e.submitter,async()=>{
       const names=q('mm-login-names').value.split(/\r?\n/).map(name=>name.trim()).filter(Boolean);
       await readLoginRoster(cls,names,q('mm-teacher-code-input').value.trim());
+      if(classAdminSelect.value===cls)loadClassAdmin();
       if(loginClass()===cls){q('mm-login-names').value='';notice('Class login roster saved.');}
     });
   };
@@ -1127,7 +1269,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;++overviewRequest;++teacherPriceRequest;++questSettingsRequest;questSettingsLoaded=false;questSettings={};if(questDialog.open)questDialog.close();teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;++overviewRequest;++teacherPriceRequest;++questSettingsRequest;++classAdminRequest;if(classAdminDialog.open)classAdminDialog.close();questSettingsLoaded=false;questSettings={};if(questDialog.open)questDialog.close();teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){

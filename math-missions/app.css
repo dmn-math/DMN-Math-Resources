@@ -322,3 +322,9 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
   font-size:.86rem;font-weight:700
 }
 .mm-victory-costume .mm-avatar{width:45px;height:61px;flex:none}
+
+
+#missions-app button.mm-danger-outline{color:var(--error)}
+#missions-app button.mm-danger{background:light-dark(#8d2929,#ffb5ab);border-color:light-dark(#8d2929,#ffb5ab);color:light-dark(#fff,#421717)}
+#missions-app #mm-class-admin-feedback:empty{display:none}
+#missions-app #mm-class-admin-students li>span{overflow-wrap:anywhere}
