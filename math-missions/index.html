@@ -1302,6 +1302,19 @@ function missionSimplification(source){
   return {data,terms,op:m[3],factorIndex:index,factored,lcd:polyText(lcd),
     multipliers:den.map(p=>polyText(pd(lcd,p)[0]))};
 }
+// Authoring validation only: existing missions can still be played unchanged.
+mount.validateLevel2Fraction=source=>{
+  const q=missionSimplification(source);
+  if(q.data.type!=='rational-2')return;
+  const denominator=parse(q.lcd).p.n;
+  const numerator=pa(...q.terms.map(([n],i)=>{
+    const product=pm(parse(n).p.n,parse(q.multipliers[i]).p.n);
+    return i===1&&q.op==='-'?pn(product):product;
+  }));
+  const content=[...numerator,...denominator].reduce((g,c)=>gcd(g,c.n),0n);
+  if(content>1n||pg(numerator,denominator).length>1)
+    throw Error('For Level 2, choose fractions with no common factor to cancel after combining.');
+};
 function simpSaveState(){
   simpCache.set(simpPosition,{lines:simpLines,path:simpPath,draft:simpDraft,factors:simpFactors,reported:simpReported});
 }
@@ -1825,8 +1838,14 @@ mount.setMissionBusy=(busy,last)=>{
     const {eq,type,x,display}=lab.fractionExpressionQuestion(input);
     return {eq,type,x,display};
   }
-  const questionFromInput=()=>family()==='expand'?expansionQuestion(pick('question-input').value):
-    family()==='rational'?rationalQuestion(pick('question-input').value):lab.validateMissionEquation(pick('question-input').value,family());
+  function questionFromInput(){
+    const source=pick('question-input').value;
+    if(family()==='expand')return expansionQuestion(source);
+    if(family()!=='rational')return lab.validateMissionEquation(source,family());
+    const question=rationalQuestion(source);
+    if(question.type==='rational-2')lab.validateLevel2Fraction(question.eq);
+    return question;
+  }
   let editing=-1, finished=null;
   const victory=pick('victory'), finishButton=pick('finish-mission');
   finishButton.onclick=()=>{
@@ -1910,7 +1929,12 @@ mount.setMissionBusy=(busy,last)=>{
       const linear=(coef,n)=> (coef===1?'':coef)+'x'+(n?constant(n):'');
       let first,second;
       if(level===1){first=linear(a,0);second=linear(a+rand(1,5),0);}
-      else if(level===2){first=linear(a,b);second=linear(a,d);}
+      else if(level===2){
+        // Primitive denominators with distinct roots guarantee no common numeric
+        // or algebraic factor after combining the two nonzero numerators.
+        first=linear(1,b);second=linear(a,a===1?d:a*d+1);
+        if(Math.random()<.5)[first,second]=[second,first];
+      }
       else if(level===3){first=linear(k*a,k*b);second=linear(a,b);}
       else{
         const end=level===4?-b:d;
@@ -1994,6 +2018,11 @@ mount.setMissionBusy=(busy,last)=>{
     }
     if(!previewOnly&&family()==='subject'&&rows.some(r=>!lab.subjectQuestionInfo(r.type,r.eq)?.balance)){
       show('setup');message('Generate new symbolic formulas before publishing this mission.',true);return false;
+    }
+    if(!previewOnly&&family()==='rational'){
+      try{
+        rows.filter(r=>r.type==='rational-2').forEach(r=>lab.validateLevel2Fraction(r.eq));
+      }catch(error){show('setup');message(error.message,true);return false;}
     }
     message('');return true;
   }
