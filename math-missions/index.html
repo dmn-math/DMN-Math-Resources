@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=class-management-1">
+<link rel="stylesheet" href="app.css?v=teacher-collaborators-1">
 <script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
@@ -55,7 +55,7 @@
   </section>
   <section data-mm-view="join" class="mm-card" hidden>
     <h2>Class access pending</h2>
-    <p>This Google account is not on a class list yet. Check that you chose your school account, or ask your teacher to add you.</p>
+    <p>If you’re a teacher, sign in with the Google email that was added to Algebra Town. If you’re a student, sign out and use your class code.</p>
     <button id="mm-check-roster" type="button">Check again</button>
   </section>
   <section data-mm-view="teacher" hidden>
@@ -63,7 +63,7 @@
       <button type="button" id="mm-manage-classes" aria-controls="mm-teacher-classes" aria-pressed="true">Classes &amp; student login</button>
       <button type="button" id="mm-create-missions" aria-controls="mm-teacher-missions" aria-pressed="false">Create missions</button>
       <button type="button" id="mm-open-overview" aria-controls="mm-teacher-overview" aria-pressed="false">Class overview</button>
-      <button type="button" id="mm-open-prices" aria-controls="mm-teacher-prices" aria-pressed="false">Shop prices</button>
+      <button type="button" id="mm-open-prices" aria-controls="mm-teacher-prices" aria-pressed="false" hidden>Shop prices</button>
     </nav>
     <section id="mm-teacher-prices" class="mm-card" aria-labelledby="mm-prices-title" hidden>
       <h2 id="mm-prices-title">Shop prices</h2>
@@ -87,14 +87,16 @@
             <button type="submit">Create class</button>
           </form>
         </section>
-        <section class="mm-card">
-          <h2>Add your class list</h2>
-          <form id="mm-roster-form" class="mm-form">
-            <label>Class<select id="mm-roster-class" required></select></label>
-            <label>School email and nickname, one student per line<textarea id="mm-roster" rows="4" required maxlength="30000" autocomplete="off" placeholder="student@school.example, IslandExplorer"></textarea></label>
-            <small>Paste two columns from a spreadsheet, or separate email and nickname with a comma.</small>
-            <button type="submit">Add students</button>
+        <section id="mm-teacher-collaborators" class="mm-card" aria-labelledby="mm-teacher-collaborators-title" hidden>
+          <h2 id="mm-teacher-collaborators-title">Add teacher collaborators</h2>
+          <form id="mm-teacher-collaborators-form" class="mm-form" hidden>
+            <label>Google sign-in emails, one per line<textarea id="mm-teacher-collaborators-emails" rows="4" required maxlength="26000" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="teacher@school.example"></textarea></label>
+            <small>After you add them, teachers use Teacher login with the email you listed. They can manage their own classes and missions.</small>
+            <button type="submit">Add teachers</button>
           </form>
+          <p id="mm-teacher-collaborators-status" role="status" class="mm-muted"></p>
+          <button type="button" id="mm-teacher-collaborators-retry" hidden>Try again</button>
+          <ul id="mm-teacher-collaborators-list" class="mm-login-roster-list" aria-label="Teacher collaborators"></ul>
         </section>
       </div>
       <section class="mm-card" aria-labelledby="mm-class-admin-title">
@@ -2448,5 +2450,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=superhero-costumes-1"></script>
-<script src="app.js?v=class-management-1"></script>
+<script src="app.js?v=teacher-collaborators-1"></script>
 </body></html>

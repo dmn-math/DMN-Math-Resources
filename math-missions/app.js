@@ -627,6 +627,74 @@
       q(control).setAttribute('aria-pressed',String(key===section));
     }
   }
+  const collaboratorCard=q('mm-teacher-collaborators'), collaboratorForm=q('mm-teacher-collaborators-form');
+  const collaboratorEmails=q('mm-teacher-collaborators-emails'), collaboratorList=q('mm-teacher-collaborators-list');
+  const collaboratorStatus=q('mm-teacher-collaborators-status'), collaboratorRetry=q('mm-teacher-collaborators-retry');
+  let collaboratorSession=0, collaboratorPending=false, canManageCollaborators=false;
+  function collaboratorMessage(message,error=false){
+    collaboratorStatus.textContent=message;
+    collaboratorStatus.classList.toggle('mm-error',error);
+  }
+  function resetCollaborators(){
+    ++collaboratorSession;collaboratorPending=false;canManageCollaborators=false;
+    collaboratorCard.hidden=true;collaboratorForm.hidden=true;collaboratorRetry.hidden=true;
+    q('mm-open-prices').hidden=true;
+    collaboratorForm.reset();collaboratorList.replaceChildren();collaboratorMessage('');
+  }
+  function showCollaborators(data,message=''){
+    canManageCollaborators=data.canManage;
+    collaboratorCard.hidden=!canManageCollaborators;collaboratorForm.hidden=!canManageCollaborators;
+    q('mm-open-prices').hidden=!canManageCollaborators;
+    collaboratorRetry.hidden=true;collaboratorList.replaceChildren();
+    for(const email of data.emails){
+      const remove=button('Remove access',()=>{
+        if(collaboratorPending||!canManageCollaborators)return;
+        if(!confirm('Remove teacher access for '+email+'? Their classes and student progress will be kept.'))return;
+        saveCollaborators('mm_remove_teacher_collaborator',{p_email:email},'Teacher access removed.');
+      });
+      remove.setAttribute('aria-label','Remove teacher access for '+email);
+      const row=el('li','','mm-row');row.append(el('span',email,'mm-collaborator-email'),remove);collaboratorList.append(row);
+    }
+    collaboratorMessage(message||(!data.emails.length?'No teacher collaborators added yet.':''));
+  }
+  async function loadCollaborators(){
+    const session=collaboratorSession;
+    collaboratorRetry.hidden=true;
+    try{
+      const data=await rpc('mm_list_teacher_collaborators');
+      if(session===collaboratorSession&&state?.role==='teacher')showCollaborators(data);
+    }catch(error){
+      if(session!==collaboratorSession||state?.role!=='teacher')return;
+      collaboratorCard.hidden=false;collaboratorRetry.hidden=false;
+      collaboratorMessage('Could not load teacher collaborators. '+error.message,true);
+    }
+  }
+  function setCollaboratorPending(pending){
+    collaboratorPending=pending;
+    for(const control of [...collaboratorForm.elements,...collaboratorList.querySelectorAll('button')])control.disabled=pending;
+  }
+  async function saveCollaborators(method,args,message){
+    if(collaboratorPending||!canManageCollaborators)return;
+    const session=collaboratorSession,adding=method==='mm_add_teacher_collaborators';
+    setCollaboratorPending(true);collaboratorMessage('Saving…');
+    try{
+      const data=await rpc(method,args);
+      if(session!==collaboratorSession||state?.role!=='teacher')return;
+      if(adding)collaboratorForm.reset();
+      showCollaborators(data,adding?(data.added===0?'Those emails already have teacher access.':data.added===1?'1 teacher added.':data.added+' teachers added.'):message);
+    }catch(error){
+      if(session===collaboratorSession)collaboratorMessage(error.message,true);
+    }finally{
+      if(session===collaboratorSession){setCollaboratorPending(false);if(!adding)collaboratorEmails.focus({preventScroll:true});}
+    }
+  }
+  collaboratorRetry.onclick=loadCollaborators;
+  collaboratorForm.onsubmit=e=>{
+    e.preventDefault();
+    const emails=collaboratorEmails.value.split(/[\r\n,]+/).map(email=>email.trim()).filter(Boolean);
+    if(!emails.length){collaboratorMessage('Enter at least one Google sign-in email.',true);return;}
+    saveCollaborators('mm_add_teacher_collaborators',{p_emails:emails});
+  };
   const pricesForm=q('mm-prices-form'),pricesStatus=q('mm-prices-status');
   let teacherPrices=null,teacherPriceRequest=0;
   function renderTeacherPrices(){
@@ -657,7 +725,7 @@
   }
   q('mm-prices-reload').onclick=loadTeacherPrices;
   q('mm-open-prices').onclick=()=>{
-    if(!q('mm-teacher-prices').hidden)return;
+    if(!canManageCollaborators||!q('mm-teacher-prices').hidden)return;
     teacherSection('prices');
     if(!teacherPrices)loadTeacherPrices();
   };
@@ -914,7 +982,6 @@
   function renderTeacher(){
     renderClassAdmin();
     fillClasses(overviewClass,overviewClass.value);
-    const cls=q('mm-roster-class');fillClasses(cls,cls.value);
     const loginClass=q('mm-login-roster-class'), oldClass=loginClass.value;
     fillClasses(loginClass,oldClass);
     if(loginClass.value!==oldClass)clearLoginRoster();
@@ -1081,29 +1148,14 @@
     });
   }
   function applyState(next){
+    const enteringTeacher=next.role==='teacher'&&state?.role!=='teacher';
     state=next;view(state.role);
-    if(state.role==='teacher')renderTeacher();
+    if(state.role==='teacher'){renderTeacher();if(enteringTeacher)loadCollaborators();}
     if(state.role==='student'){selectDestination('home');renderStudent();loadTown();loadDailyQuests();}
   }
   q('mm-class-form').onsubmit=e=>{
     e.preventDefault();const form=e.currentTarget;
     busy(e.submitter,async()=>{await rpc('mm_create_class',{p_label:q('mm-class-name').value});form.reset();applyState(await rpc('mm_state'));notice('Class created.');});
-  };
-  q('mm-roster-form').onsubmit=e=>{
-    e.preventDefault();
-    busy(e.submitter,async()=>{
-      const lines=q('mm-roster').value.trim().split(/\r?\n/).filter(line=>line.trim());
-      const entries=lines.map((line,i)=>{
-        const fields=line.split(line.includes('\t')?'\t':',').map(field=>field.trim());
-        if(fields.length!==2||fields.some(field=>!field))throw new Error('Line '+(i+1)+' needs a school email and nickname.');
-        return {email:fields[0],alias:fields[1]};
-      });
-      const cls=q('mm-roster-class').value;
-      const added=await rpc('mm_add_roster',{p_class:cls,p_entries:entries});
-      q('mm-roster').value='';
-      if(classAdminSelect.value===cls)loadClassAdmin();
-      notice(added+' students added. Students can now sign in with Google.');
-    });
   };
   const loginClass=()=>q('mm-login-roster-class').value;
   function clearLoginRoster(){
@@ -1269,7 +1321,7 @@
   });
   q('mm-logout').onclick=()=>busy(q('mm-logout'),async()=>{
     const {error}=await api.auth.signOut();if(error)throw error;
-    ++run;++overviewRequest;++teacherPriceRequest;++questSettingsRequest;++classAdminRequest;if(classAdminDialog.open)classAdminDialog.close();questSettingsLoaded=false;questSettings={};if(questDialog.open)questDialog.close();teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');q('mm-roster').value='';clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
+    ++run;++overviewRequest;++teacherPriceRequest;++questSettingsRequest;++classAdminRequest;if(classAdminDialog.open)classAdminDialog.close();questSettingsLoaded=false;questSettings={};if(questDialog.open)questDialog.close();teacherPrices=null;overviewData=null;awardRequests.clear();if(awardDialog.open)awardDialog.close();user=null;state=null;resetCollaborators();resetTown();selectDestination('home');builder.missionBuilder.exit();openTopic(null);teacherSection('classes');view('login');clearLoginRoster();q('mm-login-member').value='';updateLoginMember();
   });
   (async()=>{
     if(!config.url&&!config.publishableKey){
