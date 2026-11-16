@@ -48,7 +48,7 @@ Keep the subject and topic folder names consistent when uploading files.
 | `resources/g2/` | G2 PDFs and manifests |
 | `resources/g3/` | G3 PDFs and manifests |
 | `resources/amath/` | Additional Mathematics PDFs and manifests |
-| `resources/My_Maths_Question_Bank.docx` | Editable student template |
+| `resources/question-bank/` | Fillable question-bank PDFs for G2, G3 and A-Math |
 | `scripts/generate_manifest.py` | Paper and topical PDF listing generator |
 | `scripts/build_site.py` | Student-site build and national-paper visibility setting |
 | `.github/workflows/generate-manifest.yml` | Builds and publishes the student website |
@@ -93,9 +93,11 @@ The generator converts the school code into the displayed label, such as **DMN P
 ## Publish with GitHub Desktop
 
 1. Apply the update to the repository root, keeping the folder structure.
-2. On GitHub, open **Settings → Pages** and select **GitHub Actions** under **Source**.
+2. On GitHub, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**.
 3. In GitHub Desktop, commit the changes to `main` and select **Push origin**.
 4. On GitHub, check the **Publish student website** run in **Actions**. Open the website after the run succeeds.
+
+If the site says **Could not load worksheets**, check the Pages source first. A **Deploy from a branch** run can publish the source files without the generated worksheet lists. Select **GitHub Actions**, then push the website update or run **Publish student website** manually from the **Actions** tab.
 
 For Cloudflare Pages, use `python3 scripts/build_site.py` as the build command and `_site` as the build output directory if that host serves the same student site.
 

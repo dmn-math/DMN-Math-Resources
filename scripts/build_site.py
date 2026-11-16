@@ -27,6 +27,8 @@ def excluded_files(folder, names):
     relative = Path(folder).relative_to(ROOT)
     if relative == Path("amath"):
         return {"reflection-amath.html"} & set(names)
+    if relative == Path("resources"):
+        return {"My_Maths_Question_Bank.docx"} & set(names)
     if (
         not PUBLISH_NATIONAL_PAPERS
         and len(relative.parts) == 2
