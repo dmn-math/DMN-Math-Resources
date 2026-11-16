@@ -478,6 +478,7 @@
     if(role!=='teacher')q('mm-builder-park').append(builder);
     builder.hidden=role==='teacher'?!teacherTopic:role!=='demo'&&role!=='play';
     q('mm-logout').hidden=!user;
+    q('mm-credit').hidden=!['teacher','student','play','demo'].includes(role);
   }
   function setDraftKey(topic){
     const key='mm-draft:'+user.id+(topic==='solve'?'':':'+topic);

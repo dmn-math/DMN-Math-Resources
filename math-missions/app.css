@@ -16,7 +16,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{max-width:990px;min-height:100vh;margin:0 auto;padding:24px;background-color:var(--page);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:10px 10px;color:var(--ink);font:15px/1.55 system-ui,sans-serif}
+body{display:flex;flex-direction:column;max-width:990px;min-height:100vh;margin:0 auto;padding:24px;background-color:var(--page);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:10px 10px;color:var(--ink);font:15px/1.55 system-ui,sans-serif}
 #missions-app,#dmn-mission-wireframe{min-width:0}
 #missions-app h1,#missions-app h2,#missions-app h3{font-family:var(--mono);font-weight:800;line-height:1.15;margin:0 0 10px}
 #missions-app h1{font-size:clamp(1.75rem,5vw,3.15rem);letter-spacing:-.09em}
@@ -214,8 +214,6 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #missions-app .mm-teacher-topic>summary small{display:block;margin:4px 0 0 1.1rem;color:var(--soft)}
 #missions-app .mm-teacher-topic[open]>summary{margin-bottom:8px}
 #missions-app .mm-teacher-topic [data-mm-topic-editor]>#dmn-mission-wireframe{padding:0}
-#dmn-mission-wireframe .mm-expand-expression{font-size:clamp(1.35rem,5vw,2.4rem)}
-#dmn-mission-wireframe [data-expansion-form]{max-width:32rem}
 #dmn-mission-wireframe [data-expansion-hint] summary{cursor:pointer}
 #dmn-mission-wireframe [data-expansion-example]{margin-top:6px}
 #missions-app #dmn-mission-wireframe input[type=checkbox]{width:auto}
@@ -227,18 +225,49 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #missions-app .mm-brand small{font-size:.66rem;font-weight:750;letter-spacing:.11em;padding-left:.55em}
 #missions-app .mm-brand h1{margin-bottom:0}
 
-/* Step-by-step bracket expansion, alongside Equation Lab */
-#dmn-mission-wireframe .mm-expansion-lab{border:1px solid var(--line);border-radius:17px;padding:clamp(12px,3vw,23px);min-width:0;background:var(--panel)}
-#dmn-mission-wireframe .mm-expansion-lab h3{font-weight:750;margin:0}
-#dmn-mission-wireframe .mm-expansion-original{padding:12px;text-align:center;border-radius:12px;background:var(--wash)}
-#dmn-mission-wireframe .mm-expansion-working{padding:14px;border-radius:12px;background:light-dark(#f4f0fa,#39334a)}
-#dmn-mission-wireframe .mm-expansion-working label{font-weight:650}
+/* Fraction-style working rows for bracket expansion. */
+#dmn-mission-wireframe .mm-expansion-lab{
+  container:expansion-mission / inline-size;min-width:0;padding:clamp(10px,2.5vw,20px);
+  border:1px solid light-dark(#dfe6df,#526055);border-radius:10px;
+  --ink:light-dark(#263b37,#e3eee5);--soft:light-dark(#506760,#b5c8bf);
+  --line:light-dark(#dfe6df,#526055);--panel:light-dark(#fff,#252b24);--wash:light-dark(#edf5ed,#293e35);
+  --accent:light-dark(#236b52,#a9dfcb);--on:light-dark(#fff,#142b2b);
+  background:light-dark(#f6f7f2,#20251f);color:var(--ink)
+}
+#dmn-mission-wireframe .mm-expansion-intro{display:flex;gap:8px 14px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
+#dmn-mission-wireframe .mm-expansion-intro>div:first-child{flex:1 1 16rem;min-width:0}
+#dmn-mission-wireframe .mm-expansion-intro h3{font:750 clamp(17px,3.25cqi,22px)/1.22 system-ui,sans-serif;letter-spacing:-.035em;margin:4px 0}
+#dmn-mission-wireframe .mm-expansion-intro p{font-size:12px;color:var(--soft)}
+#dmn-mission-wireframe .mm-expansion-intro small{font-size:10px;letter-spacing:.1em;font-weight:750;color:var(--accent)}
+#dmn-mission-wireframe .mission-pager{display:inline-grid;gap:6px;width:max-content;max-width:100%;align-self:flex-start}
+#dmn-mission-wireframe .mission-pager>button{width:100%;min-height:38px;padding:8px 11px;font-size:12px;line-height:1.25;white-space:nowrap}
+#dmn-mission-wireframe .mission-pager .mission-previous{background:var(--panel)}
+#dmn-mission-wireframe .mm-expansion-card{padding:clamp(10px,2cqi,18px);min-width:0;border:1px solid var(--line);border-radius:13px;background:var(--panel)}
+#dmn-mission-wireframe .mm-expansion-head h4{margin:0;text-transform:uppercase;letter-spacing:.095em;font-size:10px}
+#dmn-mission-wireframe .mm-expansion-head small{font-size:11px}
+#dmn-mission-wireframe .mm-expansion-head button{color:var(--soft)}
+#dmn-mission-wireframe .mm-expand-expression{font-size:clamp(18px,3.4cqi,24px);margin:6px 0;line-height:1.4}
+#dmn-mission-wireframe .mm-expansion-instruction{font-size:clamp(13px,2.25cqi,15px);margin:9px 0}
 #dmn-mission-wireframe .mm-expansion-steps{list-style:none;margin:0;padding:0}
-#dmn-mission-wireframe .mm-expansion-steps li{display:grid;grid-template-columns:4.5rem minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
-#dmn-mission-wireframe .mm-expansion-step-label{font-weight:650;font-size:.84rem}
-#dmn-mission-wireframe .mm-expansion-step-label small{display:block;color:var(--accent)}
-#dmn-mission-wireframe .mm-expansion-steps .question-text{min-width:0}
-#dmn-mission-wireframe .mm-expansion-steps button{justify-self:end}
+#dmn-mission-wireframe .mm-expansion-row{
+  display:grid;min-width:0;grid-template-columns:3rem minmax(0,.85fr) 1rem minmax(0,1.3fr) auto;
+  grid-template-areas:"step left equals result action";align-items:center;gap:6px 8px;padding:9px 0;border-bottom:1px solid var(--line)
+}
+#dmn-mission-wireframe .mm-expansion-row .question-text{min-width:0;font-size:clamp(16px,2.7cqi,21px);line-height:1.45}
+#dmn-mission-wireframe .mm-expansion-left{grid-area:left}
+#dmn-mission-wireframe .mm-expansion-equal{grid-area:equals;color:var(--soft);font:18px Georgia,serif}
+#dmn-mission-wireframe .mm-expansion-result{grid-area:result;min-width:0;overflow-wrap:anywhere}
+#dmn-mission-wireframe .mm-expansion-step-label{grid-area:step;font-weight:700;font-size:11px}
+#dmn-mission-wireframe .mm-expansion-result .mm-expansion-checked{display:block;color:var(--accent);font-size:11px}
+#dmn-mission-wireframe .mm-expansion-action{grid-area:action;justify-self:end;padding:7px 8px;font-size:11px}
+#dmn-mission-wireframe .mm-expansion-symbols{margin-top:5px;gap:5px}
+#dmn-mission-wireframe .mm-expansion-symbols button{padding:3px 7px;font-size:11px}
+#dmn-mission-wireframe #mm-expansion-answer{background:var(--wash)}
+#dmn-mission-wireframe .mm-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@container expansion-mission (max-width:535px){
+  #dmn-mission-wireframe .mm-expansion-row{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"step step step" "left left left" "equals result action"}
+}
+@media(pointer:coarse){#dmn-mission-wireframe .mission-pager>button{min-height:44px}}
 #dmn-mission-wireframe [data-expansion-feedback]:empty{display:none}
 #dmn-mission-wireframe [data-expansion-feedback]:not(:empty){border-radius:8px;background:var(--wash);padding:8px 10px;font-weight:650}
 #dmn-mission-wireframe [data-expansion-feedback][data-state=error]{background:light-dark(#fff0ed,#432b30);color:var(--error)}
@@ -329,3 +358,5 @@ body{max-width:960px;background-image:none;padding:clamp(12px,3vw,26px)}
 #missions-app button.mm-danger{background:light-dark(#8d2929,#ffb5ab);border-color:light-dark(#8d2929,#ffb5ab);color:light-dark(#fff,#421717)}
 #missions-app #mm-class-admin-feedback:empty{display:none}
 #missions-app #mm-class-admin-students li>span{overflow-wrap:anywhere}
+
+.mm-credit{margin-top:auto;padding:18px 4px 0;text-align:right;color:var(--soft);font-size:12px}

@@ -5,7 +5,7 @@
 <link rel="icon" href="art/algebra-town-favicon.ico?v=hut-1" sizes="16x16 32x32 48x48">
 <link rel="icon" href="art/algebra-town-logo.svg?v=hut-1" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="art/algebra-town-icon.png?v=hut-1" sizes="180x180">
-<link rel="stylesheet" href="app.css?v=teacher-collaborators-1">
+<link rel="stylesheet" href="app.css?v=mission-layout-1">
 <script src="subject-catalog.js?v=2"></script>
 </head><body><div id="missions-app">
   <header class="mm-header">
@@ -335,6 +335,7 @@
   </section>
 </div>
 <div id="mm-builder-park"></div>
+<footer class="mm-credit" id="mm-credit" hidden>Designed by Tay Yong Khin</footer>
 <div id="dmn-mission-wireframe" hidden>
   <style>
     #dmn-mission-wireframe{color-scheme:light dark;--page:light-dark(#f5f6f0,#20251f);--panel:light-dark(#fffefb,#252b24);--ink:light-dark(#1b2a4a,#e6ecf6);--soft:light-dark(#4a5570,#b5c2d5);--line:light-dark(#d5ddd6,#526055);--accent:light-dark(#26584b,#a9dfcb);--wash:light-dark(#e6efe9,#293e35);--on:light-dark(#fffefb,#152d25);--error:light-dark(#9c2222,#ffaaaa);padding:12px;font:400 14px/1.45 system-ui,sans-serif;color:var(--ink)}
@@ -455,39 +456,45 @@
       <p data-preview-title></p>
       <p data-play-status tabindex="-1" role="status" aria-live="polite"></p>
       <button type="button" class="cursor-interaction" data-retry hidden>Retry saving</button>
-      <button type="button" class="cursor-interaction" data-prev>Previous question</button>
-      <section data-expansion-practice class="mm-expansion-lab group" hidden aria-label="Bracket expansion practice">
-        <div class="row between"><h3>Expansion Lab</h3><small data-expansion-count></small></div>
-        <p>Expand the brackets and collect like terms.</p>
-        <div class="mm-expansion-original">
-          <small>Original expression</small>
+      <button type="button" class="mission-previous secondary cursor-interaction" data-prev aria-label="Previous question" hidden>← Previous question</button>
+      <section data-expansion-practice class="mm-expansion-lab" hidden aria-label="Bracket expansion practice">
+        <div class="mm-expansion-intro">
+          <div><small>BRACKETS · LIKE TERMS</small><h3 data-expansion-heading tabindex="-1">Expand and simplify brackets</h3><p>Expand the brackets and collect like terms.</p></div>
+          <div class="mission-pager" data-expansion-pager aria-label="Question navigation" role="group"><button type="button" data-expansion-next class="main cursor-interaction">Next question →</button></div>
+        </div>
+        <div class="mm-expansion-card">
+          <div class="row between mm-expansion-head">
+            <div><h4>Original expression</h4><small data-expansion-count></small></div>
+            <button type="button" data-expansion-restart class="cursor-interaction">↻ Restart question</button>
+          </div>
           <p class="question-text mm-expand-expression" data-expansion-expression></p>
-        </div>
-        <details data-expansion-hint><summary>Show a worked example</summary><p data-expansion-example></p></details>
-        <div class="mm-expansion-working group">
-          <h3>I’ll write the working</h3>
-          <p>Enter one line at a time. We’ll check that each line is equivalent to the original expression.</p>
+          <details data-expansion-hint><summary>Show a worked example</summary><p data-expansion-example></p></details>
+          <h4 class="mm-expansion-instruction" data-expansion-instruction></h4>
           <ol class="mm-expansion-steps" data-expansion-steps aria-label="Checked steps" hidden></ol>
-          <form class="group" data-expansion-form>
-            <label class="field"><span data-expansion-step-label>Step 1</span><input data-expansion-answer maxlength="160" required autocomplete="off" spellcheck="false" aria-describedby="mm-expansion-notation" data-math-entry autocapitalize="none" autocorrect="off"></label>
-            <div class="row" aria-label="Math symbols" role="group">
-              <button type="button" data-expansion-fraction aria-controls="mm-expansion-fraction-fields" aria-expanded="false"><span class="mm-fraction-symbol" aria-hidden="true"><span>a</span><span>b</span></span> Fraction</button>
-              <button type="button" data-expansion-square aria-label="Insert square, power of 2">x² <span aria-hidden="true">Square</span></button>
-            </div>
-            <div id="mm-expansion-fraction-fields" data-expansion-fraction-fields class="row" hidden>
-              <div class="mm-fraction-fields">
-                <input data-expansion-numerator aria-label="Expansion numerator" placeholder="Numerator" inputmode="text" maxlength="8" data-math-entry autocapitalize="none" autocorrect="off">
-                <input data-expansion-denominator aria-label="Expansion denominator" placeholder="Denominator" inputmode="text" maxlength="8" data-math-entry autocapitalize="none" autocorrect="off">
+          <form class="mm-expansion-row" data-expansion-form>
+            <label class="mm-expansion-step-label" for="mm-expansion-answer" data-expansion-step-label>Step 1</label>
+            <span class="question-text mm-expansion-left" data-expansion-left></span><span class="mm-expansion-equal" aria-hidden="true">=</span>
+            <div class="mm-expansion-result">
+              <input id="mm-expansion-answer" data-expansion-answer maxlength="160" required autocomplete="off" spellcheck="false" placeholder="Your expression" aria-describedby="mm-expansion-notation" data-math-entry autocapitalize="none" autocorrect="off">
+              <div class="row mm-expansion-symbols" aria-label="Math symbols" role="group">
+                <button type="button" data-expansion-fraction aria-controls="mm-expansion-fraction-fields" aria-expanded="false"><span class="mm-fraction-symbol" aria-hidden="true"><span>a</span><span>b</span></span> Fraction</button>
+                <button type="button" data-expansion-square aria-label="Insert square, power of 2">x²</button>
               </div>
-              <button type="button" data-expansion-fraction-add>Insert fraction</button>
-              <button type="button" data-expansion-fraction-cancel>Cancel fraction</button>
+              <div id="mm-expansion-fraction-fields" data-expansion-fraction-fields class="row" hidden>
+                <div class="mm-fraction-fields">
+                  <input data-expansion-numerator aria-label="Expansion numerator" placeholder="Numerator" inputmode="text" maxlength="8" data-math-entry autocapitalize="none" autocorrect="off">
+                  <input data-expansion-denominator aria-label="Expansion denominator" placeholder="Denominator" inputmode="text" maxlength="8" data-math-entry autocapitalize="none" autocorrect="off">
+                </div>
+                <button type="button" data-expansion-fraction-add>Insert fraction</button>
+                <button type="button" data-expansion-fraction-cancel>Cancel fraction</button>
+              </div>
+              <small id="mm-expansion-notation" class="mm-visually-hidden">Use the Fraction and x² buttons, or type / and ^2. You can use * or × for multiplication.</small>
+              <button type="button" data-expansion-cancel hidden>Cancel edit</button>
             </div>
-            <small id="mm-expansion-notation">Use the Fraction and x² buttons, or type / and ^2. You can use * or × for multiplication.</small>
-            <div class="row"><button type="submit" class="main" data-expansion-check>Check step 1</button><button type="button" data-expansion-cancel hidden>Cancel edit</button></div>
+            <button type="submit" class="main mm-expansion-action" data-expansion-check>Check</button>
           </form>
+          <p class="feedback" data-expansion-feedback role="status" tabindex="-1"></p>
         </div>
-        <p class="feedback" data-expansion-feedback role="status" tabindex="-1"></p>
-        <div class="row"><button type="button" data-expansion-next>Next question</button></div>
       </section>
       <div data-equation-lab></div><template data-equation-lab-template><style>
 :host{--ink:#263b37;--muted:#73817c;--green:#236b52;--pale:#edf5ed;--line:#dfe6df;--paper:#fff;--bg:#f6f7f2;--purple:#735aaa;--orange:#a86622}*{box-sizing:border-box}:host{display:block;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ad95db;outline-offset:3px}header{height:83px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 5%;gap:15px}.brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:750;letter-spacing:-.7px}.brand-icon{display:grid;place-items:center;background:var(--green);color:#fff;border-radius:13px;width:42px;height:42px;font-family:Georgia;font-size:28px}.brand span:last-child{color:var(--green)}.header-right{display:flex;align-items:center;gap:20px}.tag{background:var(--pale);color:var(--green);font-size:11px;font-weight:750;letter-spacing:1.2px;padding:8px 11px;border-radius:6px}.textbtn{background:none;border:0;color:var(--muted);padding:8px}.intro{max-width:1240px;margin:35px auto 25px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:800;color:var(--green);margin-bottom:9px}h1{font-size:32px;line-height:1.2;letter-spacing:-1.2px;margin:0 0 9px}p{line-height:1.6;margin:0;color:var(--muted)}.intro-note{font-family:Georgia,serif;font-style:italic;max-width:195px;font-size:17px;color:#7d8b78;transform:rotate(-3deg)}main{max-width:1240px;padding:0 32px 40px;margin:auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}.card{background:var(--paper);border:1px solid var(--line);border-radius:17px}.settings{padding:23px 19px;height:fit-content}.section-title{font-size:11px;font-weight:750;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:16px}.setting-label{font-size:12px;font-weight:700;margin:19px 0 9px;display:block}.type-tabs{display:flex;background:#f2f4ef;border-radius:9px;padding:4px;gap:3px}.type-tabs button{background:transparent;border:0;border-radius:6px;font-size:12px;padding:9px 5px;flex:1;color:var(--muted)}.type-tabs button.active{background:white;color:var(--green);box-shadow:0 1px 5px #263b3712;font-weight:700}.levels{display:flex;gap:7px}.levels button{flex:1;border:1px solid var(--line);background:white;border-radius:9px;padding:10px 3px;font-size:12px;color:var(--muted)}.levels button.active{background:var(--green);border-color:var(--green);color:white}.difficulty-note{font-size:11px;min-height:36px;margin:10px 0 17px}.divider{height:1px;background:var(--line);margin:20px 0}.mode{width:100%;display:flex;text-align:left;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 10px;background:white;color:var(--ink);margin:8px 0}.mode.active{border-color:#89ac96;background:#f2f8f0}.radio{border:1.5px solid #c5cec3;width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:2px}.mode.active .radio{border:4px solid var(--green)}.mode strong{font-size:12px;display:block;margin-bottom:4px}.mode small{font-size:10px;line-height:1.5;display:block;color:var(--muted)}.rule-card{padding:16px;border-radius:10px;background:#f4f0fa;margin-top:21px}.rule-card strong{color:var(--purple);font-size:12px}.rule-card p{font-size:11px;color:#807091;margin-top:7px}.workspace{min-width:0}.exercise-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;gap:10px}.exercise-label{font-size:12px;font-weight:650}.exercise-label span{color:var(--muted);font-weight:400;margin-left:8px}.pill{font-size:10px;border:1px solid var(--line);padding:6px 10px;border-radius:20px;background:white;color:var(--muted)}.lab{overflow:hidden}.lab-top{display:flex;justify-content:space-between;align-items:center;padding:20px 25px 0}.lab-top small{font-size:10px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.status{font-size:11px;color:var(--green);background:var(--pale);padding:7px 10px;border-radius:20px;display:flex;align-items:center;gap:6px}.dot{width:6px;height:6px;background:currentColor;border-radius:50%}.status.warn{background:#fff0df;color:var(--orange)}.equation-area{padding:18px 25px 0}.equation{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);align-items:center;min-height:100px;gap:12px}.math{font-family:Cambria,"Times New Roman",serif;font-size:42px;line-height:1.6;letter-spacing:-.5px;text-align:center;overflow-wrap:anywhere}.math var{font-style:italic}.equal{font-family:Georgia,serif;font-size:33px;color:#98a79a;text-align:center}.frac{display:inline-flex;vertical-align:middle;flex-direction:column;align-items:center;font-size:.78em;line-height:1.15;margin:0 .08em}.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .12em .08em}.frac>span:last-child{padding:.08em .12em 0}.operation-fraction{font-size:1em;line-height:1.3}.balance-art{display:block;width:100%;height:48px;margin:0 auto 1px;overflow:visible}.balance-beam{transform-origin:350px 13px;transition:transform .3s}.balance-art.warn .balance-beam{transform:rotate(4deg)}.side-labels{display:grid;grid-template-columns:1fr 45px 1fr;gap:12px;text-align:center;font-size:9px;letter-spacing:1.3px;font-weight:700;color:#96a294;margin-bottom:12px}.controls{display:grid;grid-template-columns:minmax(0,1fr) 45px minmax(0,1fr);gap:12px;padding:0 25px 24px}.control-panel{background:#f6f8f3;border:1px solid #e7ece2;padding:13px;border-radius:12px}.operator-row{display:flex;gap:5px}.op{flex:1;border:1px solid #dce4d8;border-radius:6px;padding:6px 2px;background:#fff;color:#6f7d6b;font-size:21px;line-height:1.1}.op.selected{border-color:var(--green);background:#e4eee1;color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}.value-row{display:flex;gap:7px;margin-top:9px}.value-row input{width:0;min-width:0;flex:1;border:1px solid #dce4d8;border-radius:7px;background:white;padding:10px;color:var(--ink)}.apply{border:0;background:var(--green);color:white;border-radius:7px;padding:9px 14px;font-size:11px;font-weight:650}.side-done{font-size:11px;color:var(--green);margin-top:8px;min-height:16px}.controls-middle{display:flex;align-items:center;justify-content:center;color:#b3bdb0;font-size:20px}.feedback{padding:16px 23px;background:#edf5ed;border-top:1px solid #dce9da;display:flex;gap:11px;align-items:flex-start;min-height:72px}.feedback.warn{background:#fff5e8;border-color:#f0dfc6}.feedback.error{background:#fff0ed;border-color:#f0d7cf}.feedback.success{background:#e4f4e9}.feedback-icon{border:1px solid currentColor;border-radius:50%;width:19px;height:19px;flex-shrink:0;display:grid;place-items:center;color:var(--green);font-weight:700;font-size:11px;margin-top:1px}.feedback.warn .feedback-icon{color:var(--orange)}.feedback.error .feedback-icon{color:#b74b32}.feedback strong{display:block;font-size:12px;margin-bottom:4px}.feedback p{font-size:11px;color:#6b7c67;line-height:1.6}.feedback.warn p{color:#92774c}.feedback.error p{color:#a46353}.actions{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:12px}.secondary{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 13px;font-size:11px;color:#53674f}.actions-left{display:flex;gap:7px}.primary{border:0;background:var(--green);color:#fff;border-radius:8px;padding:11px 18px;font-size:11px;font-weight:700}.history{padding:21px 23px}.history-header{display:flex;align-items:center;justify-content:space-between}.history-header h2{font-size:13px;margin:0}.history-header small{font-size:10px;color:var(--muted)}.history-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #edf0e9}.history-row:last-child{border:0;padding-bottom:0}.step-number{width:24px;height:24px;border-radius:50%;background:#f0f4ed;color:#84907d;display:grid;place-items:center;font-size:10px}.history-math{font-family:Cambria,Georgia,serif;font-size:22px;overflow-wrap:anywhere}.history-note{font-size:10px;color:#7c8d74;text-align:right;max-width:150px}.footnote{margin:17px 0 0;font-size:10px;color:#96a18f;text-align:center}.manual{padding:0 25px 23px}.manual-inner{background:#f4f0fa;border:1px solid #e5dcf0;border-radius:10px;padding:16px}.manual-title{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px}.manual p{font-size:11px;color:#8a799f;margin-bottom:11px}.working-inputs{display:grid;grid-template-columns:1fr 25px 1fr;align-items:center;gap:10px}.working-inputs input{width:100%;padding:11px;border:1px solid #d5c6e6;border-radius:7px;background:white;color:var(--ink)}.check{margin-top:10px;background:var(--purple);color:white;border:0;border-radius:7px;padding:10px 15px;font-size:11px}.hint{background:#fff8e9;border:1px solid #ecdfc5;border-radius:9px;padding:13px 16px;font-size:12px;line-height:1.6;margin-bottom:14px;color:#92703e}.hidden{display:none!important}dialog{max-width:590px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:17px;color:var(--ink);padding:28px;box-shadow:0 20px 100px #17332733}dialog::backdrop{background:#20382e66}dialog h2{font-size:23px;letter-spacing:-.6px;margin:0 0 16px}dialog p,dialog li{font-size:13px;line-height:1.8}dialog li{margin:8px 0;color:var(--muted)}dialog .secondary{margin-top:16px}#custom input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;margin:16px 0}#custom-error{color:#b74b32;font-size:12px}footer{max-width:1176px;margin:0 auto 25px;border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;font-size:10px;color:#96a18f}.mobile-settings{display:none}@media(min-width:1450px){.intro{margin-top:48px}main{gap:30px}.equation-area{padding-top:30px;padding-bottom:8px}.math{font-size:48px}}@media(max-width:850px){header{padding:0 24px}.intro-note{display:none}.intro,main{padding-left:22px;padding-right:22px}main{grid-template-columns:220px minmax(0,1fr);gap:16px}.settings{padding:20px 14px}.controls{padding-left:16px;padding-right:16px;gap:5px;grid-template-columns:1fr 20px 1fr}.control-panel{padding:9px}.math{font-size:34px}.value-row{flex-wrap:wrap}.value-row input{flex-basis:100%;width:100%}.apply{width:100%}.header-right{gap:8px}footer{margin-left:22px;margin-right:22px}}@media(max-width:650px){header{height:70px;padding:0 18px}.brand{font-size:20px}.tag{display:none}.header-right .textbtn{font-size:12px}.intro{margin:25px auto 20px;padding:0 18px}h1{font-size:28px}.intro p{font-size:12px}main{display:block;padding:0 14px 28px}.settings{margin-bottom:18px;padding:16px}.settings>.section-title{margin-bottom:12px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setting-label{margin-top:3px}.difficulty-note{min-height:0;margin-bottom:0}.settings .divider{margin:15px 0}.mode-wrap{display:flex;gap:8px}.mode{margin:0;flex:1;padding:10px 7px}.mode small{font-size:9px}.mode strong{font-size:10px}.rule-card{display:none}.lab-top{padding:16px 16px 0}.equation-area{padding:12px 12px 0}.math{font-size:34px}.equation{gap:5px;grid-template-columns:1fr 30px 1fr}.side-labels{grid-template-columns:1fr 30px 1fr}.controls{padding:0 12px 18px;grid-template-columns:1fr 20px 1fr}.controls-middle{font-size:15px}.op{font-size:21px}.actions{flex-wrap:wrap}.actions-left{gap:4px}.secondary{padding:10px;font-size:10px}.primary{padding:11px 12px}.history{padding:18px}.history-note{font-size:9px;max-width:95px}.history-math{font-size:20px}.manual{padding:0 12px 18px}.working-inputs{gap:5px}.working-inputs input{padding:10px 7px}.feedback{padding:14px 16px}footer{margin:0 18px 20px}.exercise-label span{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -661,35 +668,66 @@ main{display:block;max-width:none;margin:0;padding:0}
   .subject-rewrite{min-height:40px}
   .value-row input[data-math-entry],.working-inputs input[data-math-entry],.structured-math-editor input[data-math-entry]{font-size:max(16px,1em)}
 }
+
+.mission-pager{display:inline-grid;gap:6px;width:max-content;max-width:100%;align-self:flex-start}
+.mission-pager>button.primary,.mission-pager>button.secondary{width:100%;min-height:38px;padding:8px 11px;border:1px solid transparent;border-radius:8px;font-size:12px;line-height:1.25;white-space:nowrap}
+.mission-pager>button.secondary{background:var(--paper);border-color:var(--line);color:var(--ink)}
+.mission-pager-bottom{display:grid;margin:12px 0 0 auto}
+.simp-intro>.mission-pager{flex:0 0 auto}
+#equation-main .actions{flex-wrap:wrap}
+#equation-pager{margin-inline-start:auto}
+.mission-question-head,.mission-question-tools{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.mission-question-tools{justify-content:flex-end;align-items:center}
+.mission-question-head .section-title{margin:0 0 3px}
+.mission-question-count{font-size:11px;color:var(--muted)}
+.guided-equation-context{padding:12px clamp(12px,3vw,24px) 4px}
+.guided-equation-context .section-title{margin:0 0 6px}
+.guided-original{font-size:clamp(20px,3.2vw,25px);margin:6px 0 11px;overflow-wrap:anywhere}
+.mission-workings h2{font-family:inherit;font-size:14px;font-weight:700;margin:0 0 6px}
+.mission-workings .empty-workings{font-size:12px;color:var(--muted);padding:6px 0;margin:0}
+#working-trail .history-row{padding:7px 0}
+#working-trail .history-math{font-size:clamp(15px,2.7vw,21px)}
+#subject-workings .free-row{padding-block:7px}
+#subject-condition:empty{display:none}
+.subject-card #subject-condition{margin:6px 0 0}
+.subject-card .subject-guidance{margin-block:7px}
+#equation-main .exercise-bar{flex-wrap:wrap}
+@media(pointer:coarse){.mission-pager>button.primary,.mission-pager>button.secondary,.mission-question-head>button,.mission-question-tools>button{min-height:44px}}
 </style>
 <header><div class="brand"><div class="brand-icon" aria-hidden="true">=</div>Equation <span>Lab</span></div><div class="header-right"><span class="tag">THINK · BALANCE · SOLVE</span><button class="textbtn" id="help-btn">ⓘ How it works</button></div></header>
 <div class="intro"><div><div class="eyebrow">SMALL STEPS. BIG UNDERSTANDING.</div><h1>Keep it balanced.</h1><p>Two sides. One golden rule. Find your way to <i>x</i>.</p></div><div class="intro-note">Whatever you do to one side,<br>do to the other.</div></div>
 <main id="equation-main">
 <aside class="settings card"><div class="section-title">Your practice</div><div class="settings-grid"><div><label class="setting-label">Equation type</label><div class="type-tabs" id="types"><button data-type="whole" class="active" aria-pressed="true">Non-fractional</button><button data-type="fraction" aria-pressed="false">Fractional</button></div></div><div><label class="setting-label">Difficulty</label><div class="levels" id="levels"><button data-level="1" class="active" aria-pressed="true">Level 1</button><button data-level="2" aria-pressed="false">Level 2</button><button data-level="3" aria-pressed="false">Level 3</button><button data-level="4" aria-pressed="false">Level 4</button></div></div></div><p class="difficulty-note" id="difficulty-note"></p><div id="mode-settings"><div class="divider"></div><div class="section-title">Working mode</div><div class="mode-wrap"><button class="mode active" data-mode="auto" aria-pressed="true"><span class="radio"></span><span><strong>1 · Calculate for me</strong><small>You choose the operation.<br>We calculate the result.</small></span></button><button class="mode" data-mode="manual" aria-pressed="false"><span class="radio"></span><span><strong>2 · I’ll write the working</strong><small>Write each step yourself.<br>We check the equation.</small></span></button></div></div><div id="free-mode-note" class="free-mode-note hidden"><span class="section-title">YOUR METHOD</span><strong>Write your own working</strong><p id="free-mode-description">Simplify, combine fractions or clear denominators. Each valid next equation is accepted.</p></div><div class="rule-card"><strong>✧ The golden rule</strong><p>Keep the equation equivalent by applying the same operation and value to both sides.</p></div></aside>
-<section class="workspace" aria-label="Equation workspace"><div class="exercise-bar"><div class="exercise-label" id="exercise-label">Non-fractional · Level 1 <span>Let’s isolate x</span></div><span class="pill" id="solved-count">0 solved this session</span></div>
-<div class="lab card"><div class="lab-top"><small id="step-label">YOUR EQUATION</small><div class="status" id="status"><span class="dot"></span><span id="status-text">Balanced</span></div></div><div class="equation-area"><div class="equation"><div class="equation-side"><div class="math" id="left-equation"></div><div class="subject-rewrites" id="left-rewrites"></div></div><div class="equal" id="equals">=</div><div class="equation-side"><div class="math" id="right-equation"></div><div class="subject-rewrites" id="right-rewrites"></div></div></div><div id="domain" class="domain hidden"></div><svg class="balance-art" id="balance-art" viewBox="0 0 700 48" aria-hidden="true"><g class="balance-beam"><path d="M115 13H585" stroke="#b2c7a8" stroke-width="2" stroke-linecap="round"/><circle cx="115" cy="13" r="4" fill="#d3dfcb"/><circle cx="585" cy="13" r="4" fill="#d3dfcb"/></g><path d="M350 15L336 39H364Z" fill="#e1e9d9"/><path d="M323 42H377" stroke="#c4d3ba" stroke-width="2" stroke-linecap="round"/><circle cx="350" cy="13" r="5" fill="#93ad86"/></svg><div class="side-labels"><span>LEFT-HAND SIDE</span><span></span><span>RIGHT-HAND SIDE</span></div></div>
+<section class="workspace" aria-label="Equation workspace"><div class="exercise-bar"><div class="exercise-label" id="exercise-label" tabindex="-1">Non-fractional · Level 1 <span>Let’s isolate x</span></div><div class="mission-question-tools"><span class="pill" id="solved-count">0 solved this session</span><button class="secondary" id="reset">↻ Restart question</button></div></div>
+<div class="lab card">
+<div id="guided-equation-context" class="guided-equation-context hidden">
+  <div class="section-title">Original equation</div><div id="guided-original-equation" class="working-math guided-original"></div>
+  <section id="working-trail" class="mission-workings" aria-labelledby="workings-label"><h2 id="workings-label">Workings</h2><div id="history"></div></section>
+</div><div class="lab-top"><small id="step-label">YOUR EQUATION</small><div class="status" id="status"><span class="dot"></span><span id="status-text">Balanced</span></div></div><div class="equation-area"><div class="equation"><div class="equation-side"><div class="math" id="left-equation"></div><div class="subject-rewrites" id="left-rewrites"></div></div><div class="equal" id="equals">=</div><div class="equation-side"><div class="math" id="right-equation"></div><div class="subject-rewrites" id="right-rewrites"></div></div></div><div id="domain" class="domain hidden"></div><svg class="balance-art" id="balance-art" viewBox="0 0 700 48" aria-hidden="true"><g class="balance-beam"><path d="M115 13H585" stroke="#b2c7a8" stroke-width="2" stroke-linecap="round"/><circle cx="115" cy="13" r="4" fill="#d3dfcb"/><circle cx="585" cy="13" r="4" fill="#d3dfcb"/></g><path d="M350 15L336 39H364Z" fill="#e1e9d9"/><path d="M323 42H377" stroke="#c4d3ba" stroke-width="2" stroke-linecap="round"/><circle cx="350" cy="13" r="5" fill="#93ad86"/></svg><div class="side-labels"><span>LEFT-HAND SIDE</span><span></span><span>RIGHT-HAND SIDE</span></div></div>
 <div id="operation-controls" class="controls"><div class="control-panel" data-side="left"><div class="value-row"><input id="left-value" aria-label="Value for left side" placeholder="Enter a value" autocomplete="off" spellcheck="false" data-math-entry autocapitalize="none" autocorrect="off"><button class="apply" id="apply-left">Apply</button></div><div class="side-done" id="left-done"></div></div><div class="controls-middle"><div class="shared-operators operator-row" role="group" aria-label="Choose an operation for both sides"><button class="op selected" data-op="+" aria-pressed="true" aria-label="Add">+</button><button class="op" data-op="-" aria-pressed="false" aria-label="Subtract">−</button><button class="op" data-op="*" aria-pressed="false" aria-label="Multiply">×</button><button class="op" data-op="/" aria-pressed="false" aria-label="Divide">÷</button></div><div id="equation-actions" class="equation-actions" role="group" aria-label="Operations on both sides"><button type="button" class="both-sides-action" data-action="square">Square both sides</button><button type="button" class="both-sides-action" data-action="root">Square root both sides</button></div></div><div class="control-panel" data-side="right"><div class="value-row"><input id="right-value" aria-label="Value for right side" placeholder="Enter a value" autocomplete="off" spellcheck="false" data-math-entry autocapitalize="none" autocorrect="off"><button class="apply" id="apply-right">Apply</button></div><div class="side-done" id="right-done"></div></div></div>
 <p id="value-help" class="value-help hidden">Input tips: x^2 · (x+3)^2 · sqrt(x+4) · x+1 · (x-2)(x+2)</p><div class="manual hidden" id="manual"><div class="manual-inner"><div class="manual-title">Your turn: write the next line.</div><p id="manual-instructions">Work out both sides, then enter the resulting expressions.</p><div class="working-inputs"><input id="work-left" aria-label="Your next left-hand side" placeholder="Left-hand side" autocomplete="off" spellcheck="false" data-math-entry autocapitalize="none" autocorrect="off"><span style="text-align:center">=</span><input id="work-right" aria-label="Your next right-hand side" placeholder="Right-hand side" autocomplete="off" spellcheck="false" data-math-entry autocapitalize="none" autocorrect="off"></div><button class="check" id="check-working">Check my working →</button></div></div>
 <section id="free-workspace" class="free-workspace hidden" aria-label="Your working"><div class="free-heading"><h2>Your working</h2><span id="free-equation-kind" class="pill"></span></div><p id="free-input-help" class="free-input-help">Write one complete equation per step. Use the symbols when needed; Tab moves between numerator and denominator fields.</p><div class="free-tools" role="group" aria-label="Insert mathematical notation"><button class="notation-tool" data-insert="fraction" title="Insert fraction" aria-label="Insert fraction"><span class="frac notation-fraction" aria-hidden="true"><span>□</span><span>□</span></span></button><button class="notation-tool" data-insert="brackets" aria-label="Insert brackets" title="Insert brackets">( )</button><button class="notation-tool" data-insert="square" aria-label="Square current term" title="Square current term">x²</button><button class="notation-tool" data-insert="plusminus" aria-label="Insert plus or minus">±</button></div><div id="free-rows"></div></section>
 <div class="feedback" id="feedback" role="status" aria-live="polite"><div class="feedback-icon" id="feedback-icon">✓</div><div><strong id="feedback-title">A balanced beginning.</strong><p id="feedback-text">Choose an operation and a value on either side to take your first step.</p></div></div></div>
-<div class="actions"><div class="actions-left"><button class="secondary" id="undo">↶ Undo</button><button class="secondary" id="reset">↻ Restart</button><button class="secondary" id="hint-btn">✧ Hint</button><button class="secondary" id="custom-btn">Custom</button></div><button class="primary" id="next">New equation →</button></div><div class="hint hidden" id="hint" role="status"></div>
-<div id="working-trail" class="history card"><div class="history-header"><h2>Your working trail</h2><small id="history-count">Every balanced step counts</small></div><div id="history"></div></div><p class="footnote">Take your time. A good method matters more than a quick answer.</p>
+<div class="actions"><div class="actions-left"><button class="secondary" id="undo">↶ Undo</button><button class="secondary" id="hint-btn">✧ Hint</button><button class="secondary" id="custom-btn">Custom</button></div><div class="mission-pager" id="equation-pager" role="group" aria-label="Question navigation"><button class="primary" id="next">Next question →</button></div></div><div class="hint hidden" id="hint" role="status"></div>
+<p class="footnote">Take your time. A good method matters more than a quick answer.</p>
 </section></main>
 <footer><span>Equation Lab &nbsp; / &nbsp; Learn by balancing</span><button class="textbtn" id="download" style="padding:0;font-size:10px">Download offline HTML ↓</button></footer>
 <dialog id="help"><h2>One equation. Two equal sides.</h2><p>Our goal is to get <b>x on its own</b>, with a number on the other side.</p><ol><li>Choose <b>+, −, × or ÷</b> and enter a value, then press <b>Apply</b> on either side.</li><li>Changing just one side breaks the balance. Apply the <b>same operation with the same value</b> to the other side.</li><li>In <b>Calculate for me</b>, each side simplifies automatically. In <b>I’ll write the working</b>, enter a complete next equation in each numbered step and press Check.</li><li>Repeat until you reach <b>x = a number</b> (or a number = x).</li></ol><p><b>Input tips:</b> Type 3x, -2, 1/2 or (x+1)/3. You can add or subtract x terms and x^2. Use sqrt(x+4) for a square root. With variable denominators, multiply by the common denominator and keep its excluded values. For two answers, type ±3 or 3, -3.</p><p style="margin-top:12px"><b>Difficulty:</b> Level 1 has x on one side; Level 2 adds brackets or more steps; Level 3 has x on both sides. Non-fractional Level 4 adds squared expressions. Fractional Level 4 adds linear denominators without a standalone added constant; these equations reduce to linear equations. In “I’ll write the working” for either equation type, or Fractional Level 4, enter a complete equation in each numbered working row and select Check. You can simplify or clear denominators in any valid order. Use the square symbol after a term: x becomes x², and (x+2) becomes (x+2)². The square symbol does not insert brackets. Select Edit to revise a checked step; later steps will be cleared. For squared equations, keep both roots. After squaring, check answers in the original equation.</p><button class="secondary" id="close-help">Got it</button></dialog>
 <dialog id="custom"><h2>Try your own equation</h2><p>Enter an equation with one or two rational real solutions. Try (x+3)^2 = 16, sqrt(x+4) = 5, or 6/(x+1) = 2.</p><input id="custom-equation" aria-label="Custom equation" placeholder="2x - 5 = 5" autocomplete="off" spellcheck="false"><p id="custom-error" role="alert"></p><div style="display:flex;gap:10px"><button class="primary" id="start-custom">Start equation</button><button class="secondary" id="close-custom" style="margin:0">Cancel</button></div></dialog>
 <section id="simplify-main" class="simp-main hidden" aria-label="Simplifying Fractional Expressions">
-  <div class="simp-intro"><div><div class="eyebrow">FRACTIONS · FACTORS · COMMON DENOMINATORS</div><h1>Simplifying Fractional Expressions</h1><p>Factorise when needed, make equivalent fractions, then combine and simplify.</p></div><button id="simp-next" class="primary">Next question →</button></div>
+  <div class="simp-intro"><div><div class="eyebrow">FRACTIONS · FACTORS · COMMON DENOMINATORS</div><h1 id="simp-heading" tabindex="-1">Simplifying Fractional Expressions</h1><p>Factorise when needed, make equivalent fractions, then combine and simplify.</p></div><div class="mission-pager" id="simp-pager" role="group" aria-label="Question navigation"><button id="simp-next" class="primary">Next question →</button></div></div>
   <div class="simp-layout"><aside class="settings card"><div class="section-title">Difficulty</div><div id="simp-levels" class="simp-levels"></div><div class="rule-card" id="simp-remember"><strong>Remember</strong><p>Multiply above and below by the same factor.</p></div></aside>
-  <div class="simp-card card"><div class="section-title">Original expression</div><div id="simp-question" class="simp-question working-math"></div><h2 id="simp-instructions"></h2><div id="simp-steps"></div><p id="simp-error" class="simp-error hidden" role="alert"></p></div></div>
+  <div class="simp-card card"><div class="mission-question-head"><div><div class="section-title">Original expression</div><span class="mission-question-count" id="simp-count"></span></div><button id="simp-restart" class="secondary">↻ Restart question</button></div><div id="simp-question" class="simp-question working-math"></div><h2 id="simp-instructions"></h2><div id="simp-steps"></div><p id="simp-error" class="simp-error hidden" role="alert"></p></div></div>
 </section>
 <section id="subject-main" class="subject-main hidden" aria-label="Making x the Subject">
-  <div class="simp-intro"><div><div class="eyebrow">FORMULAS · REARRANGEMENT · REASONING</div><h1>Making <i>x</i> the Subject</h1><p>Keep the other letters as constants. Rearrange the formula one valid step at a time.</p></div><button id="subject-next" class="primary">New formula →</button></div>
+  <div class="simp-intro"><div><div class="eyebrow">FORMULAS · REARRANGEMENT · REASONING</div><h1 id="subject-heading" tabindex="-1">Making <i>x</i> the Subject</h1><p>Keep the other letters as constants. Rearrange the formula one valid step at a time.</p></div></div>
   <div class="subject-layout"><aside class="settings card"><div class="section-title">Difficulty</div><div id="subject-levels" class="subject-levels"></div><div class="mode-setting"><span class="setting-label">Working mode</span><button class="mode" data-subject-mode="auto"><strong>1 · Calculate for me</strong><small>Choose an operation; we show the result.</small></button><button class="mode" data-subject-mode="manual"><strong>2 · I’ll write the working</strong><small>Write and check each formula yourself.</small></button></div><p id="subject-description" class="difficulty-note"></p><div class="rule-card"><strong>Remember</strong><p>Making x the subject means writing x alone on one side. Keep the other letters in your answer.</p></div></aside>
-    <div class="subject-card card"><div class="subject-head"><span class="section-title">Your working</span><span id="subject-count" class="pill"></span></div><p id="subject-condition" class="subject-condition"></p><div class="subject-guidance"><span id="subject-guidance-text">Write a complete equation on each line. A direct correct answer is welcome.</span><div><button id="subject-hint-btn" class="secondary">✧ Hint</button><button id="subject-restart" class="secondary">↻ Restart</button></div></div><p id="subject-hint" class="hint hidden" role="status"></p>
+    <div class="subject-card card"><div class="mission-question-head"><div><div class="section-title">Original formula</div><span id="subject-count" class="mission-question-count"></span></div><button id="subject-restart" class="secondary">↻ Restart question</button></div><p id="subject-condition" class="subject-condition"></p><div id="subject-original" class="working-math guided-original"></div>
+      <section id="subject-workings" class="mission-workings hidden" aria-labelledby="subject-workings-title"><h2 id="subject-workings-title">Workings</h2><div id="subject-trail"></div></section><div class="subject-guidance"><span id="subject-guidance-text">Write a complete equation on each line. A direct correct answer is welcome.</span><div><button id="subject-hint-btn" class="secondary">✧ Hint</button></div></div><p id="subject-hint" class="hint hidden" role="status"></p>
       <div id="subject-tools" class="subject-tools" role="group" aria-label="Insert mathematical notation"><button class="notation-tool" data-subject-insert="fraction" aria-label="Insert fraction"><span class="frac notation-fraction"><span>□</span><span>□</span></span></button><button class="notation-tool" data-subject-insert="brackets" aria-label="Insert brackets">( )</button><button class="notation-tool" data-subject-insert="square" aria-label="Square current term">x²</button><button class="notation-tool" data-subject-insert="root" aria-label="Insert square root"><span class="radical" aria-hidden="true"><span class="root-sign"><svg viewBox="0 0 20 40" preserveAspectRatio="none" aria-hidden="true"><path d="M1 25 5 23 9 37 20 0H22" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="radicand">□</span></span></button><button class="notation-tool" data-subject-insert="plusminus" aria-label="Insert plus or minus">±</button></div><div id="subject-rows"></div><p id="subject-tip" class="subject-tip">Use Tab to move through the boxes and continue after a root or fraction. You can also tap beside it to continue typing. For two solutions, use ± or “or”.</p>
     </div>
   </div>
+  <div class="mission-pager mission-pager-bottom" id="subject-pager" role="group" aria-label="Question navigation"><button id="subject-next" class="primary">Next question →</button></div>
 </section>
 </template>
       <div class="mm-mission-finish"><button type="button" class="main cursor-interaction" data-finish-mission hidden>Complete mission</button></div>
@@ -1064,13 +1102,19 @@ function renderFreeWorking(done){
 }
 function renderFreeMode(){
   let free=isFreeWorking();
-  $('operation-controls').classList.toggle('hidden',free);$('equation-actions').classList.toggle('hidden',free);$('free-workspace').classList.toggle('hidden',!free);$('mode-settings').classList.toggle('hidden',family==='fraction'&&difficulty===4);$('free-mode-note').classList.toggle('hidden',!free);$('free-mode-description').textContent=family==='whole'?'Write one complete equation per step. Use any valid method to isolate x.':'Simplify, combine fractions or clear denominators. Each valid next equation is accepted.';$('working-trail').classList.toggle('hidden',free);lab.querySelector('.lab').classList.toggle('free-layout',free);lab.querySelector('.side-labels').classList.toggle('hidden',free);$('balance-art').classList.toggle('hidden',free);
+  $('operation-controls').classList.toggle('hidden',free);$('equation-actions').classList.toggle('hidden',free);$('free-workspace').classList.toggle('hidden',!free);$('mode-settings').classList.toggle('hidden',family==='fraction'&&difficulty===4);$('free-mode-note').classList.toggle('hidden',!free);$('free-mode-description').textContent=family==='whole'?'Write one complete equation per step. Use any valid method to isolate x.':'Simplify, combine fractions or clear denominators. Each valid next equation is accepted.';$('guided-equation-context').classList.toggle('hidden',free);lab.querySelector('.lab').classList.toggle('free-layout',free);lab.querySelector('.side-labels').classList.toggle('hidden',free);$('balance-art').classList.toggle('hidden',free);
   if(!free)return;
   let done=isolated(current().left,current().right)&&finalValid()&&(!!current().answerWritten||family==='whole'&&steps.length>1);
   $('left-equation').innerHTML=math(initial.leftText);$('right-equation').innerHTML=math(initial.rightText);$('equals').textContent='=';$('status').className='status';$('status-text').textContent=done?'Solved!':'Your working';$('step-label').textContent='ORIGINAL EQUATION';$('manual').classList.add('hidden');$('value-help').classList.add('hidden');renderFreeWorking(done);
 }
 // UI
 const $=id=>lab.getElementById(id);
+mount.placeMissionPrevious=(kind,button)=>{
+  const pager=$({solve:'equation-pager',rational:'simp-pager',subject:'subject-pager'}[kind]);
+  if(button.parentElement!==pager)pager.append(button);
+};
+mount.focusMissionQuestion=kind=>$({solve:'exercise-label',rational:'simp-heading',subject:'subject-heading'}[kind]).focus();
+mount.formatExpansion=math;
 let family='whole',difficulty=1,mode='manual',solved=0,question=0,initial,steps=[],pending=null,selectedOp='+',counted=false,isCustom=false,restrictions=[],expected=[];
 const banks={whole:[['2x - 5','5'],['3x + 4','19'],['4x - 7','13'],['5x + 6','-9'],['7 - 2x','15']],fraction:[['x/3 + 2','6'],['x/4 - 3','2'],['x/2 + 5','8'],['x/5 - 2','-3'],['2x/3 + 1','7']]};
 const advanced={squares:[['x^2 - 9','16'],['(x + 3)^2','16'],['2(x - 2)^2 + 3','21'],['(x + 2)^2','x^2 + 16'],['3x^2 + 5','80'],['(x - 4)^2 - 6','19']],linearDenominators:[['6/(x + 1)','2'],['(2x + 3)/(x - 1)','5'],['3/(x - 2)','5/(x + 2)'],['(x + 4)/(x - 1)','2'],['2/(2x + 1)','7/(x + 4)'],['(x + 3)/(x - 2)','(x + 5)/(x + 1)']]};
@@ -1155,7 +1199,7 @@ function feedback(kind,title,description){$('feedback').className='feedback '+ki
 function finalCandidates(){let c=current();if(!isolated(c.left,c.right))return [];return variants(same(c.left,VX)?c.right:c.left)}
 function finalValid(){let a=finalCandidates();return a.length===expected.length&&expected.every(x=>a.some(v=>veq(v,val(fc(x)))))}
 function domainText(){let excluded=[],other=[];for(let r of restrictions){if(r.value.constant())continue;if(r.type==='nonzero'){try{for(let x of polynomialRoots(r.value.n))if(!excluded.some(v=>v.eq(x)))excluded.push(x)}catch{other.push(fText(r.value)+' ≠ 0')}}else{let p=r.value.n;if(p.length===2&&r.value.d.length===1){let boundary=p[0].neg().div(p[1]);other.push('x '+(p[1].n>0n?'≥':'≤')+' '+boundary.str())}else other.push(fText(r.value)+' ≥ 0')}}return [...(excluded.length?['x ≠ '+excluded.map(v=>v.str()).join(', ')]:[]),...new Set(other)].join(' · ')}
-function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');renderEquationRewrites(done);$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · '+(mode==='auto'?'Calculate for me':'I’ll write the working');$('difficulty-note').textContent=notes[family][difficulty-1];$('history-count').textContent=steps.length-1+' balanced step'+(steps.length===2?'':'s');$('history').innerHTML=steps.map((s,i)=>'<div class="history-row"><span class="step-number">'+i+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join('');lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
+function render(){let c=current(),both=pending&&pending.left&&pending.right,unbalanced=!!pending&&(!both||pending.left.op!==pending.right.op||!['square','root'].includes(pending.left.op)&&!same(pending.left.value,pending.right.value)),isolatedNow=!pending&&isolated(c.left,c.right),done=isolatedNow&&finalValid();$('left-equation').innerHTML=renderSide('left');$('right-equation').innerHTML=renderSide('right');renderEquationRewrites(done);$('equals').textContent=unbalanced?'≠':'=';$('status').className='status'+(unbalanced?' warn':'');$('status-text').textContent=done?'Solved!':unbalanced?'Unbalanced':both&&!unbalanced&&mode==='manual'?'Write your working':isolatedNow?'Check original':'Balanced';$('balance-art').classList.toggle('warn',unbalanced);$('step-label').textContent=done?'YOU ISOLATED X!':pending?'TRY YOUR OPERATION':'YOUR EQUATION';$('manual').classList.toggle('hidden',!(both&&!unbalanced&&mode==='manual'));for(let side of ['left','right']){let p=pending&&pending[side];$('apply-'+side).disabled=done||!!p&&['square','root'].includes(p.op);$('apply-'+side).textContent=p&&!['square','root'].includes(p.op)?'Update':'Apply';$(side+'-value').disabled=done||!!p&&['square','root'].includes(p.op);lab.querySelectorAll('[data-side="'+side+'"] .op').forEach(b=>b.disabled=done||!!p&&['square','root'].includes(p.op));$(side+'-done').textContent=p?(p.op==='root'?'Square root selected · keep both roots':p.op==='square'?'Square selected':SYMBOL[p.op]+' ('+valueText(p.value)+') applied · edit and Update to change'):''}$('undo').disabled=steps.length===1&&!pending;$('solved-count').textContent='Question '+question+' of '+missionTotal;$('exercise-label').textContent=(family==='fraction'?'Fractional':'Non-fractional')+' · '+(mode==='auto'?'Calculate for me':'I’ll write the working');$('difficulty-note').textContent=notes[family][difficulty-1];$('guided-original-equation').innerHTML=math(initial.leftText)+' <span aria-hidden="true">=</span> '+math(initial.rightText);$('history').innerHTML=steps.length>1?steps.slice(1).map((s,i)=>'<div class="history-row"><span class="step-number">'+(i+1)+'</span><span class="history-math">'+math(s.leftText)+' = '+math(s.rightText)+'</span><span class="history-note">'+esc(s.note)+'</span></div>').join(''):'<p class="empty-workings">Your balanced steps will appear here.</p>';lab.querySelectorAll('[data-type]').forEach(b=>{let a=b.dataset.type===family;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});lab.querySelectorAll('[data-level]').forEach(b=>{let a=+b.dataset.level===difficulty;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a);b.classList.toggle('hidden',+b.dataset.level>4)});lab.querySelectorAll('[data-mode]').forEach(b=>{let a=b.dataset.mode===mode;b.classList.toggle('active',a);b.setAttribute('aria-pressed',a)});let dt=domainText();$('domain').textContent=dt?'Original restrictions: '+dt:'';$('domain').classList.toggle('hidden',!dt);lab.querySelectorAll('.shared-operators .op').forEach(b=>b.disabled=done||!!pending&&['square','root'].includes(pending.left?.op));lab.querySelectorAll('[data-action]').forEach(b=>b.disabled=!!pending||done);$('manual-instructions').textContent=pending?.left?.op==='root'?'Write the new expressions. Keep both roots: use ±3 or list answers as 3, -3.':'Work out both sides, then enter the resulting expressions. Use ^2, sqrt(x+4), and fractions such as 2/(x-1).';$('value-help').classList.toggle('hidden',!(difficulty>=4||initial.hasRoot||initial.hasSquare));renderFreeMode()}
 function cleanInputs(){freeDraft='';freeError='';for(let side of ['left','right']){$(side+'-value').value='';$('work-'+side).value=''}$('hint').classList.add('hidden')}
 function start(l,r,custom=false){let ld=parseDetail(l),rd=parseDetail(r),rules=[...ld.rules,...rd.rules],answers=solveEquation(ld.value,rd.value,rules);if(!answers.length)throw Error('Choose an equation with at least one real solution.');if(answers.length>2)throw Error('Use an equation with at most two answers.');restrictions=rules;expected=answers;initial={left:ld.value,right:rd.value,leftText:l,rightText:r,note:'Starting equation',hasSquare:/\^2|²/.test(l+r),hasRoot:/sqrt|√/.test(l+r)};steps=[initial];pending=null;counted=false;isCustom=custom;cleanInputs();resetOperators();feedback('','A balanced beginning.',mode==='auto'?'Choose an operation and a value on either side to take your first step.':'Choose matching operations for both sides. Then type the next line yourself.');if(isFreeWorking())feedback('','Choose your own method.',family==='whole'?'Enter your next complete equation and press Check.':'Simplify the fractions, combine them, or clear the denominators. Enter your next equation and press Check.');render();if(isolated(initial.left,initial.right)&&!(missionTotal&&family==='fraction'))complete()}
 function rand(a,b){return a+Math.floor(Math.random()*(b-a+1))}
@@ -1404,7 +1448,15 @@ mount.openFractionMission=(source,position,total,hints,next,solved)=>{
   $('simplify-main').classList.remove('hidden');$('equation-main').classList.add('hidden');$('subject-main').classList.add('hidden');
   simpRender();
 };
-mount.setFractionMissionBusy=(busy)=>{simpBusy=busy;$('simp-next').disabled=busy||simpPosition>=simpTotal;lab.querySelectorAll('[data-simp-edit]').forEach(b=>b.disabled=busy);};
+mount.setFractionMissionBusy=(busy)=>{
+  simpBusy=busy;$('simp-next').disabled=busy||simpPosition>=simpTotal;$('simp-restart').disabled=busy;
+  lab.querySelectorAll('[data-simp-edit]').forEach(b=>b.disabled=busy);
+};
+$('simp-restart').onclick=()=>{
+  if(simpBusy)return;
+  simpLines=[];simpPath=simpQuestion.data.type==='rational-1'?'no':null;
+  simpDraft='';simpFactors=['','','',''];simpError='';simpRender();
+};
 
 function simpSource(q){return q.terms.map((t,i)=>'('+t[0]+')/('+t[1]+')').join(' '+q.op+' ')}
 function simpCurrent(){return [...simpLines].reverse().find(line=>line.kind==='factor'||line.kind==='expression')?.text||simpOriginal}
@@ -1490,10 +1542,12 @@ function simpWorkline(number,left,right,action='',extra=''){return '<div class="
 function simpRender(){
   const q=simpQuestion,stage=simpStage(),done=simpIsDone(),level=Number(q.data.type.at(-1));
   $('simp-levels').innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n===level?'active':'')+'" aria-pressed="'+(n===level)+'" disabled>Level '+n+'</button>').join('');
+  $('simp-count').textContent='Question '+simpPosition+' of '+simpTotal;
   $('simp-question').innerHTML=math(simpOriginal);
   $('simp-next').textContent='Next question →';
   $('simp-next').setAttribute('aria-label','Next question');
   $('simp-next').disabled=simpBusy||simpPosition>=simpTotal;
+  $('simp-restart').disabled=simpBusy;
   let rows=simpLines.map((line,i)=>{let right=line.kind==='multiply'?simpFactorMarkup(line.factors,false):'<span class="working-math">'+simpWorkingMath(line.text)+'</span>';return simpWorkline(i+1,line.kind==='multiply'&&simpPath==='yes'?simpLines[0].text:simpOriginal,right,'<button class="free-edit" data-simp-edit="'+i+'" aria-label="Edit fraction step '+(i+1)+'">Edit</button>','<span class="checked-label">✓ Checked</span>')}).join('');
   let instructions={choose:'Should I factorise the denominator(s) first?',factor:'Step 1 · Factorise the '+(q.factorIndex?'second':'first')+' denominator.',multiply:'Step '+(simpLines.length+1)+' · Enter the factors to make a common denominator',rewrite:'Step '+(simpLines.length+1)+' · Rewrite with a common denominator, or combine directly.',combine:'Step '+(simpLines.length+1)+' · '+(simpLines.at(-1)?.kind==='expression'?simpCompletionIssue(simpCurrent())||'Simplify the fraction fully.':'Combine and simplify into one fraction.')};
   let choices=stage==='choose'?'<div class="simp-choice"><button data-simp-choice="yes">Yes</button><button data-simp-choice="no">No</button></div>':'';
@@ -1592,7 +1646,12 @@ function subjectRender(){let done=subjectDone;
   $('subject-levels').innerHTML=Array.from({length:7},(_,i)=>'<button data-subject-level="'+(i+1)+'" class="'+(subjectLevel===i+1?'active':'')+'" aria-pressed="'+(subjectLevel===i+1)+'">Level '+(i+1)+'</button>').join('');lab.querySelectorAll('[data-subject-level]').forEach(b=>b.disabled=true);
   lab.querySelectorAll('[data-subject-mode]').forEach(b=>{let active=b.dataset.subjectMode===subjectMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active);b.disabled=true});
   $('subject-description').textContent=subjectDescriptions[subjectLevel-1];$('subject-condition').textContent=subjectDomain;$('subject-guidance-text').textContent=subjectMode==='auto'?'Apply the same operation and value to both sides. Use Expand or Factorise x when either side offers it.':'Write a complete equation on each line. A direct correct answer is welcome.';
-  $('subject-count').textContent='Question '+subjectPosition+' of '+subjectTotal;let rows=(subjectMode==='manual'?'<div class="free-row accepted-row"><span class="free-step">Start</span><div class="accepted-working working-math">'+subjectMath(subjectQuestion)+'</div></div>':'')+subjectRows.map((line,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ '+(subjectMode==='auto'?'Calculated':'Checked')+'</span></span><div class="accepted-working working-math">'+subjectMath(line)+'</div>'+(subjectMode==='manual'?'<button class="free-edit" data-subject-edit="'+i+'" aria-label="Edit Step '+(i+1)+'">Edit</button>':'')+'</div>').join('');
+  $('subject-count').textContent='Question '+subjectPosition+' of '+subjectTotal;
+  $('subject-original').innerHTML=subjectMath(subjectQuestion);
+  const guided=subjectMode==='auto', checked=subjectRows.map((line,i)=>'<div class="free-row accepted-row"><span class="free-step">Step '+(i+1)+'<span class="checked-label">✓ '+(subjectMode==='auto'?'Calculated':'Checked')+'</span></span><div class="accepted-working working-math">'+subjectMath(line)+'</div>'+(subjectMode==='manual'?'<button class="free-edit" data-subject-edit="'+i+'" aria-label="Edit Step '+(i+1)+'">Edit</button>':'')+'</div>').join('');
+  $('subject-workings').classList.toggle('hidden',!guided);
+  $('subject-trail').innerHTML=guided?(checked||'<p class="empty-workings">Your balanced steps will appear here.</p>'):'';
+  let rows=guided?'':checked;
   if(done)rows+='<div class="free-finished">✓ x is the subject. Check the stated restrictions when using the formula.</div>';
   else if(subjectMode==='auto')rows+='<div class="subject-auto-workspace"><h3>Step '+(subjectRows.length+1)+' · Balance or rewrite the formula</h3>'+subjectAutoControls()+'</div>';
   else rows+='<div class="free-row draft-row"><span class="free-step">Step '+(subjectRows.length+1)+'</span><div class="free-editor"><div id="subject-input" class="structured-math-editor" role="group" aria-label="Working space for Step '+(subjectRows.length+1)+'"></div><div id="subject-preview" class="free-preview"></div><p id="subject-error" class="free-row-error'+(subjectError?'':' hidden')+'" role="alert">'+esc(subjectError)+'</p></div><button id="subject-check" class="free-check">Check</button></div>';
@@ -1750,6 +1809,7 @@ mount.openMissionEquation=(equation, position, total, showHint, next, onSolved, 
 };
 mount.setMissionBusy=(busy,last)=>{
   $('next').disabled=busy||last;
+  $('reset').disabled=busy;
 };
 
 })();
@@ -2106,17 +2166,34 @@ mount.setMissionBusy=(busy,last)=>{
     }
     message('');return true;
   }
-  const expansionWork=new Map();
+  const expansionWork=new Map(), previousButton=pick('prev');
   function preview(){
     const questions=playing?.questions||rows;
     pick('preview-title').textContent=playing?.title||pick('title').value;
-    pick('prev').disabled=index===0;
+    previousButton.disabled=index===0;
     pick('play-status').textContent=playing?.solved.includes(index)?'Solved previously. You can practise again.':'';
     pick('retry').hidden=true;
     const token=++playToken, i=index;
     const question=questions[i], subject=isSubject(question.type), rational=isRational(question.type), expand=rational||Boolean(expansionExamples[question.type]);
     const hints=playing?.hints??pick('hints').checked;
-    const next=()=>{if(!saving&&index<questions.length-1){index++;preview();}};
+    const kind=subject?'subject':rational?'rational':expand?'expand':'solve';
+    const focusQuestion=()=>kind==='expand'?pick('expansion-heading').focus():lab.focusMissionQuestion(kind);
+    const stepQuestion=step=>{
+      if(saving||index+step<0||index+step>=questions.length)return;
+      index+=step;preview();
+      // Navigate to the start of the new question, including when the pager is below the working.
+      const type=questions[index].type, newKind=isSubject(type)?'subject':isRational(type)?'rational':expansionExamples[type]?'expand':'solve';
+      if(kind===newKind)focusQuestion();
+      else if(newKind==='expand')pick('expansion-heading').focus();
+      else lab.focusMissionQuestion(newKind);
+    };
+    const next=()=>stepQuestion(1);
+    previousButton.onclick=()=>stepQuestion(-1);
+    if(kind==='expand'){
+      const pager=pick('expansion-pager');
+      if(previousButton.parentElement!==pager)pager.append(previousButton);
+    }else lab.placeMissionPrevious(kind,previousButton);
+    previousButton.hidden=false;
     const workingMode=playing?(playing.mode||'unguided'):pick('working-mode').value;
     lab.hidden=expand&&!rational;
     pick('expansion-practice').hidden=!expand||rational;
@@ -2136,7 +2213,7 @@ mount.setMissionBusy=(busy,last)=>{
     }
     pick('expansion-count').textContent='Question '+(i+1)+' of '+questions.length;
     const original=pick('expansion-expression');
-    original.textContent=displayExpansion(question.eq);
+    original.innerHTML=lab.formatExpansion(question.eq);
     pick('expansion-hint').hidden=!hints;
     pick('expansion-hint').open=false;
     pick('expansion-example').textContent=expansionExamples[question.type];
@@ -2200,21 +2277,28 @@ mount.setMissionBusy=(busy,last)=>{
       steps.hidden=!checked.length;
       checked.forEach(({compact,text},n)=>{
         const li=document.createElement('li');
+        li.className='mm-expansion-row';
         const label=document.createElement('span');
         label.className='mm-expansion-step-label';
         label.textContent='Step '+(n+1);
-        const mark=document.createElement('small');
-        mark.textContent='✓ Checked';
-        label.append(mark);
+        const left=document.createElement('span');
+        left.className='question-text mm-expansion-left';
+        left.innerHTML=lab.formatExpansion(n?work.steps[n-1].text:question.eq);
+        const equals=document.createElement('span');
+        equals.className='mm-expansion-equal';equals.textContent='=';
+        const result=document.createElement('div');result.className='mm-expansion-result';
         const line=document.createElement('span');
         line.className='question-text';
-        line.textContent='= '+displayExpansion(text);
-        li.append(label,line);
-        if(!work.done&&editingStep===null){
+        line.innerHTML=lab.formatExpansion(text);
+        const mark=document.createElement('small');mark.className='mm-expansion-checked';mark.textContent='✓ Checked';
+        result.append(line,mark);li.append(label,left,equals,result);
+        if(editingStep===null){
           const edit=document.createElement('button');
+          edit.className='mm-expansion-action';
           edit.type='button';edit.textContent='Edit';
           edit.setAttribute('aria-label','Edit expansion step '+(n+1));
           edit.onclick=()=>{
+            if(saving)return;
             editingStep=n;
             input.value=compact;
             closeFraction();
@@ -2228,22 +2312,31 @@ mount.setMissionBusy=(busy,last)=>{
       });
     }
     function updateControls(){
-      const step=(editingStep??work.steps.length)+1;
-      form.hidden=work.done;
-      pick('expansion-step-label').textContent='Step '+step;
-      check.textContent='Check step '+step;
+      const step=editingStep??work.steps.length, done=work.done&&editingStep===null;
+      const previous=step?work.steps[step-1].text:question.eq;
+      form.hidden=done;
+      pick('expansion-step-label').textContent='Step '+(step+1);
+      pick('expansion-left').innerHTML=lab.formatExpansion(previous);
+      const needsExpansion=previous.replace(/\([+-]?\d+\/[+-]?\d+\)/g,'').includes('(');
+      pick('expansion-instruction').textContent=done?'Complete':'Step '+(step+1)+' · '+(needsExpansion?'Expand the brackets':'Collect like terms');
+      check.setAttribute('aria-label','Check step '+(step+1));
       pick('expansion-cancel').hidden=editingStep===null;
     }
     const clearEditor=()=>{input.value='';editingStep=null;closeFraction();updateControls();};
     clearEditor();renderSteps();
     input.disabled=false;
     statusText(work.done?finalText():'');
+    pick('expansion-restart').disabled=false;
+    pick('expansion-restart').onclick=()=>{
+      if(saving)return;
+      work.steps=[];work.done=false;clearEditor();renderSteps();statusText('');
+    };
     nextButton.disabled=i===questions.length-1;
     nextButton.onclick=next;
-    pick('expansion-cancel').onclick=()=>{clearEditor();renderSteps();statusText('');input.focus();};
+    pick('expansion-cancel').onclick=()=>{clearEditor();renderSteps();statusText(work.done?finalText():'');(work.done?pick('expansion-restart'):input).focus();};
     form.onsubmit=async e=>{
       e.preventDefault();
-      if(saving||work.done)return;
+      if(saving||(work.done&&editingStep===null))return;
       if(!fraction.hidden){statusText('Insert or cancel the fraction before checking this step.','error');return;}
       try {
         const line=checkExpansionLine(input.value);
@@ -2276,9 +2369,9 @@ mount.setMissionBusy=(busy,last)=>{
     pick('retry').hidden=true;
     if(expand==='subject')lab.setSubjectMissionBusy(true);
     else if(expand==='rational')lab.setFractionMissionBusy(true);
-    else if(expand){pick('expansion-answer').disabled=true;pick('expansion-next').disabled=true;}
+    else if(expand){pick('expansion-answer').disabled=true;pick('expansion-next').disabled=true;pick('expansion-restart').disabled=true;}
     else lab.setMissionBusy(true,i===total-1);
-    pick('prev').disabled=true;
+    previousButton.disabled=true;
     pick('back').disabled=true;
     pick('play-status').textContent='Saving your answer…';
     try {
@@ -2305,7 +2398,7 @@ mount.setMissionBusy=(busy,last)=>{
     }finally{
       if(token===playToken){
         saving=false;
-        pick('prev').disabled=i===0;
+        previousButton.disabled=i===0;
         pick('back').disabled=false;
         if(expand==='subject'){
           lab.setSubjectMissionBusy(false);
@@ -2314,7 +2407,7 @@ mount.setMissionBusy=(busy,last)=>{
           lab.setFractionMissionBusy(false);
           if(!finished&&!pick('retry').hidden)pick('retry').focus();
         }else if(expand){
-          pick('expansion-answer').disabled=false;pick('expansion-next').disabled=i===total-1;
+          pick('expansion-answer').disabled=false;pick('expansion-next').disabled=i===total-1;pick('expansion-restart').disabled=false;
           if(!finished)(pick('retry').hidden?(i===total-1?pick('play-status'):pick('expansion-next')):pick('retry')).focus();
         }
         else lab.setMissionBusy(false,i===total-1);
@@ -2330,7 +2423,6 @@ mount.setMissionBusy=(busy,last)=>{
   pick('generate').onclick=generate;
   [...types,pick('count')].forEach(el=>el.addEventListener('change',()=>message(lastMix===mix()?'':'Generate questions to apply changes.')));
   pick('preview').onclick=()=>{if(ready(true)){expansionWork.clear();lab.resetFractionMission();lab.resetSubjectMission();index=0;show('preview');preview();pick('back').focus();}};
-  pick('prev').onclick=()=>{if(index>0){index--;preview();}};
   pick('back').onclick=()=>playing?leave():show('setup');
   pick('edit').onclick=()=>show('setup');
   function draftSettings(){
@@ -2450,5 +2542,5 @@ mount.setMissionBusy=(busy,last)=>{
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="town-art.js?v=superhero-costumes-1"></script>
-<script src="app.js?v=teacher-collaborators-1"></script>
+<script src="app.js?v=mission-layout-1"></script>
 </body></html>
