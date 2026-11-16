@@ -1,35 +1,41 @@
-name: Generate paper manifests
+name: Publish student website
 
 on:
   push:
-    paths:
-      - "resources/**"
     branches:
       - main
+  workflow_dispatch:
 
-# Allows this workflow to commit back to the repo
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
 
 jobs:
-  build-manifests:
+  publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build student site
+        run: python3 scripts/build_site.py
+
+      - name: Upload student site
+        uses: actions/upload-pages-artifact@v4
         with:
-          python-version: "3.x"
+          path: _site
 
-      - name: Generate manifests
-        run: python3 scripts/generate_manifest.py
-
-      - name: Commit updated manifests
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add resources/**/manifest.json
-          git diff --staged --quiet || git commit -m "Auto-update paper manifests"
-          git push
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

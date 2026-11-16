@@ -2,25 +2,25 @@
 
 A mathematics revision website for secondary school students studying **G2 Mathematics**, **G3 Mathematics**, and **Additional Mathematics**.
 
-The site brings together topical worksheets, difficult-topic practice, national examination papers, and preliminary examination papers to help students become resilient problem solvers, self-directed learners, and critical thinkers.
+The site brings together topical worksheets, difficult-topic practice, a TYS question-bank template, and preliminary examination papers to help students become resilient problem solvers, self-directed learners, and critical thinkers.
 
 [Browse the repository](https://github.com/dmn-math/DMN-Math-Resources)
 
 ## Revision approach
 
 1. **Revise by topic.** Strengthen understanding using topical exercises and compilations.
-2. **Attempt national examination papers.** Apply learning under examination conditions.
+2. **Build a TYS question bank.** Save questions you get stuck on and retry them before checking the solutions.
 3. **Practise preliminary examination papers.** Build confidence with further school-based practice.
 
 ## Resources and features
 
 | Section | Resources |
 | --- | --- |
-| G2 Mathematics | Topical revision, difficult-topic practice, N-Level papers and prelim papers |
-| G3 Mathematics | Topical revision, difficult-topic practice, O-Level papers and prelim papers |
-| Additional Mathematics | Topical revision, difficult-topic practice, O-Level papers and prelim papers |
+| G2 Mathematics | Topical revision, difficult-topic practice, TYS question bank and prelim papers |
+| G3 Mathematics | Topical revision, difficult-topic practice, TYS question bank and prelim papers |
+| Additional Mathematics | Topical revision, difficult-topic practice, TYS question bank and prelim papers |
 
-- Download links for topical TYS worksheets and prelim compilations.
+- Topical PDF links displayed with their uploaded filenames.
 - Separate question-paper and solution links where files are available.
 - Dedicated practice pages for selected difficult topics.
 - Topic completion checkboxes and a progress summary.
@@ -30,11 +30,11 @@ Topic completion is saved in the browser using `localStorage`. It is specific to
 
 ## Technology
 
-The website uses HTML, CSS and JavaScript, with Google Fonts for typography. A Python script generates the paper manifests, and a GitHub Actions workflow can update them automatically. The resource pages do not require an application server or an npm build step.
+The website uses HTML, CSS and JavaScript, with Google Fonts for typography. The GitHub Actions workflow builds the site and generates its listings on every push to `main`. The resource pages do not require an application server or an npm build step.
 
 ## Folder structure
 
-The HTML links and generator expect the following locations. Keep filenames and folder names consistent when uploading files.
+Keep the subject and topic folder names consistent when uploading files.
 
 | Path | Purpose |
 | --- | --- |
@@ -48,8 +48,10 @@ The HTML links and generator expect the following locations. Keep filenames and 
 | `resources/g2/` | G2 PDFs and manifests |
 | `resources/g3/` | G3 PDFs and manifests |
 | `resources/amath/` | Additional Mathematics PDFs and manifests |
-| `scripts/generate_manifest.py` | Paper manifest generator |
-| `.github/workflows/generate-manifest.yml` | Automatic manifest update workflow |
+| `resources/My_Maths_Question_Bank.docx` | Editable student template |
+| `scripts/generate_manifest.py` | Paper and topical PDF listing generator |
+| `scripts/build_site.py` | Student-site build and national-paper visibility setting |
+| `.github/workflows/generate-manifest.yml` | Builds and publishes the student website |
 
 Each subject's resources include topic folders and `prelim-papers/`. National papers belong in `n-level-papers/` for G2 and `o-level-papers/` for G3 and Additional Mathematics.
 
@@ -57,21 +59,14 @@ Each subject's resources include topic folders and `prelim-papers/`. National pa
 
 ### Topical worksheets
 
-Place PDFs in the topic folder linked by the relevant subject page:
+Place each PDF directly in the existing chapter folder. For example:
 
 ```text
-resources/<subject>/<topic-slug>/tys.pdf
-resources/<subject>/<topic-slug>/compilation.pdf
+resources/amath/integration/Integration Revision Set 1.pdf
+resources/amath/integration/Integration Revision Set 1 Solutions.pdf
 ```
 
-For example:
-
-```text
-resources/amath/integration/tys.pdf
-resources/amath/integration/compilation.pdf
-```
-
-Replacing an existing PDF with the same filename keeps the existing download link working. Adding a new topic requires updating the corresponding HTML page and its resource links.
+Commit and push from GitHub Desktop. The next deployment lists each PDF using its exact filename, including spaces and the extension. Keep the names descriptive so students can tell worksheets and solutions apart. The newer listing also includes existing files such as `tys.pdf` and `compilation.pdf`. Adding a new chapter still requires a corresponding topic card on the subject page.
 
 ### National examination papers
 
@@ -95,37 +90,37 @@ Include a lowercase school code in the filename:
 
 The generator converts the school code into the displayed label, such as **DMN Prelim Paper 1**. School codes may contain lowercase letters and digits. Filenames must match the naming pattern exactly to appear in the generated tables.
 
-### Regenerate paper listings
+## Publish with GitHub Desktop
 
-From the repository root, run:
+1. Apply the update to the repository root, keeping the folder structure.
+2. On GitHub, open **Settings → Pages** and select **GitHub Actions** under **Source**.
+3. In GitHub Desktop, commit the changes to `main` and select **Push origin**.
+4. On GitHub, check the **Publish student website** run in **Actions**. Open the website after the run succeeds.
 
-```bash
-python3 scripts/generate_manifest.py
-```
-
-The script creates a `manifest.json` in each subject's national-paper and prelim-paper folders. It records question papers and solutions separately, so a paper can be listed even when its solution has not been uploaded.
-
-The supplied GitHub Actions workflow runs when files under `resources/` change on `main`, and can also be started manually. It needs permission to commit updated manifests. If the workflow fails, generate the manifests locally and commit them alongside the PDFs.
+For Cloudflare Pages, use `python3 scripts/build_site.py` as the build command and `_site` as the build output directory if that host serves the same student site.
 
 ## Preview locally
 
-From the repository root, start a local web server:
+From the repository root, build into a fresh directory and serve that directory:
 
 ```bash
-python3 -m http.server 8000
+python3 scripts/build_site.py
+python3 -m http.server 8000 --directory _site
 ```
 
-Open [http://localhost:8000](http://localhost:8000). Use a web server when checking the paper tables because they load manifests through JavaScript `fetch()`.
+Open [http://localhost:8000](http://localhost:8000). For a subsequent build, use an empty output directory or pass another output path to the build script.
 
-## Hosting and maintenance
+## Restore national papers
 
-The static site can be served through GitHub Pages or Cloudflare Pages. Preserve the folder structure and include all HTML pages, PDFs and generated manifests in the published files. Hosting the same repository at two addresses does not share students' browser-saved progress.
+The student build excludes G2 national papers, G3 and A-Math O-Level papers, and the standalone A-Math reflection page. The original files remain in the source repository. Direct links to those files in the public GitHub repository still work.
+
+To show the national papers again, set `PUBLISH_NATIONAL_PAPERS = True` in `scripts/build_site.py`, then commit and push. The tables reappear below the question-bank button. A-Math reflection remains excluded.
 
 Before publishing an update:
 
 - Check navigation between the homepage and all three subject pages.
 - Open updated worksheet, question-paper and solution links.
-- Confirm new papers appear after regenerating the manifests.
+- Confirm new topical PDFs and prelim papers appear after the site builds.
 - Check topic completion and the progress summary.
 - Review the layout on both desktop and mobile screens.
 

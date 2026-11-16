@@ -223,6 +223,11 @@
     line-height: 1.3;
   }
   .download-btn:hover{ opacity: .85; }
+  .topic-downloads .download-btn{ overflow-wrap: anywhere; display: block; }
+  .resource-status{ font-size: 13px; color: var(--ink-soft); }
+  .question-bank-title{ font-family:'Fraunces', serif; font-size: clamp(21px, 4vw, 29px); line-height: 1.25; margin: 0 0 6px; }
+  .question-bank-download{ width: fit-content; }
+  .question-bank-download + .papers-table{ margin-top: 20px; }
 
   /* ---------- Difficult Topics (G3 special section) — dark theme ---------- */
   .difficult-section{
@@ -380,11 +385,11 @@
     <div class="breadcrumb"><a href="../index.html">Home</a><span class="sep">/</span><span class="here">G3</span></div>
     <span class="stream-tag-lg">STREAM · G3</span>
     <h1 class="page-title">G3 Revision Roadmap</h1>
-    <p class="page-sub">Work through the three steps below in order — start with topical practice, apply it under exam conditions with a past year national paper, then consolidate with a past prelim paper.</p>
+    <p class="page-sub">Revise by topic, build your own question bank as you work through your TYS, then try past prelim papers.</p>
 
     <div class="stepper-nav">
       <a href="#step1"><span class="num">1</span> Topical Revision Exercises</a>
-      <a href="#step2"><span class="num">2</span> Past Year National Paper</a>
+      <a href="#step2"><span class="num">2</span> TYS Question Bank</a>
       <a href="#step3"><span class="num">3</span> Past Prelim Papers</a>
     </div>
   </div>
@@ -402,17 +407,14 @@
       <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
       <span id="progress-text" class="progress-text"></span>
     </div>
-    <div class="topic-grid">
+    <div class="topic-grid" data-resources="../resources/g3/">
       <details class="topic-card" data-slug="problems-in-real-world-contexts">
         <summary class="topic-summary">
           <h4>Problems in Real-World Contexts</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/problems-in-real-world-contexts/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/problems-in-real-world-contexts/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="numbers-and-their-operations">
         <summary class="topic-summary">
@@ -420,10 +422,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/numbers-and-their-operations/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/numbers-and-their-operations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="ratio-and-proportion">
         <summary class="topic-summary">
@@ -431,10 +430,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/ratio-and-proportion/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/ratio-and-proportion/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="percentage">
         <summary class="topic-summary">
@@ -442,10 +438,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/percentage/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/percentage/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="rate-and-speed">
         <summary class="topic-summary">
@@ -453,10 +446,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/rate-and-speed/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/rate-and-speed/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="algebraic-expressions-and-formulae">
         <summary class="topic-summary">
@@ -464,10 +454,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/algebraic-expressions-and-formulae/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/algebraic-expressions-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="functions-and-graphs">
         <summary class="topic-summary">
@@ -475,10 +462,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/functions-and-graphs/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/functions-and-graphs/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="equations-and-inequalities">
         <summary class="topic-summary">
@@ -486,10 +470,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/equations-and-inequalities/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="set-language-and-notation">
         <summary class="topic-summary">
@@ -497,10 +478,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/set-language-and-notation/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/set-language-and-notation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="matrices">
         <summary class="topic-summary">
@@ -508,10 +486,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/matrices/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/matrices/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="angles-triangles-and-polygons">
         <summary class="topic-summary">
@@ -519,10 +494,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/angles-triangles-and-polygons/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/angles-triangles-and-polygons/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="congruence-and-similarity">
         <summary class="topic-summary">
@@ -530,10 +502,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/congruence-and-similarity/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/congruence-and-similarity/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="properties-of-circles">
         <summary class="topic-summary">
@@ -541,10 +510,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/properties-of-circles/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/properties-of-circles/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="pythagoras-theorem-and-trigonometry">
         <summary class="topic-summary">
@@ -552,10 +518,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/pythagoras-theorem-and-trigonometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/pythagoras-theorem-and-trigonometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="mensuration">
         <summary class="topic-summary">
@@ -563,10 +526,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/mensuration/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/mensuration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="coordinate-geometry">
         <summary class="topic-summary">
@@ -574,10 +534,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/coordinate-geometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="vectors-in-two-dimensions">
         <summary class="topic-summary">
@@ -585,10 +542,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/vectors-in-two-dimensions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/vectors-in-two-dimensions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="data-handling-and-analysis">
         <summary class="topic-summary">
@@ -596,10 +550,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/data-handling-and-analysis/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/data-handling-and-analysis/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details class="topic-card" data-slug="probability">
         <summary class="topic-summary">
@@ -607,10 +558,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/g3/probability/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/g3/probability/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
     </div>
 
@@ -665,18 +613,13 @@
   <div class="wrap">
     <div class="section-head">
       <div>
-        <div class="section-eyebrow"><span class="step-dot">2</span> Past Year National Paper</div>
-        <p class="section-desc">Once topics feel solid, attempt full national papers to practice timing and exam technique.</p>
+        <div class="section-eyebrow"><span class="step-dot">2</span> TYS Question Bank</div>
+        <h2 class="question-bank-title">Do your TYS and make your own question bank</h2>
+        <p class="section-desc">Save the questions you get stuck on. Try them again a few days later before checking the solutions.</p>
       </div>
     </div>
-    <div class="papers-table">
-      <div class="papers-row head">
-        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Question Paper</span><span>Solution</span>
-      </div>
-      <div class="papers-body" id="papers-main" data-manifest="../resources/g3/o-level-papers/manifest.json">
-        <div class="papers-row"><span style="grid-column: 1 / -1; color: var(--ink-soft); font-size: 13px;">Loading papers…</span></div>
-      </div>
-    </div>
+    <a class="download-btn question-bank-download" href="../resources/My_Maths_Question_Bank.docx" download>Download template (Word)</a>
+    <!-- national-papers -->
   </div>
 </section>
 
@@ -798,5 +741,6 @@
   });
 })();
 </script>
+<script src="../resources/topical-downloads.js" defer></script>
 </body>
 </html>

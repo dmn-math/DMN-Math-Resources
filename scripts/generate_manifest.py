@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Scans each subject's national/O-Level/N-Level and prelim paper folders under
-resources/, and writes a manifest.json into each folder listing every paper
-found, plus whether a question paper and/or solution file exists for it.
+Scans each subject's national, prelim and topical folders under resources/.
+Paper manifests list the available question papers and solutions. Topical
+manifests list the PDF filenames in each chapter folder.
 
 The site's JavaScript fetches this manifest.json at page load and builds the
 papers table from it — so adding a new PDF (named correctly) is enough to
@@ -23,13 +23,13 @@ FILE NAMING:
       script changes needed to add a new school.
 
 Run manually with: python3 scripts/generate_manifest.py
-This also runs automatically via .github/workflows/generate-manifest.yml
-whenever files change under resources/.
+The student-site build also generates manifests in its output directory.
 """
 
 import json
 import os
 import re
+from pathlib import Path
 
 # Folder name per subject for the main (national/O-Level/N-Level) papers.
 MAIN_FOLDER = {
@@ -39,7 +39,7 @@ MAIN_FOLDER = {
 }
 PRELIM_FOLDER = "prelim-papers"  # same folder name for all subjects
 
-RESOURCES_ROOT = "resources"
+RESOURCES_ROOT = Path(__file__).resolve().parent.parent / "resources"
 
 MAIN_PATTERN = re.compile(r"^(\d{4})-paper-(\d+)-(qp|solution)\.pdf$")
 PRELIM_PATTERN = re.compile(r"^(\d{4})-([a-z0-9]+)-paper-(\d+)-(qp|solution)\.pdf$")
@@ -106,25 +106,46 @@ def scan_prelim_folder(folder_path):
     return result
 
 
-def main():
-    for subject, main_folder_name in MAIN_FOLDER.items():
-        # Main (national/O-Level/N-Level) papers
-        label_template = "N Level Paper {n}" if subject == "g2" else "O Level Paper {n}"
-        main_path = os.path.join(RESOURCES_ROOT, subject, main_folder_name)
-        main_entries = scan_main_folder(main_path, label_template)
-        os.makedirs(main_path, exist_ok=True)
-        with open(os.path.join(main_path, "manifest.json"), "w") as f:
-            json.dump(main_entries, f, indent=2)
-        print(f"{main_path}/manifest.json: {len(main_entries)} paper(s)")
+def write_manifest(path, entries):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
 
-        # Prelim papers (any school)
-        prelim_path = os.path.join(RESOURCES_ROOT, subject, PRELIM_FOLDER)
+
+def scan_topical_folders(subject_path, main_folder_name):
+    topics = {}
+    excluded = {main_folder_name, PRELIM_FOLDER, "difficult-topics"}
+    for folder in sorted(subject_path.iterdir()):
+        if not folder.is_dir() or folder.name in excluded:
+            continue
+
+        pdfs = sorted(
+            (file.name for file in folder.iterdir() if file.is_file() and file.suffix.lower() == ".pdf"),
+            key=lambda name: (name.casefold(), name),
+        )
+        if pdfs:
+            topics[folder.name] = pdfs
+    return topics
+
+
+def generate_manifests(resources_root, include_national=True):
+    for subject, main_folder_name in MAIN_FOLDER.items():
+        subject_path = resources_root / subject
+        if include_national:
+            label_template = "N Level Paper {n}" if subject == "g2" else "O Level Paper {n}"
+            main_path = subject_path / main_folder_name
+            main_entries = scan_main_folder(main_path, label_template)
+            write_manifest(main_path / "manifest.json", main_entries)
+            print(f"{main_path}/manifest.json: {len(main_entries)} paper(s)")
+
+        prelim_path = subject_path / PRELIM_FOLDER
         prelim_entries = scan_prelim_folder(prelim_path)
-        os.makedirs(prelim_path, exist_ok=True)
-        with open(os.path.join(prelim_path, "manifest.json"), "w") as f:
-            json.dump(prelim_entries, f, indent=2)
+        write_manifest(prelim_path / "manifest.json", prelim_entries)
         print(f"{prelim_path}/manifest.json: {len(prelim_entries)} paper(s)")
+
+        topics = scan_topical_folders(subject_path, main_folder_name)
+        write_manifest(subject_path / "topical-manifest.json", topics)
+        print(f"{subject_path}/topical-manifest.json: {sum(map(len, topics.values()))} PDF(s)")
 
 
 if __name__ == "__main__":
-    main()
+    generate_manifests(RESOURCES_ROOT)

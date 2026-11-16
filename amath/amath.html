@@ -225,6 +225,11 @@
     line-height: 1.3;
   }
   .download-btn:hover{ opacity: .85; }
+  .topic-downloads .download-btn{ overflow-wrap: anywhere; display: block; }
+  .resource-status{ font-size: 13px; color: var(--ink-soft); }
+  .question-bank-title{ font-family:'Fraunces', serif; font-size: clamp(21px, 4vw, 29px); line-height: 1.25; margin: 0 0 6px; }
+  .question-bank-download{ width: fit-content; }
+  .question-bank-download + .papers-table{ margin-top: 20px; }
 
   /* ---------- Difficult Topics (special section) ---------- */
   .difficult-section{
@@ -352,7 +357,6 @@
     .papers-row .col-hide{ display:none; }
   }
   .topic-card { scroll-margin-top: 110px; }
-.resource-unavailable { opacity:.6; cursor:default; }
   @media (max-width: 680px){
     .header-inner{ flex-wrap: wrap; gap: 8px 16px; }
     .header-inner > nav{ flex-wrap: wrap; gap: 4px 16px; }
@@ -383,13 +387,12 @@
     <div class="breadcrumb"><a href="../index.html">Home</a><span class="sep">/</span><span class="here">A Math</span></div>
     <span class="stream-tag-lg">SUBJECT · A MATH</span>
     <h1 class="page-title">A Math Revision Roadmap</h1>
-    <p class="page-sub">Start with topical practice, attempt national and prelim papers, then reflect on your marks to choose what to practise next.</p>
+    <p class="page-sub">Revise by topic, build your own question bank as you work through your TYS, then try past prelim papers.</p>
 
     <div class="stepper-nav">
       <a href="#step1"><span class="num">1</span> Topical Revision Exercises</a>
-      <a href="#step2"><span class="num">2</span> Past Year National Paper</a>
+      <a href="#step2"><span class="num">2</span> TYS Question Bank</a>
       <a href="#step3"><span class="num">3</span> Past Prelim Papers</a>
-      <a href="#step4"><span class="num">4</span> Exam Reflection</a>
     </div>
   </div>
 </section>
@@ -406,17 +409,14 @@
       <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
       <span id="progress-text" class="progress-text"></span>
     </div>
-    <div class="topic-grid">
+    <div class="topic-grid" data-resources="../resources/amath/">
       <details id="topic-quadratic-functions-equations-and-inequalities" class="topic-card" data-slug="quadratic-functions-equations-and-inequalities">
         <summary class="topic-summary">
           <h4>Quadratic Functions, Equations &amp; Inequalities</h4>
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/quadratic-functions-equations-and-inequalities/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/quadratic-functions-equations-and-inequalities/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-surds" class="topic-card" data-slug="surds">
         <summary class="topic-summary">
@@ -424,10 +424,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/surds/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/surds/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-polynomials-cubic-equations-and-partial-fractions" class="topic-card" data-slug="polynomials-cubic-equations-and-partial-fractions">
         <summary class="topic-summary">
@@ -435,10 +432,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/polynomials-cubic-equations-and-partial-fractions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/polynomials-cubic-equations-and-partial-fractions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-binomial-theorem" class="topic-card" data-slug="binomial-theorem">
         <summary class="topic-summary">
@@ -446,10 +440,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/binomial-theorem/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/binomial-theorem/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-exponential-and-logarithmic-functions" class="topic-card" data-slug="exponential-and-logarithmic-functions">
         <summary class="topic-summary">
@@ -457,10 +448,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/exponential-and-logarithmic-functions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/exponential-and-logarithmic-functions/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-coordinate-geometry" class="topic-card" data-slug="coordinate-geometry">
         <summary class="topic-summary">
@@ -468,10 +456,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/coordinate-geometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/coordinate-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-linear-law" class="topic-card" data-slug="linear-law">
         <summary class="topic-summary">
@@ -479,10 +464,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/linear-law/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/linear-law/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-trigonometric-functions-and-equations" class="topic-card" data-slug="trigonometric-functions-and-equations">
         <summary class="topic-summary">
@@ -490,10 +472,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/trigonometric-functions-and-equations/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/trigonometric-functions-and-equations/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-trigonometric-identities-and-formulae" class="topic-card" data-slug="trigonometric-identities-and-formulae">
         <summary class="topic-summary">
@@ -501,10 +480,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/trigonometric-identities-and-formulae/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/trigonometric-identities-and-formulae/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-gradients-derivatives-and-differentiation" class="topic-card" data-slug="gradients-derivatives-and-differentiation">
         <summary class="topic-summary">
@@ -512,10 +488,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/gradients-derivatives-and-differentiation/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-applications-of-differentiation" class="topic-card" data-slug="applications-of-differentiation">
         <summary class="topic-summary">
@@ -523,10 +496,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/applications-of-differentiation/ts.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/applications-of-differentiation/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-differentiation-of-trigonometric-exponential-and-logarithmic-functions" class="topic-card" data-slug="differentiation-of-trigonometric-exponential-and-logarithmic-functions">
         <summary class="topic-summary">
@@ -534,10 +504,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/differentiation-of-trigonometric-exponential-and-logarithmic-functions/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-integration" class="topic-card" data-slug="integration">
         <summary class="topic-summary">
@@ -545,10 +512,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/integration/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <span class="download-btn resource-unavailable" aria-disabled="true">Topical Prelim Compilation (with solution) — not yet available</span>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-applications-of-integration" class="topic-card" data-slug="applications-of-integration">
         <summary class="topic-summary">
@@ -556,10 +520,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/applications-of-integration/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/applications-of-integration/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-kinematics" class="topic-card" data-slug="kinematics">
         <summary class="topic-summary">
@@ -567,10 +528,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/kinematics/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/kinematics/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
       <details id="topic-proofs-in-plane-geometry" class="topic-card" data-slug="proofs-in-plane-geometry">
         <summary class="topic-summary">
@@ -578,10 +536,7 @@
           <label class="progress-check" onclick="event.stopPropagation()"><input type="checkbox" class="progress-checkbox" onchange="toggleProgress(this)"><span class="progress-checkmark"></span></label>
           <span class="chevron">▾</span>
         </summary>
-        <div class="topic-downloads">
-          <a href="../resources/amath/proofs-in-plane-geometry/tys.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical TYS Worksheet</a>
-          <a href="../resources/amath/proofs-in-plane-geometry/compilation.pdf" class="download-btn" target="_blank" rel="noopener">⬇ Topical Prelim Compilation (with solution)</a>
-        </div>
+        <div class="topic-downloads"><p class="resource-status">Loading worksheets…</p></div>
       </details>
     </div>
 
@@ -624,18 +579,13 @@
   <div class="wrap">
     <div class="section-head">
       <div>
-        <div class="section-eyebrow"><span class="step-dot">2</span> Past Year National Paper</div>
-        <p class="section-desc">Once topics feel solid, attempt full national papers to practice timing and exam technique.</p>
+        <div class="section-eyebrow"><span class="step-dot">2</span> TYS Question Bank</div>
+        <h2 class="question-bank-title">Do your TYS and make your own question bank</h2>
+        <p class="section-desc">Save the questions you get stuck on. Try them again a few days later before checking the solutions.</p>
       </div>
     </div>
-    <div class="papers-table">
-      <div class="papers-row head">
-        <span>Year</span><span>Paper</span><span class="col-hide">Format</span><span>Question Paper</span><span>Solution</span>
-      </div>
-      <div class="papers-body" id="papers-main" data-manifest="../resources/amath/o-level-papers/manifest.json">
-        <div class="papers-row"><span style="grid-column: 1 / -1; color: var(--ink-soft); font-size: 13px;">Loading papers…</span></div>
-      </div>
-    </div>
+    <a class="download-btn question-bank-download" href="../resources/My_Maths_Question_Bank.docx" download>Download template (Word)</a>
+    <!-- national-papers -->
   </div>
 </section>
 
@@ -655,17 +605,6 @@
         <div class="papers-row"><span style="grid-column: 1 / -1; color: var(--ink-soft); font-size: 13px;">Loading papers…</span></div>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section" id="step4">
-  <div class="wrap">
-    <div class="section-head"><div>
-      <div class="section-eyebrow"><span class="step-dot">4</span> Exam Reflection</div>
-      <h2>Choose your next practice</h2>
-      <p class="section-desc">Reflect on your 2026 Dunman Preliminary Paper 1 or Paper 2. Enter your marks and error types to see your chapter breakdown and recommended practice questions.</p>
-    </div></div>
-    <a class="download-btn" href="reflection-amath.html">Start A-Math reflection →</a>
   </div>
 </section>
 
@@ -782,5 +721,6 @@
   revealChapter();
 })();
 </script>
+<script src="../resources/topical-downloads.js" defer></script>
 </body>
 </html>
