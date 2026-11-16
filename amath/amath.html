@@ -363,6 +363,7 @@
     .header-inner > nav a{ white-space: nowrap; }
   }
 </style>
+<link rel="stylesheet" href="../resources/topical-activities.css">
 </head>
 <body>
 
@@ -705,20 +706,6 @@
     loadTable('papers-main');
     loadTable('papers-prelim');
   });
-})();
-</script>
-<script>
-(function () {
-  function revealChapter() {
-    const id = location.hash.slice(1);
-    if (!id.startsWith('topic-')) return;
-    const chapter = document.getElementById(id);
-    if (!chapter || chapter.tagName !== 'DETAILS') return;
-    chapter.open = true;
-    requestAnimationFrame(() => chapter.scrollIntoView({block: 'start'}));
-  }
-  window.addEventListener('hashchange', revealChapter);
-  revealChapter();
 })();
 </script>
 <script src="../resources/topical-downloads.js" defer></script>

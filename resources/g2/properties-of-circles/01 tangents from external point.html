@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en-SG">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An interactive geometry simulation for exploring the properties of tangents from an external point.">
+<title>Tangents from an external point</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f4f6ef;
+    --white: #fff;
+    --ink: #172e28;
+    --muted: #51655e;
+    --line: #dce4db;
+    --forest: #174c3d;
+    --soft-green: #eaf3eb;
+    --accent: #08775f;
+    --amber: #f6be57;
+    font-family: "Instrument Sans", "Inter", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); }
+  button, input { font: inherit; }
+  button { color: inherit; }
+  button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 3px solid #187f69;
+    outline-offset: 3px;
+  }
+  .shell { width: min(1280px, calc(100% - 64px)); margin: 0 auto; padding: 39px 0 40px; }
+  .eyebrow { color: var(--forest); display: flex; align-items: center; gap: 9px; font-size: .77rem;
+    font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+  .eyebrow::before { content: ""; width: 9px; height: 9px; background: #84b39c; border-radius: 100%; }
+  h1 { margin: 10px 0 8px; font-size: clamp(2rem, 4.8vw, 3.7rem); line-height: 1.04; letter-spacing: -.055em; }
+  .intro { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(306px, 350px); gap: 20px;
+    margin-top: 26px; align-items: stretch; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 19px; overflow: hidden;
+    box-shadow: 0 3px 9px #223b2d06; }
+  .diagram-card { display: flex; flex-direction: column; min-width: 0; }
+  .diagram-head { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between;
+    align-items: center; padding: 15px 21px; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 1.07rem; line-height: 1.25; letter-spacing: -.015em; margin: 0; }
+  .move-hint { font-size: .81rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .move-hint::before { content: ""; width: 10px; height: 10px; border: 1px solid #a87521;
+    border-radius: 50%; background: var(--amber); }
+  .plot { position: relative; flex: 1; min-height: 405px; height: clamp(405px, 43vw, 490px);
+    background-color: #fbfdf9;
+    background-image: radial-gradient(#dfe9e0 1px, transparent 1px);
+    background-position: center; background-size: 18px 18px; }
+  canvas { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
+  .point-control { position: absolute; width: 44px; height: 44px; transform: translate(-50%, -50%);
+    border: 0; border-radius: 50%; background: transparent; padding: 0; cursor: grab;
+    touch-action: none; display: grid; place-items: center; user-select: none; }
+  .point-control::before { content: ""; width: 18px; height: 18px; border-radius: 50%; background: var(--amber);
+    border: 2px solid #805514; box-shadow: 0 0 0 5px #f6be5749; }
+  .point-control:hover::before, .point-control:focus-visible::before { box-shadow: 0 0 0 7px #f6be5770; }
+  .point-control:active { cursor: grabbing; }
+  .diagram-foot { display: flex; justify-content: space-between; gap: 8px 12px; align-items: center;
+    flex-wrap: wrap; border-top: 1px solid var(--line); padding: 10px 16px 10px 20px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 7px; }
+  .small-button { border: 1px solid var(--line); background: var(--white); border-radius: 8px;
+    min-height: 36px; padding: 5px 10px; font-weight: 650; font-size: .78rem; cursor: pointer; }
+  .small-button:hover { background: var(--soft-green); border-color: #bfd3c5; }
+  .key-hint { color: var(--muted); font-size: .75rem; }
+  .investigation { padding: 19px; display: flex; flex-direction: column; }
+  .investigation h2 { margin-bottom: 12px; }
+  .properties { display: grid; gap: 7px; }
+  .property { appearance: none; border: 1px solid var(--line); background: #fff; border-radius: 9px;
+    font-weight: 650; text-align: left; padding: 9px 10px; min-height: 42px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px; font-size: .88rem; }
+  .property:hover { background: #f4f8f4; }
+  .property[aria-pressed="true"] { border-color: #8cbaaa; background: #eaf4ed; color: #174c3d; }
+  .property::before { content: ""; display: block; width: 9px; height: 9px; border: 1.5px solid #9cadab;
+    border-radius: 50%; flex: none; }
+  .property[aria-pressed="true"]::before { background: var(--accent); border-color: var(--accent); }
+  .investigate-panel { margin-top: 14px; padding: 14px; border-radius: 12px; background: #f3f7f1;
+    border: 1px solid #e2ebe0; }
+  h3 { margin: 0 0 5px; font-size: .9rem; }
+  .prompt, .result { font-size: .85rem; line-height: 1.5; margin: 0; }
+  .prompt { color: var(--muted); min-height: 2.6em; }
+  .readings { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 11px 0 9px; }
+  .reading { border: 1px solid #dce8df; background: #fff; border-radius: 8px; padding: 7px 9px;
+    display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .reading-label { color: #446457; font-size: .76rem; font-weight: 700; white-space: nowrap; }
+  .reading-value { color: var(--forest); font-weight: 750; font-variant-numeric: tabular-nums;
+    font-size: clamp(.94rem, 2vw, 1.16rem); white-space: nowrap; }
+  .result { color: var(--forest); font-weight: 650; min-height: 2.55em; }
+  .toggle { display: flex; gap: 8px; align-items: center; margin-top: 10px; min-height: 38px;
+    font-size: .83rem; font-weight: 650; cursor: pointer; }
+  .toggle input { accent-color: var(--accent); margin: 0; width: 16px; height: 16px; }
+  details { margin-top: 16px; border: 1px solid var(--line); background: white; border-radius: 13px; }
+  summary { padding: 13px 18px; font-weight: 700; cursor: pointer; font-size: .9rem; }
+  .proof { padding: 0 18px 15px; color: var(--muted); font-size: .92rem; line-height: 1.55; max-width: 104ch; }
+  .proof p { margin: 3px 0 8px; }
+  .proof p:last-child { margin-bottom: 0; }
+  .proof strong { color: var(--forest); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+  @media (max-width: 815px) {
+    .shell { width: calc(100% - 34px); padding-top: 26px; }
+    .workspace { grid-template-columns: minmax(0, 1fr); gap: 13px; margin-top: 18px; }
+    .plot { min-height: 0; flex: none; height: clamp(310px, 58vw, 435px); }
+    .diagram-head { padding: 11px 15px; }
+    .diagram-foot { padding: 8px 12px; }
+    .investigation { padding: 15px; }
+    .properties { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .property { font-size: .75rem; overflow-wrap: anywhere; }
+    .prompt, .result { min-height: 0; }
+    details { margin-top: 13px; }
+  }
+  @media (max-width: 380px) {
+    .shell { width: calc(100% - 22px); }
+    .property { gap: 5px; padding-inline: 6px; }
+  }
+  @media (pointer: coarse) {
+    .key-hint { display: none; }
+    .small-button { min-height: 42px; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <header>
+    <div class="eyebrow">Circle geometry</div>
+    <h1>Tangents from an external point</h1>
+    <p class="intro">Drag the external point <strong>P</strong> to see what changes and what stays equal.</p>
+  </header>
+
+  <div class="workspace">
+    <section class="card diagram-card" aria-labelledby="diagram-title">
+      <header class="diagram-head">
+        <h2 id="diagram-title">Explore the diagram</h2>
+        <span class="move-hint">Drag the gold point P</span>
+      </header>
+      <div class="plot" id="plot">
+        <canvas id="diagram" role="img" aria-label="Circle with centre O. Tangents from P touch the circle at A and B. The radii OA and OB meet the tangents at right angles. OP joins the centre to P."></canvas>
+        <button class="point-control" id="point" type="button" aria-label="Move external point P" aria-describedby="keyboard-description"></button>
+        <span class="sr-only" id="keyboard-description">Use the arrow keys to move P. Press Enter or Space to hear the current readings.</span>
+        <span class="sr-only" id="announcement" role="status"></span>
+      </div>
+      <footer class="diagram-foot">
+        <div class="presets">
+          <button class="small-button" type="button" id="near">Closer to circle</button>
+          <button class="small-button" type="button" id="far">Farther from circle</button>
+          <button class="small-button" type="button" id="reset">Reset point</button>
+        </div>
+        <span class="key-hint">Focus P and use the arrow keys</span>
+      </footer>
+    </section>
+
+    <section class="card investigation" aria-labelledby="investigation-title">
+      <h2 id="investigation-title">Investigate a property</h2>
+      <div class="properties" role="group" aria-label="Properties of the tangents">
+        <button class="property" type="button" data-property="lengths" aria-pressed="true" aria-controls="property-panel">Tangent lengths</button>
+        <button class="property" type="button" data-property="external" aria-pressed="false" aria-controls="property-panel">Angle at P</button>
+        <button class="property" type="button" data-property="centre" aria-pressed="false" aria-controls="property-panel">Angle at O</button>
+      </div>
+      <div class="investigate-panel" id="property-panel">
+        <h3 id="panel-title">Compare the tangent lengths</h3>
+        <p class="prompt" id="prompt"></p>
+        <div class="readings">
+          <div class="reading"><span class="reading-label" id="left-label"></span><span class="reading-value" id="left-value"></span></div>
+          <div class="reading"><span class="reading-label" id="right-label"></span><span class="reading-value" id="right-value"></span></div>
+        </div>
+        <p class="result" id="result"></p>
+      </div>
+      <label class="toggle"><input type="checkbox" id="show-measurements" checked> Show measurements and conclusions</label>
+    </section>
+  </div>
+
+  <details>
+    <summary>Why do all three properties hold?</summary>
+    <div class="proof">
+      <p>Compare triangles <strong>OAP</strong> and <strong>OBP</strong>. Both are right-angled because a radius is perpendicular to a tangent at the point of contact. They share hypotenuse <strong>OP</strong>, and <strong>OA = OB</strong> because both are radii.</p>
+      <p>So <strong>△OAP ≅ △OBP</strong> by RHS (right angle, hypotenuse, side). Corresponding sides and angles are equal, giving <strong>PA = PB</strong>, <strong>∠APO = ∠OPB</strong>, and <strong>∠AOP = ∠POB</strong>.</p>
+      <p>In your written solutions, you can use the reason <strong>tangents from ext. point</strong>.</p>
+    </div>
+  </details>
+</main>
+
+<script>
+"use strict";
+
+const byId = (id) => document.getElementById(id);
+const plot = byId("plot");
+const canvas = byId("diagram");
+const ctx = canvas.getContext("2d");
+const handle = byId("point");
+const showMeasurements = byId("show-measurements");
+const propertyButtons = document.querySelectorAll("[data-property]");
+const radius = 3;
+const closest = 3.48;
+const initial = { distance: 5.7, direction: -0.10 };
+const state = { ...initial, property: "lengths" };
+const layout = { width: 0, height: 0, unit: 1, origin: { x: 0, y: 0 } };
+let drag = null;
+
+const lessons = {
+  lengths: {
+    title: "Compare the tangent lengths",
+    prompt: "As you move P closer to or farther from the circle, what do you notice about PA and PB?",
+    labels: ["PA", "PB"],
+    result: "PA = PB. The two tangents from P have equal lengths.",
+    measurements: ({ a, b, p }) => [a, b].map((contact) =>
+      `${(Math.hypot(contact.x - p.x, contact.y - p.y) / layout.unit).toFixed(2)} units`)
+  },
+  external: {
+    title: "Compare the angles at P",
+    prompt: "Move P. How does OP divide the angle APB between the two tangents?",
+    labels: ["∠APO", "∠OPB"],
+    result: "∠APO = ∠OPB. OP bisects the angle between the tangents.",
+    measurements: ({ origin, a, b, p }) => [a, b].map((contact) => degrees(angleBetween(p, origin, contact)))
+  },
+  centre: {
+    title: "Compare the angles at O",
+    prompt: "Move P again. How does OP divide the angle AOB between the two radii?",
+    labels: ["∠AOP", "∠POB"],
+    result: "∠AOP = ∠POB. OP bisects the angle at the centre.",
+    measurements: ({ origin, a, b, p }) => [a, b].map((contact) => degrees(angleBetween(origin, p, contact)))
+  }
+};
+
+function degrees(radians) {
+  return `${(radians * 180 / Math.PI).toFixed(1)}°`;
+}
+
+function along(point, angle, distance) {
+  return { x: point.x + Math.cos(angle) * distance, y: point.y + Math.sin(angle) * distance };
+}
+
+function direction(from, to) {
+  return Math.atan2(to.y - from.y, to.x - from.x);
+}
+
+function angleBetween(vertex, first, second) {
+  const difference = Math.abs(direction(vertex, first) - direction(vertex, second));
+  return Math.min(difference, 2 * Math.PI - difference);
+}
+
+function limitAt(angle) {
+  const margin = layout.width < 440 ? 28 : 36;
+  const { origin, width, height, unit } = layout;
+  const x = Math.cos(angle);
+  const y = Math.sin(angle);
+  const horizontal = x >= 0 ? width - margin - origin.x : origin.x - margin;
+  const vertical = y >= 0 ? height - margin - origin.y : origin.y - margin;
+  return Math.min(horizontal / Math.abs(x), vertical / Math.abs(y)) / unit;
+}
+
+function placePoint(distance, angle) {
+  state.direction = angle;
+  state.distance = Math.max(closest, Math.min(distance, limitAt(angle)));
+  render();
+}
+
+function resize() {
+  const { width, height } = plot.getBoundingClientRect();
+  if (width < 1 || height < 1) return;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(height * ratio);
+  ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
+  layout.width = width;
+  layout.height = height;
+  layout.unit = Math.min(width / 12.0, height / 11.0);
+  layout.origin = { x: width * (width < 510 ? .45 : .44), y: height * .52 };
+  placePoint(state.distance, state.direction);
+}
+
+function stroke(points, colour, width, dash = []) {
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (const p of points.slice(1)) ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = width;
+  ctx.setLineDash(dash);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function dot(point, size, fill) {
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, size, 0, 2 * Math.PI);
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+
+function arc(point, size, start, end, colour, width) {
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, size, start, end);
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
+function sector(point, size, start, end) {
+  ctx.beginPath();
+  ctx.moveTo(point.x, point.y);
+  ctx.arc(point.x, point.y, size, start, end);
+  ctx.closePath();
+  ctx.fillStyle = "#61b89b3b";
+  ctx.fill();
+}
+
+function drawAngles(vertex, axis, angle, size) {
+  sector(vertex, size, axis - angle, axis);
+  sector(vertex, size, axis, axis + angle);
+  arc(vertex, size, axis - angle, axis + angle, "#14795e", 2);
+  // Matching arc marks identify the two equal angles.
+  if (showMeasurements.checked) {
+    for (const half of [-1, 1]) {
+      const ray = axis + half * angle / 2;
+      stroke([along(vertex, ray, size - 4), along(vertex, ray, size + 4)], "#14795e", 2);
+    }
+  }
+}
+
+function rightAngle(contact, origin, point, size) {
+  const towardO = direction(contact, origin);
+  const towardP = direction(contact, point);
+  const side = along(contact, towardO, size);
+  stroke([side, along(side, towardP, size), along(contact, towardP, size)], "#556961", 1.35);
+}
+
+function tick(from, to, colour) {
+  const midpoint = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
+  const normal = direction(from, to) + Math.PI / 2;
+  stroke([along(midpoint, normal, -6), along(midpoint, normal, 6)], colour, 2.4);
+}
+
+function label(name, anchor, colour, size = 17) {
+  ctx.font = `bold ${size}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.strokeStyle = "#fbfdf9";
+  ctx.lineWidth = 5;
+  ctx.strokeText(name, anchor.x, anchor.y);
+  ctx.fillStyle = colour;
+  ctx.fillText(name, anchor.x, anchor.y);
+}
+
+function measurementLabel(value, anchor) {
+  ctx.font = "bold 15px Arial, sans-serif";
+  const horizontalMargin = ctx.measureText(value).width / 2 + 6;
+  label(value, {
+    x: Math.max(horizontalMargin, Math.min(layout.width - horizontalMargin, anchor.x)),
+    y: Math.max(11, Math.min(layout.height - 11, anchor.y))
+  }, "#0a624b", 15);
+}
+
+function angleReadings(vertex, axis, halfAngle, distance, readings) {
+  const middle = along(vertex, axis, distance * Math.cos(halfAngle / 2));
+  // Keep the two labels separated even when the angle is narrow.
+  const offset = Math.max(24, distance * Math.sin(halfAngle / 2));
+  measurementLabel(readings[0], along(middle, axis - Math.PI / 2, offset));
+  measurementLabel(readings[1], along(middle, axis + Math.PI / 2, offset));
+}
+
+function construction() {
+  const { origin, unit } = layout;
+  const { distance, direction: axis } = state;
+  const centreHalf = Math.acos(radius / distance);
+  return {
+    origin,
+    a: along(origin, axis - centreHalf, unit * radius),
+    b: along(origin, axis + centreHalf, unit * radius),
+    p: along(origin, axis, unit * distance),
+    centreHalf
+  };
+}
+
+function renderDiagram({ origin, a, b, p, centreHalf }, readings) {
+  const { width, height, unit } = layout;
+  const { direction: axis, property } = state;
+  const circleSize = unit * radius;
+  const pointHalf = angleBetween(p, origin, a);
+  const centreArcSize = Math.min(49, unit * 1.35);
+  const pointArcSize = Math.min(52, unit * 1.38);
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  dot(origin, circleSize, "#eff6ee");
+  arc(origin, circleSize, 0, 2 * Math.PI, "#34604e", 2.1);
+
+  if (property === "centre") drawAngles(origin, axis, centreHalf, centreArcSize);
+  if (property === "external") drawAngles(p, axis + Math.PI, pointHalf, pointArcSize);
+
+  const angleSelected = property !== "lengths";
+  stroke([origin, p], angleSelected ? "#22836b" : "#6c8276", angleSelected ? 2.3 : 1.6, [6, 5]);
+  const radiusColour = property === "centre" ? "#08775f" : "#687f73";
+  const tangentColour = property === "centre" ? "#4f6f61" : "#08775f";
+  stroke([a, origin, b], radiusColour, property === "centre" ? 3 : 1.9);
+  stroke([a, p, b], tangentColour, property === "centre" ? 2.2 : 3);
+  if (property === "lengths" && showMeasurements.checked) {
+    tick(a, p, tangentColour);
+    tick(b, p, tangentColour);
+  }
+
+  const squareSize = Math.max(8, Math.min(13, unit * .3));
+  rightAngle(a, origin, p, squareSize);
+  rightAngle(b, origin, p, squareSize);
+  dot(origin, 4, "#24493c");
+  dot(a, 4.3, "#08775f");
+  dot(b, 4.3, "#08775f");
+
+  if (readings) {
+    if (property === "lengths") {
+      [a, b].forEach((contact, index) => {
+        const midpoint = { x: (contact.x + p.x) / 2, y: (contact.y + p.y) / 2 };
+        measurementLabel(readings[index].replace(" units", ""), along(midpoint, direction(origin, contact), 23));
+      });
+    } else if (property === "centre") {
+      const labelGap = Math.min(23, 6 + Math.max(0, unit - 20) * 2);
+      angleReadings(origin, axis, centreHalf, centreArcSize + labelGap, readings);
+    } else {
+      angleReadings(p, axis + Math.PI, pointHalf, pointArcSize + 23, [readings[1], readings[0]]);
+    }
+  }
+
+  label("O", along(origin, axis + Math.PI, 17), "#24493c");
+  // Offset the contact labels away from P, even when the tangents are short.
+  label("A", along(a, axis - centreHalf - .56, 17), "#174c3d");
+  label("B", along(b, axis + centreHalf + .56, 17), "#174c3d");
+  const pLabel = along(p, axis, 22);
+  label("P", { x: Math.min(width - 10, Math.max(10, pLabel.x)), y: Math.min(height - 11, Math.max(11, pLabel.y)) }, "#684508");
+
+  handle.style.left = `${p.x}px`;
+  handle.style.top = `${p.y}px`;
+}
+
+function updateReadings(readings) {
+  const lesson = lessons[state.property];
+  const [left, right] = readings ?? ["—", "—"];
+  byId("left-value").textContent = left;
+  byId("right-value").textContent = right;
+  byId("result").textContent = readings ? lesson.result : "Make a prediction, then reveal the measurements.";
+}
+
+function render() {
+  const geometry = construction();
+  const readings = showMeasurements.checked ? lessons[state.property].measurements(geometry) : null;
+  renderDiagram(geometry, readings);
+  updateReadings(readings);
+}
+
+function selectProperty(property) {
+  state.property = property;
+  const lesson = lessons[property];
+  for (const button of propertyButtons) {
+    button.setAttribute("aria-pressed", String(button.dataset.property === property));
+  }
+  byId("panel-title").textContent = lesson.title;
+  byId("prompt").textContent = lesson.prompt;
+  byId("left-label").textContent = lesson.labels[0];
+  byId("right-label").textContent = lesson.labels[1];
+  render();
+}
+
+function moveInPlot(x, y) {
+  const dx = x - layout.origin.x;
+  const dy = y - layout.origin.y;
+  const distance = Math.hypot(dx, dy) / layout.unit;
+  const angle = distance === 0 ? state.direction : Math.atan2(dy, dx);
+  placePoint(distance, angle);
+}
+
+function announceReadings() {
+  const lesson = lessons[state.property];
+  const [left, right] = lesson.measurements(construction());
+  byId("announcement").textContent = showMeasurements.checked
+    ? `${lesson.labels[0]} is ${left}. ${lesson.labels[1]} is ${right}.`
+    : "Measurements are hidden.";
+}
+
+handle.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || drag) return;
+  const bounds = plot.getBoundingClientRect();
+  drag = {
+    id: event.pointerId,
+    dx: event.clientX - bounds.left - handle.offsetLeft,
+    dy: event.clientY - bounds.top - handle.offsetTop
+  };
+  handle.setPointerCapture(event.pointerId);
+});
+
+handle.addEventListener("pointermove", (event) => {
+  if (drag?.id !== event.pointerId) return;
+  const bounds = plot.getBoundingClientRect();
+  moveInPlot(event.clientX - bounds.left - drag.dx, event.clientY - bounds.top - drag.dy);
+});
+
+handle.addEventListener("lostpointercapture", (event) => {
+  if (drag?.id === event.pointerId) drag = null;
+});
+
+handle.addEventListener("keydown", (event) => {
+  const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const step = arrows[event.key];
+  if (!step) return;
+  event.preventDefault();
+  const p = along(layout.origin, state.direction, state.distance * layout.unit);
+  moveInPlot(p.x + step[0] * 11, p.y + step[1] * 11);
+  announceReadings();
+});
+
+handle.addEventListener("click", (event) => {
+  if (event.detail === 0) announceReadings();
+});
+
+showMeasurements.addEventListener("change", render);
+for (const button of propertyButtons) {
+  button.addEventListener("click", () => selectProperty(button.dataset.property));
+}
+byId("near").addEventListener("click", () => placePoint(3.65, state.direction));
+byId("far").addEventListener("click", () => placePoint(limitAt(state.direction), state.direction));
+byId("reset").addEventListener("click", () => placePoint(initial.distance, initial.direction));
+
+resize();
+selectProperty("lengths");
+new ResizeObserver(resize).observe(plot);
+</script>
+</body>
+</html>

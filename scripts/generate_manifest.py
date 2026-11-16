@@ -2,7 +2,7 @@
 """
 Scans each subject's national, prelim and topical folders under resources/.
 Paper manifests list the available question papers and solutions. Topical
-manifests list the PDF filenames in each chapter folder.
+manifests list the PDF and interactive HTML filenames in each chapter folder.
 
 The site's JavaScript fetches this manifest.json at page load and builds the
 papers table from it — so adding a new PDF (named correctly) is enough to
@@ -113,21 +113,27 @@ def write_manifest(path, entries):
 
 def scan_topical_folders(subject_path, main_folder_name):
     topics = {}
+    activities = {}
     excluded = {main_folder_name, PRELIM_FOLDER, "difficult-topics"}
     for folder in sorted(subject_path.iterdir()):
         if not folder.is_dir() or folder.name in excluded:
             continue
 
-        pdfs = sorted(
-            (file.name for file in folder.iterdir() if file.is_file() and file.suffix.lower() == ".pdf"),
-            key=lambda name: (name.casefold(), name),
+        files = sorted(
+            (file for file in folder.iterdir() if file.is_file()),
+            key=lambda file: (file.name.casefold(), file.name),
         )
+        pdfs = [file.name for file in files if file.suffix.lower() == ".pdf"]
+        html_files = [file.name for file in files if file.suffix.lower() == ".html"]
         if pdfs:
             topics[folder.name] = pdfs
-    return topics
+        if html_files:
+            activities[folder.name] = html_files
+    return topics, activities
 
 
 def generate_manifests(resources_root, include_national=True):
+    activities_by_subject = {}
     for subject, main_folder_name in MAIN_FOLDER.items():
         subject_path = resources_root / subject
         if include_national:
@@ -142,9 +148,17 @@ def generate_manifests(resources_root, include_national=True):
         write_manifest(prelim_path / "manifest.json", prelim_entries)
         print(f"{prelim_path}/manifest.json: {len(prelim_entries)} paper(s)")
 
-        topics = scan_topical_folders(subject_path, main_folder_name)
-        write_manifest(subject_path / "topical-manifest.json", topics)
-        print(f"{subject_path}/topical-manifest.json: {sum(map(len, topics.values()))} PDF(s)")
+        topics, activities = scan_topical_folders(subject_path, main_folder_name)
+        # Keep the existing per-topic PDF lists readable by older student pages.
+        write_manifest(subject_path / "topical-manifest.json", {**topics, "_interactive": activities})
+        activities_by_subject[subject] = activities
+        print(
+            f"{subject_path}/topical-manifest.json: "
+            f"{sum(map(len, topics.values()))} PDF(s), "
+            f"{sum(map(len, activities.values()))} interactive(s)"
+        )
+
+    return activities_by_subject
 
 
 if __name__ == "__main__":

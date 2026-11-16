@@ -21,6 +21,7 @@ The site brings together topical worksheets, difficult-topic practice, a TYS que
 | Additional Mathematics | Topical revision, difficult-topic practice, TYS question bank and prelim papers |
 
 - Topical PDF links displayed with their uploaded filenames.
+- Interactive activities open on their own pages, with a link back to the topic.
 - Separate question-paper and solution links where files are available.
 - Dedicated practice pages for selected difficult topics.
 - Topic completion checkboxes and a progress summary.
@@ -49,7 +50,7 @@ Keep the subject and topic folder names consistent when uploading files.
 | `resources/g3/` | G3 PDFs and manifests |
 | `resources/amath/` | Additional Mathematics PDFs and manifests |
 | `resources/question-bank/` | Fillable question-bank PDFs for G2, G3 and A-Math |
-| `scripts/generate_manifest.py` | Paper and topical PDF listing generator |
+| `scripts/generate_manifest.py` | Paper and topical resource listing generator |
 | `scripts/build_site.py` | Student-site build and national-paper visibility setting |
 | `.github/workflows/generate-manifest.yml` | Builds and publishes the student website |
 
@@ -67,6 +68,14 @@ resources/amath/integration/Integration Revision Set 1 Solutions.pdf
 ```
 
 Commit and push from GitHub Desktop. The next deployment lists each PDF using its exact filename, including spaces and the extension. Keep the names descriptive so students can tell worksheets and solutions apart. The newer listing also includes existing files such as `tys.pdf` and `compilation.pdf`. Adding a new chapter still requires a corresponding topic card on the subject page.
+
+### Interactive activities
+
+Put each self-contained `.html` page directly in the topic folder for the subject where it should appear. For example, the G2 circle activities are in `resources/g2/properties-of-circles/`.
+
+Name files with `01 `, `02 `, and so on before the title to control their order. The website uses the filename as the activity title after removing that prefix and the `.html` extension. For example, `01 tangents from external point.html` appears as **tangents from external point**. A full HTML page with a `<body>` tag gets a **Back to [topic]** link when the site builds.
+
+When adding more activities on GitHub, open the topic folder on `main`, select **Add file → Upload files**, and commit the HTML files. The **Publish student website** workflow picks them up on the next deployment.
 
 ### National examination papers
 

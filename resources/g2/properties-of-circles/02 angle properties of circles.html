@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en-SG">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag points around a circle to explore three angle properties with live measurements.">
+<title>Angle properties of circles</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #272943;
+    --muted: #555a72;
+    --paper: #f1f2f8;
+    --line: #dfe1ec;
+    --indigo: #49438c;
+    --violet: #5945af;
+    --teal: #007969;
+    --amber: #9b5905;
+    font-family: "Instrument Sans", Inter, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); }
+  button, input { font: inherit; }
+  button { cursor: pointer; color: inherit; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #564bc0; outline-offset: 3px; }
+  [hidden] { display: none !important; }
+
+  .shell { width: min(1230px, calc(100% - 58px)); margin: 0 auto; padding: 34px 0 35px; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--indigo);
+    font-size: .74rem; font-weight: 750; text-transform: uppercase; letter-spacing: .11em; }
+  .eyebrow::before { content: ""; width: 10px; height: 10px; border: 2px solid #716bc0; border-radius: 50%; }
+  h1 { margin: 8px 0 7px; font-size: clamp(2.08rem, 5.2vw, 3.62rem); line-height: 1.02; letter-spacing: -.052em; }
+  .intro { margin: 0; color: var(--muted); font-size: clamp(.91rem, 2vw, 1.03rem); line-height: 1.5; }
+  .modes { display: flex; flex-wrap: wrap; gap: 7px; margin: 20px 0 13px; }
+  .mode { min-height: 43px; border: 1px solid var(--line); border-radius: 10px;
+    background: #fff; padding: 8px 15px; font-size: .93rem; font-weight: 700; }
+  .mode:hover { background: #edebfb; }
+  .mode[aria-pressed="true"] { border-color: #4a438d; background: #4a438d; color: #fff; }
+
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(282px, 325px);
+    gap: 16px; align-items: start; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 15px; overflow: hidden;
+    box-shadow: 0 2px 7px #25264708; }
+  .diagram-heading { min-height: 49px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; }
+  h2 { font-size: 1.12rem; letter-spacing: -.022em; line-height: 1.22; margin: 0; }
+  .measure-toggle { color: var(--muted); font-size: .82rem; font-weight: 620;
+    display: flex; align-items: center; gap: 7px; cursor: pointer; min-height: 29px; }
+  .measure-toggle input { margin: 0; width: 16px; height: 16px; accent-color: var(--indigo); }
+  .plot { position: relative; height: clamp(355px, 39vw, 505px); background: #fbfbfe;
+    background-image: radial-gradient(#e1e3f0 1px, transparent 1px);
+    background-position: center; background-size: 18px 18px; overflow: hidden; }
+  canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+  .handle { position: absolute; width: 44px; height: 44px; transform: translate(-50%, -50%);
+    border: 0; border-radius: 50%; background: transparent; padding: 0; cursor: grab; touch-action: none;
+    display: grid; place-items: center; user-select: none; }
+  .handle::before { content: ""; width: 13px; height: 13px; border-radius: 50%;
+    background: var(--dot, #5b519c); border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--dot, #5b519c); }
+  .handle[data-point="c"], .handle[data-point="d"] { --dot: #007969; }
+  .plot[data-mode="opposite"] .handle[data-point="d"] { --dot: #ad670b; }
+  .handle:hover::before, .handle:focus-visible::before { box-shadow: 0 0 0 3px var(--dot, #5b519c); }
+  .handle:active { cursor: grabbing; }
+  .diagram-footer { padding: 10px 13px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .presets { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+  .control { min-height: 36px; border: 1px solid var(--line); background: #fff; border-radius: 7px;
+    padding: 5px 9px; font-size: .82rem; font-weight: 650; }
+  .control:hover { background: #f2effd; border-color: #aaa4cf; }
+  .control[data-current="true"] { background: #efecfb; border-color: #b7b0da; color: #443781; }
+
+  .lesson { padding: 19px; }
+  .instruction { line-height: 1.52; font-size: .92rem; margin: 8px 0 15px; color: var(--muted); }
+  .readings { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .reading { padding: 8px 10px; background: #f0f8f6; border: 1px solid #d9e9e4; border-radius: 8px; min-width: 0;
+    display: grid; gap: 1px; color: #066455; }
+  .reading[data-colour="violet"] { color: #503d9d; background: #f3effb; border-color: #e7def7; }
+  .reading[data-colour="amber"] { color: #8b5004; background: #fcf3e6; border-color: #f0e2ca; }
+  .reading-label { font-size: .78rem; font-weight: 750; }
+  .reading-value { font-weight: 780; font-size: 1.22rem; font-variant-numeric: tabular-nums; }
+  .comparison { margin-top: 9px; min-height: 48px; border-radius: 8px; background: #eff0f7; color: #363761;
+    padding: 8px 10px; display: flex; align-items: center; font-size: 1rem; font-weight: 750; line-height: 1.35; }
+  .comparison[data-hidden="true"] { font-size: .83rem; font-weight: 620; }
+  .why { margin: 12px 0 0; font-size: .88rem; line-height: 1.5; color: var(--ink); }
+  .arc-key { display: flex; flex-wrap: wrap; gap: 7px 16px; border-top: 1px solid var(--line);
+    margin-top: 15px; padding-top: 11px; color: var(--muted); font-size: .8rem; }
+  .key-item { display: inline-flex; gap: 6px; align-items: center; }
+  .key-item::before { content: ""; width: 18px; height: 3px; border-radius: 3px; background: var(--teal); }
+  .key-item.amber::before { background: var(--amber); }
+  .keyboard { color: var(--muted); font-size: .76rem; line-height: 1.4; margin: 10px 1px 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  @media (max-width: 810px) {
+    .shell { width: calc(100% - 32px); padding-top: 23px; }
+    .workspace { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .modes { margin-top: 15px; gap: 5px; }
+    .mode { padding: 6px 10px; font-size: .83rem; }
+    .plot { height: clamp(296px, 66vw, 420px); }
+    .lesson { padding: 15px; }
+  }
+  @media (max-width: 440px) {
+    .shell { width: calc(100% - 22px); }
+    .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mode { font-size: .77rem; padding: 5px 4px; }
+    .diagram-heading { padding: 8px 11px; }
+    .diagram-heading h2 { font-size: .93rem; }
+    .measure-toggle { font-size: .75rem; }
+    .diagram-footer { padding: 8px 9px; }
+    .control { font-size: .74rem; padding-inline: 6px; }
+  }
+  @media (pointer: coarse) {
+    .keyboard { display: none; }
+    .control { min-height: 42px; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <header>
+    <p class="eyebrow">Circle geometry</p>
+    <h1>Angle properties of circles</h1>
+    <p class="intro">Drag the points around the circle and compare the angles they make.</p>
+  </header>
+  <div class="modes" role="group" aria-label="Choose a circle property">
+    <button class="mode" type="button" data-mode="centre" aria-pressed="true">Centre &amp; circumference</button>
+    <button class="mode" type="button" data-mode="same" aria-pressed="false">Same segment</button>
+    <button class="mode" type="button" data-mode="opposite" aria-pressed="false">Opposite segments</button>
+  </div>
+  <div class="workspace">
+    <section class="card" aria-labelledby="diagram-title">
+      <header class="diagram-heading">
+        <h2 id="diagram-title">Explore the circle</h2>
+        <label class="measure-toggle"><input type="checkbox" id="measure" checked> Show measurements</label>
+      </header>
+      <div class="plot" id="plot" data-mode="centre">
+        <canvas id="diagram" role="img" aria-label="Interactive circle diagram"></canvas>
+        <button type="button" class="handle" data-point="a" aria-label="Move point A" aria-describedby="keyboard-hint"></button>
+        <button type="button" class="handle" data-point="b" aria-label="Move point B" aria-describedby="keyboard-hint"></button>
+        <button type="button" class="handle" data-point="c" aria-label="Move point C" aria-describedby="keyboard-hint"></button>
+        <button type="button" class="handle" data-point="d" aria-label="Move point D" aria-describedby="keyboard-hint" hidden></button>
+        <span class="sr-only" id="announcement" role="status"></span>
+      </div>
+      <footer class="diagram-footer">
+        <div class="presets" id="presets" role="group" aria-label="Centre and circumference presets">
+          <button class="control" type="button" data-sweep="70" title="Acute centre angle">Acute</button>
+          <button class="control" type="button" data-sweep="130" title="Obtuse centre angle">Obtuse</button>
+          <button class="control" type="button" data-sweep="180" title="Straight centre angle and a right angle at the circumference">Semicircle</button>
+          <button class="control" type="button" data-sweep="240" title="Reflex centre angle and an obtuse angle at the circumference">Reflex</button>
+        </div>
+        <button class="control" type="button" id="reset">Reset points</button>
+      </footer>
+    </section>
+
+    <section class="card lesson" aria-labelledby="lesson-title">
+      <h2 id="lesson-title"></h2>
+      <p class="instruction" id="instruction"></p>
+      <div class="readings">
+        <div class="reading" id="left-reading"><span class="reading-label" id="left-label"></span><span class="reading-value" id="left-value"></span></div>
+        <div class="reading" id="right-reading"><span class="reading-label" id="right-label"></span><span class="reading-value" id="right-value"></span></div>
+      </div>
+      <div class="comparison" id="comparison"></div>
+      <p class="why" id="why"></p>
+      <div class="arc-key">
+        <span class="key-item" id="teal-key"></span>
+        <span class="key-item amber" id="amber-key" hidden>Arc seen from D</span>
+      </div>
+    </section>
+  </div>
+  <p class="keyboard" id="keyboard-hint">Keyboard: focus a point and use the arrow keys to move it.</p>
+</main>
+
+<script>
+"use strict";
+
+const byId = (id) => document.getElementById(id);
+const plot = byId("plot");
+const canvas = byId("diagram");
+const ctx = canvas.getContext("2d");
+const measure = byId("measure");
+const modeButtons = document.querySelectorAll(".mode");
+const presetButtons = document.querySelectorAll("[data-sweep]");
+const handles = new Map([...document.querySelectorAll(".handle")].map((handle) => [handle.dataset.point, handle]));
+const tau = 2 * Math.PI;
+const radians = Math.PI / 180;
+const pointGap = 24;
+const colours = {
+  centre: { ink: "#563eab", fill: "#b19ce563" },
+  teal: { ink: "#007969", fill: "#6ecab44d" },
+  amber: { ink: "#a05b06", fill: "#f2bc624f" }
+};
+const modes = {
+  centre: {
+    order: ["a", "b", "c"],
+    title: "Centre and circumference",
+    instruction: "Move C while A and B stay fixed. Then move A or B. How do the two angles change?",
+    labels: ["∠AOB", "∠ACB"],
+    description: "O is the centre. The centre angle AOB and the circumference angle ACB stand on the highlighted arc AB.",
+    arcKey: "Arc shared by both angles",
+    defaults: { a: 25, b: 155, c: 253 }
+  },
+  same: {
+    order: ["a", "b", "c", "d"],
+    title: "Angles in the same segment",
+    instruction: "Move C or D on the same side of chord AB. What do you notice about their angles?",
+    labels: ["∠ACB", "∠ADB"],
+    description: "C and D are on the same side of chord AB. Angles ACB and ADB stand on the same highlighted arc.",
+    arcKey: "Arc shared by both angles",
+    defaults: { a: 31, b: 149, c: 226, d: 308 }
+  },
+  opposite: {
+    order: ["a", "d", "b", "c"],
+    title: "Angles in opposite segments",
+    instruction: "Move A or B to reshape cyclic quadrilateral ACBD. What happens to the sum of the angles at C and D?",
+    labels: ["∠ACB", "∠ADB"],
+    description: "C and D are on opposite sides of chord AB. The two angles stand on complementary arcs that form the full circle.",
+    arcKey: "Arc seen from C",
+    defaults: { a: 28, b: 152, c: 248, d: 100 }
+  }
+};
+const savedPositions = Object.fromEntries(Object.entries(modes).map(([key, lesson]) => [key, { ...lesson.defaults }]));
+const frame = { width: 0, height: 0, o: { x: 0, y: 0 }, radius: 0 };
+let mode = "centre";
+let drag;
+
+function wrap(angle) {
+  return (angle % 360 + 360) % 360;
+}
+
+function signedTurn(from, to) {
+  return wrap(to - from + 180) - 180;
+}
+
+function limit(value, low, high) {
+  return Math.max(low, Math.min(high, value));
+}
+
+function at(point, angle, distance) {
+  return { x: point.x + Math.cos(angle) * distance, y: point.y + Math.sin(angle) * distance };
+}
+
+function direction(from, to) {
+  return Math.atan2(to.y - from.y, to.x - from.x);
+}
+
+function degrees(value) {
+  return value + "°";
+}
+
+function geometry() {
+  const positions = savedPositions[mode];
+  const points = Object.fromEntries(modes[mode].order.map((key) => [key, at(frame.o, positions[key] * radians, frame.radius)]));
+  const sweep = wrap(positions.b - positions.a);
+  const primary = sweep / 2;
+  const values = mode === "centre" ? [sweep, primary] : [primary, mode === "same" ? primary : 180 - primary];
+  return { points, positions, sweep, values: values.map(degrees) };
+}
+
+function move(key, target) {
+  const order = modes[mode].order;
+  const index = order.indexOf(key);
+  if (index === -1) return;
+  const positions = savedPositions[mode];
+  const value = positions[key];
+  const previous = positions[order[(index - 1 + order.length) % order.length]];
+  const following = positions[order[(index + 1) % order.length]];
+  const lower = value - wrap(value - previous) + pointGap;
+  const upper = value + wrap(following - value) - pointGap;
+  positions[key] = wrap(limit(Math.round(value + signedTurn(value, target)), lower, upper));
+  render();
+}
+
+function path(points, colour, width, dash = []) {
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (const point of points.slice(1)) ctx.lineTo(point.x, point.y);
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = width;
+  ctx.setLineDash(dash);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawArc(centre, radius, start, sweep, colour, width) {
+  ctx.beginPath();
+  ctx.arc(centre.x, centre.y, radius, start, start + sweep);
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
+function fillCircle(point, radius, colour) {
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius, 0, tau);
+  ctx.fillStyle = colour;
+  ctx.fill();
+}
+
+function wedge(vertex, start, sweep, size, palette) {
+  ctx.beginPath();
+  ctx.moveTo(vertex.x, vertex.y);
+  ctx.arc(vertex.x, vertex.y, size, start, start + sweep);
+  ctx.closePath();
+  ctx.fillStyle = palette.fill;
+  ctx.fill();
+  drawArc(vertex, size, start, sweep, palette.ink, 1.7);
+  return { vertex, start, sweep, size, palette };
+}
+
+function circumferenceWedge(vertex, a, b, palette, isRight) {
+  const first = direction(vertex, a);
+  const second = direction(vertex, b);
+  const turn = (second - first + tau) % tau;
+  const start = turn <= Math.PI ? first : second;
+  const sweep = Math.min(turn, tau - turn);
+  const size = Math.min(38, frame.radius * .26, Math.hypot(vertex.x - a.x, vertex.y - a.y) * .57, Math.hypot(vertex.x - b.x, vertex.y - b.y) * .57);
+  if (isRight) {
+    const side = size * .7;
+    const p = at(vertex, start, side);
+    path([p, at(p, start + sweep, side), at(vertex, start + sweep, side)], palette.ink, 2);
+    return { vertex, start, sweep, size, palette };
+  }
+  return wedge(vertex, start, sweep, size, palette);
+}
+
+function paintLabel(text, point, colour, fontSize) {
+  ctx.font = "bold " + fontSize + "px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.strokeStyle = "#fbfbfe";
+  ctx.lineWidth = 5;
+  ctx.strokeText(text, point.x, point.y);
+  ctx.fillStyle = colour;
+  ctx.fillText(text, point.x, point.y);
+}
+
+function labelBox(text, point, fontSize) {
+  ctx.font = "bold " + fontSize + "px Arial, sans-serif";
+  const width = ctx.measureText(text).width + 6;
+  const height = fontSize + 4;
+  const x = limit(point.x, width / 2 + 3, frame.width - width / 2 - 3);
+  const y = limit(point.y, height / 2 + 2, frame.height - height / 2 - 2);
+  return { x, y, width, height };
+}
+
+function measurementLabel(text, mark, occupied) {
+  const middle = mark.start + mark.sweep / 2;
+  const fontSize = frame.radius < 102 ? 14 : 16;
+  // Try positions near the arc first, with extra space when another label is nearby.
+  let box;
+  let bestCost = Infinity;
+  for (const extra of [16, 28, 6, 42]) {
+    for (const bend of [0, -.28, .28, -.53, .53]) {
+      const candidate = labelBox(text, at(mark.vertex, middle + bend, mark.size + extra), fontSize);
+      const overlap = occupied.reduce((total, other) => {
+        const width = Math.max(0, (candidate.width + other.width) / 2 - Math.abs(candidate.x - other.x));
+        const height = Math.max(0, (candidate.height + other.height) / 2 - Math.abs(candidate.y - other.y));
+        return total + width * height;
+      }, 0);
+      const cost = overlap * 10 + Math.abs(extra - 16) + Math.abs(bend) * 13;
+      if (cost < bestCost) {
+        box = candidate;
+        bestCost = cost;
+      }
+      if (cost === 0) break;
+    }
+    if (bestCost === 0) break;
+  }
+  occupied.push(box);
+  paintLabel(text, box, mark.palette.ink, fontSize);
+}
+
+function draw(diagramData) {
+  const { points, positions, sweep, values } = diagramData;
+  const { a, b, c, d } = points;
+  const { o, radius, width, height } = frame;
+  const start = positions.a * radians;
+  const arcSweep = sweep * radians;
+  ctx.clearRect(0, 0, width, height);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  fillCircle(o, radius, "#eef0fa");
+  drawArc(o, radius, 0, tau, "#9da3bf", 1.8);
+  drawArc(o, radius, start, arcSweep, colours.teal.ink, 4.4);
+  if (mode === "opposite") drawArc(o, radius, start + arcSweep, tau - arcSweep, colours.amber.ink, 4.4);
+
+  const centralMark = mode === "centre"
+    ? wedge(o, start, arcSweep, Math.min(47, radius * .34), colours.centre)
+    : null;
+  const atC = circumferenceWedge(c, a, b, colours.teal, sweep === 180);
+  const atD = d ? circumferenceWedge(d, a, b, mode === "same" ? colours.teal : colours.amber, sweep === 180) : null;
+
+  path([a, b], "#787f9c", 1.65, [5, 5]);
+  if (centralMark) path([a, o, b], colours.centre.ink, 2.4);
+  path([a, c, b], colours.teal.ink, 2.25);
+  if (d) path([a, d, b], mode === "same" ? "#358a7b" : colours.amber.ink, 2.25);
+
+  const occupied = [];
+  for (const [key, point] of Object.entries(points)) {
+    const handle = handles.get(key);
+    handle.style.left = point.x + "px";
+    handle.style.top = point.y + "px";
+    const name = key.toUpperCase();
+    const box = labelBox(name, at(point, positions[key] * radians, 19), 16);
+    occupied.push(box, { ...point, width: 19, height: 19 });
+    const colour = key === "c" ? colours.teal.ink
+      : key === "d" ? (mode === "same" ? colours.teal.ink : colours.amber.ink)
+      : "#45416e";
+    paintLabel(name, box, colour, 16);
+  }
+  if (centralMark) {
+    fillCircle(o, 3.7, "#4a416c");
+    const box = labelBox("O", at(o, start + arcSweep / 2 + Math.PI, 15), 15);
+    paintLabel("O", box, "#4a416c", 15);
+    occupied.push(box, { ...o, width: 10, height: 10 });
+  }
+  if (measure.checked) {
+    measurementLabel(values[0], centralMark ?? atC, occupied);
+    measurementLabel(values[1], atD ?? atC, occupied);
+  }
+}
+
+function updateReadings({ sweep, values }) {
+  const shown = measure.checked;
+  const [firstLabel] = modes[mode].labels;
+  byId("left-label").textContent = mode === "centre" && sweep > 180 ? "Reflex " + firstLabel : firstLabel;
+  byId("left-value").textContent = shown ? values[0] : "—";
+  byId("right-value").textContent = shown ? values[1] : "—";
+  const comparison = byId("comparison");
+  comparison.dataset.hidden = String(!shown);
+  byId("why").hidden = !shown;
+  for (const button of presetButtons) button.dataset.current = String(Number(button.dataset.sweep) === sweep);
+
+  if (!shown) {
+    comparison.textContent = "Make a prediction, then show the measurements.";
+    return;
+  }
+  if (mode === "centre") {
+    comparison.textContent = values[0] + " = 2 × " + values[1];
+    byId("why").textContent = sweep === 180
+      ? "AB is a diameter. The angle in a semicircle is a right angle."
+      : "Both angles stand on the same arc AB. The angle at the centre is twice the angle at the circumference.";
+  } else if (mode === "same") {
+    comparison.textContent = values[0] + " = " + values[1];
+    byId("why").textContent = "Both angles stand on the same arc AB. Each is half the angle that arc makes at the centre.";
+  } else {
+    comparison.textContent = values[0] + " + " + values[1] + " = 180°";
+    byId("why").textContent = "The two arcs make a full circle. Each angle is half its arc’s centre angle, so the two angles are supplementary.";
+  }
+}
+
+function render() {
+  if (!frame.radius) return;
+  const data = geometry();
+  draw(data);
+  updateReadings(data);
+}
+
+function selectMode(key) {
+  mode = key;
+  const lesson = modes[mode];
+  plot.dataset.mode = mode;
+  for (const button of modeButtons) button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+  handles.get("d").hidden = mode === "centre";
+  byId("presets").hidden = mode !== "centre";
+  byId("amber-key").hidden = mode !== "opposite";
+  byId("lesson-title").textContent = lesson.title;
+  byId("instruction").textContent = lesson.instruction;
+  byId("right-label").textContent = lesson.labels[1];
+  byId("left-reading").dataset.colour = mode === "centre" ? "violet" : "teal";
+  byId("right-reading").dataset.colour = mode === "opposite" ? "amber" : "teal";
+  byId("teal-key").textContent = lesson.arcKey;
+  canvas.setAttribute("aria-label", lesson.description);
+  render();
+}
+
+function resize() {
+  const { width, height } = plot.getBoundingClientRect();
+  if (width < 1 || height < 1) return;
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
+  frame.width = width;
+  frame.height = height;
+  frame.o = { x: width / 2, y: height / 2 };
+  frame.radius = Math.max(1, Math.min(width, height) / 2 - 32);
+  render();
+}
+
+function pointerAngle(event) {
+  const bounds = plot.getBoundingClientRect();
+  return Math.atan2(event.clientY - bounds.top - frame.o.y, event.clientX - bounds.left - frame.o.x) / radians;
+}
+
+function announceReadings() {
+  const { values } = geometry();
+  const { labels } = modes[mode];
+  byId("announcement").textContent = measure.checked
+    ? labels[0] + " is " + values[0] + ". " + labels[1] + " is " + values[1] + "."
+    : "Measurements are hidden.";
+}
+
+for (const [key, handle] of handles) {
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || drag) return;
+    drag = { id: event.pointerId, offset: signedTurn(pointerAngle(event), savedPositions[mode][key]) };
+    handle.setPointerCapture(event.pointerId);
+  });
+  handle.addEventListener("pointermove", (event) => {
+    if (drag?.id === event.pointerId) move(key, pointerAngle(event) + drag.offset);
+  });
+  handle.addEventListener("lostpointercapture", (event) => {
+    if (drag?.id === event.pointerId) drag = undefined;
+  });
+  handle.addEventListener("keydown", (event) => {
+    const steps = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
+    const sign = steps[event.key];
+    if (!sign) return;
+    event.preventDefault();
+    move(key, savedPositions[mode][key] + sign * (event.shiftKey ? 10 : 1));
+    announceReadings();
+  });
+  handle.addEventListener("click", (event) => {
+    if (event.detail === 0) announceReadings();
+  });
+}
+
+for (const button of modeButtons) button.addEventListener("click", () => selectMode(button.dataset.mode));
+for (const button of presetButtons) {
+  button.addEventListener("click", () => {
+    const sweep = Number(button.dataset.sweep);
+    savedPositions.centre = { a: wrap(90 - sweep / 2), b: wrap(90 + sweep / 2), c: 270 };
+    render();
+    announceReadings();
+  });
+}
+byId("reset").addEventListener("click", () => {
+  savedPositions[mode] = { ...modes[mode].defaults };
+  render();
+  announceReadings();
+});
+measure.addEventListener("change", render);
+
+selectMode("centre");
+resize();
+new ResizeObserver(resize).observe(plot);
+</script>
+</body>
+</html>

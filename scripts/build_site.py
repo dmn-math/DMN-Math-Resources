@@ -2,8 +2,11 @@
 """Build the static site that students can access."""
 
 import argparse
+import re
 import shutil
+from html import escape, unescape
 from pathlib import Path
+from urllib.parse import quote
 
 from generate_manifest import MAIN_FOLDER, generate_manifests
 
@@ -21,6 +24,36 @@ NATIONAL_PAPERS_TABLE = """<div class="papers-table" aria-label="Past year natio
         <div class="papers-row"><span style="grid-column: 1 / -1;">Loading papers…</span></div>
       </div>
     </div>"""
+
+TOPIC_HEADINGS = re.compile(
+    r'<details\b[^>]*\bdata-slug="([^"]+)"[^>]*>\s*'
+    r'<summary\b[^>]*>\s*<h4>([^<]+)</h4>'
+)
+ACTIVITY_BODY = re.compile(r"<body(?:\s+[^>]*)?>", re.IGNORECASE)
+
+
+def add_activity_navigation(output, subject, page_html, activities):
+    titles = dict(TOPIC_HEADINGS.findall(page_html))
+    for topic, filenames in activities.items():
+        if topic not in titles:
+            continue
+
+        title = escape(unescape(titles[topic]))
+        href = f"../../../{subject}/{subject}.html#topic-{quote(topic, safe='')}"
+        navigation = (
+            '\n<link rel="stylesheet" href="../../topical-activities.css">\n'
+            '<nav class="activity-topic-nav" aria-label="Topic navigation">\n'
+            f'  <a href="{href}">← Back to {title}</a>\n'
+            '</nav>\n'
+        )
+        for filename in filenames:
+            path = output / "resources" / subject / topic / filename
+            activity = path.read_text(encoding="utf-8", errors="surrogateescape")
+            activity, inserted = ACTIVITY_BODY.subn(
+                lambda match: match[0] + navigation, activity, count=1
+            )
+            if inserted:
+                path.write_text(activity, encoding="utf-8", errors="surrogateescape")
 
 
 def excluded_files(folder, names):
@@ -53,6 +86,7 @@ def build(output):
         if (ROOT / name).is_file():
             shutil.copy2(ROOT / name, output / name)
 
+    activities = generate_manifests(output / "resources", include_national=PUBLISH_NATIONAL_PAPERS)
     for subject, folder in MAIN_FOLDER.items():
         page = output / subject / f"{subject}.html"
         reserved_space = "    <!-- national-papers -->\n"
@@ -60,9 +94,9 @@ def build(output):
         if PUBLISH_NATIONAL_PAPERS:
             manifest_url = f"../resources/{subject}/{folder}/manifest.json"
             table = "    " + NATIONAL_PAPERS_TABLE.format(manifest_url=manifest_url) + "\n"
-        page.write_text(page.read_text(encoding="utf-8").replace(reserved_space, table), encoding="utf-8")
-
-    generate_manifests(output / "resources", include_national=PUBLISH_NATIONAL_PAPERS)
+        page_html = page.read_text(encoding="utf-8").replace(reserved_space, table)
+        page.write_text(page_html, encoding="utf-8")
+        add_activity_navigation(output, subject, page_html, activities[subject])
 
 
 if __name__ == "__main__":
